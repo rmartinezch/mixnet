@@ -172,13 +172,13 @@ public class ProtocolElGamal extends ProtocolBBT {
      * Bit length of components in random vectors used for batching in
      * interactive zero-knowledge proofs.
      */
-    protected int ebitlen;
+    protected int iebitlen;
 
     /**
      * Bit length of components in random vectors used for batching in
      * non-interactive zero-knowledge proofs.
      */
-    protected int ebitlenro;
+    protected int iebitlenro;
 
     /**
      * Indicates if non-interactive zero-knowledge proofs are used or
@@ -451,12 +451,12 @@ public class ProtocolElGamal extends ProtocolBBT {
         // Extract additional security parameters.
         ivbitlen = protocolInfo.getIntValue(VBITLEN);
         ivbitlenro = protocolInfo.getIntValue(VBITLENRO);
-        ebitlen = protocolInfo.getIntValue(EBITLEN);
-        ebitlenro = protocolInfo.getIntValue(EBITLENRO);
+        iebitlen = protocolInfo.getIntValue(EBITLEN);
+        iebitlenro = protocolInfo.getIntValue(EBITLENRO);
         sanityCheckAuxSecurityParameters(ivbitlen,
                 ivbitlenro,
-                                         ebitlen,
-                                         ebitlenro);
+                iebitlen,
+                iebitlenro);
 
         // Decide if we are using arrays mapped to files or not.
         setArrayStorageModel(privateInfo);
@@ -533,8 +533,8 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         ivbitlen = prot.ivbitlen;
         ivbitlenro = prot.ivbitlenro;
-        ebitlen = prot.ebitlen;
-        ebitlenro = prot.ebitlenro;
+        iebitlen = prot.iebitlen;
+        iebitlenro = prot.iebitlenro;
 
         prgString = prot.prgString;
         prg = prot.prg;
@@ -627,16 +627,16 @@ public class ProtocolElGamal extends ProtocolBBT {
 
     /**
      * Returns the relevant bitlength of components when batching. If
-     * interactive proofs are used, then this is {@link #ebitlen} and
-     * otherwise it is {@link #ebitlenro}.
+     * interactive proofs are used, then this is {@link #iebitlen} and
+     * otherwise it is {@link #iebitlenro}.
      *
      * @return Relevant bitlength of challenges.
      */
     protected int ebitlen() {
         if (nonInteractiveProofs) {
-            return ebitlenro;
+            return iebitlenro;
         } else {
-            return ebitlen;
+            return iebitlen;
         }
     }
 
@@ -674,7 +674,7 @@ public class ProtocolElGamal extends ProtocolBBT {
                          new ByteTree(rosidBytes),
                          ByteTree.intToByteTree(rbitlen),
                          ByteTree.intToByteTree(ivbitlenro),
-                         ByteTree.intToByteTree(ebitlenro),
+                         ByteTree.intToByteTree(iebitlenro),
                          new ByteTree(prgStringBytes),
                          new ByteTree(pGroupBytes),
                          new ByteTree(roHashfunctionStringBytes));

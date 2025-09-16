@@ -245,7 +245,7 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
         final IndependentGeneratorsBasicI basic =
             new IndependentGeneratorsBasicI(j,
                                             threshold,
-                                            ebitlen,
+                    iebitlen,
                                             rbitlen,
                                             prg);
 
