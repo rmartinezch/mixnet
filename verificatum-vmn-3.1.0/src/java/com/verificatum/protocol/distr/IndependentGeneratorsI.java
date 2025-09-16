@@ -277,7 +277,7 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
         tempLog.info("Generate challenge.");
         tempLog2 = tempLog.newChildLog();
         final byte[] challengeBytes =
-            coins.getCoinBytes(tempLog2, vbitlen, rbitlen);
+            coins.getCoinBytes(tempLog2, ivbitlen, rbitlen);
         final LargeInteger integerChallenge =
             LargeInteger.toPositive(challengeBytes);
         basic.setChallenge(integerChallenge);

@@ -160,7 +160,7 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Bit length of challenges in interactive zero-knowledge proofs.
      */
-    protected int vbitlen;
+    protected int ivbitlen;
 
     /**
      * Bit length of challenges in non-interactive zero-knowledge
@@ -449,11 +449,11 @@ public class ProtocolElGamal extends ProtocolBBT {
         sanityCheckVersion(privateInfo, protocolInfo);
 
         // Extract additional security parameters.
-        vbitlen = protocolInfo.getIntValue(VBITLEN);
+        ivbitlen = protocolInfo.getIntValue(VBITLEN);
         vbitlenro = protocolInfo.getIntValue(VBITLENRO);
         ebitlen = protocolInfo.getIntValue(EBITLEN);
         ebitlenro = protocolInfo.getIntValue(EBITLENRO);
-        sanityCheckAuxSecurityParameters(vbitlen,
+        sanityCheckAuxSecurityParameters(ivbitlen,
                                          vbitlenro,
                                          ebitlen,
                                          ebitlenro);
@@ -531,7 +531,7 @@ public class ProtocolElGamal extends ProtocolBBT {
                            final File nizkp) {
         super(sid, prot);
 
-        vbitlen = prot.vbitlen;
+        ivbitlen = prot.ivbitlen;
         vbitlenro = prot.vbitlenro;
         ebitlen = prot.ebitlen;
         ebitlenro = prot.ebitlenro;
@@ -612,7 +612,7 @@ public class ProtocolElGamal extends ProtocolBBT {
 
     /**
      * Returns the relevant bitlength of challenges. If interactive
-     * proofs are used, then this is {@link #vbitlen} and otherwise it
+     * proofs are used, then this is {@link #ivbitlen} and otherwise it
      * is {@link #vbitlenro}.
      *
      * @return Relevant bitlength of challenges.
@@ -621,7 +621,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         if (nonInteractiveProofs) {
             return vbitlenro;
         } else {
-            return vbitlen;
+            return ivbitlen;
         }
     }
 
