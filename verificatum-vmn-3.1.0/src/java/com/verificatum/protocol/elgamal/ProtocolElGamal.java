@@ -166,7 +166,7 @@ public class ProtocolElGamal extends ProtocolBBT {
      * Bit length of challenges in non-interactive zero-knowledge
      * proofs.
      */
-    protected int vbitlenro;
+    protected int ivbitlenro;
 
     /**
      * Bit length of components in random vectors used for batching in
@@ -450,11 +450,11 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         // Extract additional security parameters.
         ivbitlen = protocolInfo.getIntValue(VBITLEN);
-        vbitlenro = protocolInfo.getIntValue(VBITLENRO);
+        ivbitlenro = protocolInfo.getIntValue(VBITLENRO);
         ebitlen = protocolInfo.getIntValue(EBITLEN);
         ebitlenro = protocolInfo.getIntValue(EBITLENRO);
         sanityCheckAuxSecurityParameters(ivbitlen,
-                                         vbitlenro,
+                ivbitlenro,
                                          ebitlen,
                                          ebitlenro);
 
@@ -532,7 +532,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         super(sid, prot);
 
         ivbitlen = prot.ivbitlen;
-        vbitlenro = prot.vbitlenro;
+        ivbitlenro = prot.ivbitlenro;
         ebitlen = prot.ebitlen;
         ebitlenro = prot.ebitlenro;
 
@@ -613,13 +613,13 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Returns the relevant bitlength of challenges. If interactive
      * proofs are used, then this is {@link #ivbitlen} and otherwise it
-     * is {@link #vbitlenro}.
+     * is {@link #ivbitlenro}.
      *
      * @return Relevant bitlength of challenges.
      */
     protected int vbitlen() {
         if (nonInteractiveProofs) {
-            return vbitlenro;
+            return ivbitlenro;
         } else {
             return ivbitlen;
         }
@@ -673,7 +673,7 @@ public class ProtocolElGamal extends ProtocolBBT {
             new ByteTree(new ByteTree(packageVersionBytes),
                          new ByteTree(rosidBytes),
                          ByteTree.intToByteTree(rbitlen),
-                         ByteTree.intToByteTree(vbitlenro),
+                         ByteTree.intToByteTree(ivbitlenro),
                          ByteTree.intToByteTree(ebitlenro),
                          new ByteTree(prgStringBytes),
                          new ByteTree(pGroupBytes),
