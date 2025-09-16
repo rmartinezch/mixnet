@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# Copyright 2008-2019 Douglas Wikstrom
+#
+# This file is part of Verificatum Mix-Net (VMN).
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use, copy,
+# modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
+# Executes all benchmarks.
+
+. benchmarks/benchmacros
+
+BENCHMARKS="`{ cat benchmarks/bench_config; echo "BENCHMARKS"; } | m4`"
+
+echo "BENCH: ${BENCHMARKS}"
+
+middle_nohup_to_demo_log() {
+    local LOCAL_START_INDEX
+    local LOCAL_END_INDEX
+    local LOCAL_NEXT_START_INDEX
+
+    LOCAL_START_INDEX=${2}
+    LOCAL_START_INDEX=`echo "${LOCAL_START_INDEX} + 2" | bc`
+    LOCAL_END_INDEX=`wc -l nohup.out | sed "s/\([[:digit:]]*\) .*/\1/"`
+    LOCAL_NEXT_START_INDEX=`echo "${LOCAL_END_INDEX} + 1" | bc`
+
+    sed -n "${LOCAL_START_INDEX},${LOCAL_END_INDEX}p;${LOCAL_NEXT_START_INDEX}q" nohup.out > demo_log
+
+    eval "${1}=\${LOCAL_NEXT_START_INDEX}"
+}
+
+START_INDEX=1
+DOCLEAN=f
+
+for BENCHMARK in ${BENCHMARKS};
+do
+    if ! ( test -d benchresults/${BENCHMARK} );
+    then
+
+    	./clean
+
+    	beginbenchmark ${BENCHMARK}
+
+	benchmarks/${BENCHMARK} ${BENCHMARK}
+
+    	endbenchmark
+
+	# Due to a bug in the way redirection is implemented in the
+	# shell we have to do things like this when running remotely
+	# with nohup.
+	if test -f nohup.out;
+	then
+	    middle_nohup_to_demo_log START_INDEX ${START_INDEX}
+	fi
+
+    	store_results ${BENCHMARK}
+
+    	DOCLEAN=t
+    fi
+done
+
+if test ${DOCLEAN} = t;
+then
+    ./clean
+fi
