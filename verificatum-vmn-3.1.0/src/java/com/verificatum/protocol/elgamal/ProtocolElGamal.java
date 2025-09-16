@@ -155,7 +155,7 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Width of El Gamal keys.
      */
-    protected int keyWidth;
+    protected int ikeyWidth;
 
     /**
      * Bit length of challenges in interactive zero-knowledge proofs.
@@ -473,12 +473,12 @@ public class ProtocolElGamal extends ProtocolBBT {
         setupPGroup(protocolInfo);
 
         // Extract key width.
-        keyWidth = protocolInfo.getIntValue(KEYWIDTH);
-        if (keyWidth < 1) {
+        ikeyWidth = protocolInfo.getIntValue(KEYWIDTH);
+        if (ikeyWidth < 1) {
             throw new ProtocolError("Key width is not positive! ("
-                                    + keyWidth + ")");
+                                    + ikeyWidth + ")");
         }
-        keyPGroup = getKeyPGroup(pGroup, keyWidth);
+        keyPGroup = getKeyPGroup(pGroup, ikeyWidth);
 
         // Hash function used to implement random oracles.
         setupROHashfunction(protocolInfo);
