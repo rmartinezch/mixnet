@@ -81,7 +81,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         final Log tempLog = log.newChildLog();
 
         final PoSCBasicTW P =
-            new PoSCBasicTW(vbitlen(), ebitlen(), rbitlen, prg,
+            new PoSCBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg,
                             randomSource);
 
         P.setInstance(g, h, u, r, pi);
@@ -95,7 +95,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
                                                                 u.toByteTree());
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     challengeData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
         // Compute and publish commitment.
@@ -145,7 +145,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         final Log tempLog = log.newChildLog();
 
         final PoSCBasicTW V = new PoSCBasicTW(vbitlen(), ebitlen(),
-                                              rbitlen, prg, randomSource);
+                                              rbitlen, pPrg, randomSource);
         V.setInstance(g, h, u);
 
         // Generate a seed to the PRG for batching.
@@ -157,7 +157,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
                                                                 u.toByteTree());
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     challengeData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
         V.setBatchVector(prgSeed);

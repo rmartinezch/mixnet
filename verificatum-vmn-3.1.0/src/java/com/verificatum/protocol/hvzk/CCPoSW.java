@@ -87,7 +87,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         final Log tempLog = log.newChildLog();
 
         final CCPoSBasicW P =
-            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, prg);
+            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
 
         P.setInstance(g, h, u, pkey, w, wp, r, pi, s);
 
@@ -104,7 +104,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
                                   wp.toByteTree());
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     challengeData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
         // Compute and publish commitment.
@@ -175,7 +175,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         final Log tempLog = log.newChildLog();
 
         final CCPoSBasicW V =
-            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, prg);
+            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
         V.setInstance(g, h, u, pkey, w, wp);
 
         // Generate a seed to the PRG for batching.
@@ -191,7 +191,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
                                   wp.toByteTree());
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     challengeData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
         V.setBatchVector(prgSeed);
 

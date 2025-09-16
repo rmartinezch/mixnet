@@ -247,7 +247,7 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
                                             threshold,
                     iebitlen,
                                             rbitlen,
-                                            prg);
+                    pPrg);
 
         // Combine parts.
         PGroupElementArray generators =
@@ -264,7 +264,7 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
         Log tempLog2 = tempLog.newChildLog();
 
         final byte[] prgSeed =
-            coins.getCoinBytes(tempLog2, 8 * prg.minNoSeedBytes(), rbitlen);
+            coins.getCoinBytes(tempLog2, 8 * pPrg.minNoSeedBytes(), rbitlen);
         basic.setBatchVector(prgSeed);
 
         // Collect commitments.

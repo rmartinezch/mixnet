@@ -416,7 +416,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
                                          threshold,
                                          ebitlen(),
                                          rbitlen,
-                                         prg);
+                    pPrg);
 
         // Initialize the instance.
         basic.setInstance(dkg.getBasicPublicKey(),
@@ -457,7 +457,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
         Log tempLog2 = tempLog.newChildLog();
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     seedData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
         basic.setBatchVector(prgSeed);
 

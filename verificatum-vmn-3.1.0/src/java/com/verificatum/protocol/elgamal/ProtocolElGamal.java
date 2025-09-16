@@ -211,7 +211,7 @@ public class ProtocolElGamal extends ProtocolBBT {
      * PRG used for deriving random vectors used for batching in
      * zero-knowledge proofs.
      */
-    protected PRG prg;
+    protected PRG pPrg;
 
     /**
      * Description of hash function used to implement random oracles.
@@ -354,14 +354,14 @@ public class ProtocolElGamal extends ProtocolBBT {
         prgString = protocolInfo.getStringValue(PRG);
 
         if (prgString.equals(SHA256)) {
-            prg = new PRGHeuristic(new HashfunctionHeuristic(SHA256));
+            pPrg = new PRGHeuristic(new HashfunctionHeuristic(SHA256));
         } else if (prgString.equals(SHA384)) {
-            prg = new PRGHeuristic(new HashfunctionHeuristic(SHA384));
+            pPrg = new PRGHeuristic(new HashfunctionHeuristic(SHA384));
         } else if (prgString.equals(SHA512)) {
-            prg = new PRGHeuristic(new HashfunctionHeuristic(SHA512));
+            pPrg = new PRGHeuristic(new HashfunctionHeuristic(SHA512));
         } else {
             try {
-                prg = Marshalizer.unmarshalHexAux_PRG(prgString,
+                pPrg = Marshalizer.unmarshalHexAux_PRG(prgString,
                                                       randomSource,
                                                       certainty);
             } catch (final EIOException eioe) {
@@ -537,7 +537,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         iebitlenro = prot.iebitlenro;
 
         prgString = prot.prgString;
-        prg = prot.prg;
+        pPrg = prot.pPrg;
 
         // This is used to indicate that this instance is a child.
         ckeygen = null;

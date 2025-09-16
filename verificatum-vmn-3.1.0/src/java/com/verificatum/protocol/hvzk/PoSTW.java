@@ -86,7 +86,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                            final PGroupElementArray h,
                            final Permutation pi) {
 
-        P = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, prg, randomSource);
+        P = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
         log.info("Compute permutation commitment.");
         P.precompute(g, h, pi);
     }
@@ -126,7 +126,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         final byte[] prgSeed =
             challenger.challenge(tempLog2,
                                  challengeData,
-                                 8 * prg.minNoSeedBytes(),
+                                 8 * pPrg.minNoSeedBytes(),
                                  rbitlen);
 
         // Compute and publish commitment.
@@ -169,7 +169,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                            final PGroupElement g,
                            final PGroupElementArray h) {
 
-        V = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, prg, randomSource);
+        V = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
         V.precompute(g, h);
     }
 
@@ -211,7 +211,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
 
         final byte[] prgSeed = challenger.challenge(tempLog2,
                                                     challengeData,
-                                                    8 * prg.minNoSeedBytes(),
+                                                    8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
         V.setBatchVector(prgSeed);
