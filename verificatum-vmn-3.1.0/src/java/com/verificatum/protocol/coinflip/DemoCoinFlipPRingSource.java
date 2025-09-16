@@ -126,7 +126,7 @@ public final class DemoCoinFlipPRingSource extends DemoProtocolElGamalFactory {
                 startServers();
 
                 final PlainKeys plainKeys =
-                    new PlainKeys("DemoSID", this, keygen, rbitlen);
+                    new PlainKeys("DemoSID", this, ckeygen, rbitlen);
                 plainKeys.generate(ui.getLog());
 
                 final CoinFlipPRingSource coins =

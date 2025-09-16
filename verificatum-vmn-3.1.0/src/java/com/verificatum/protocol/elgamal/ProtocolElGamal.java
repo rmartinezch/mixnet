@@ -189,7 +189,7 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Key generator.
      */
-    protected CryptoKeyGen keygen;
+    protected CryptoKeyGen ckeygen;
 
     /**
      * Plain public keys used in subprotocols.
@@ -379,7 +379,7 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         final String keygenString = privateInfo.getStringValue(KEYGEN);
         try {
-            keygen = Marshalizer.unmarshalHexAux_CryptoKeyGen(keygenString,
+            ckeygen = Marshalizer.unmarshalHexAux_CryptoKeyGen(keygenString,
                                                               randomSource,
                                                               certainty);
         } catch (final EIOException eioe) {
@@ -540,7 +540,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         prg = prot.prg;
 
         // This is used to indicate that this instance is a child.
-        keygen = null;
+        ckeygen = null;
 
         pGroupString = prot.pGroupString;
         pGroup = prot.pGroup;
@@ -555,7 +555,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         skey = prot.skey;
 
         coins = prot.coins;
-        keygen = prot.keygen;
+        ckeygen = prot.ckeygen;
 
         this.rosid = rosid;
 
@@ -811,7 +811,7 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         // Generate and exchange keys for a CCA2-secure cryptosystem
         // used for communicating privately.
-        PlainKeys plainKeys = new PlainKeys("", this, keygen, rbitlen);
+        PlainKeys plainKeys = new PlainKeys("", this, ckeygen, rbitlen);
         plainKeys.generate(tempLog);
         pkeys = plainKeys.getPKeys();
         skey = plainKeys.getSKey();

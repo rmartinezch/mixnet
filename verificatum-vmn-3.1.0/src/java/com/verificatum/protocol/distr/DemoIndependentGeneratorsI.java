@@ -106,7 +106,7 @@ public class DemoIndependentGeneratorsI extends DemoProtocolElGamalFactory {
                 setup(ui.getLog());
 
                 final PlainKeys plainKeys =
-                    new PlainKeys("DemoSID", this, keygen, rbitlen);
+                    new PlainKeys("DemoSID", this, ckeygen, rbitlen);
                 plainKeys.generate(ui.getLog());
 
                 final IndependentGenerators ig =
