@@ -231,7 +231,7 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Group over which the protocol is executed.
      */
-    protected PGroup pGroup;
+    protected PGroup pgPGroup;
 
     /**
      * Group in which the public key is generated.
@@ -397,7 +397,7 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         pGroupString = protocolInfo.getStringValue(PGROUP);
         try {
-            pGroup = Marshalizer.unmarshalHexAux_PGroup(pGroupString,
+            pgPGroup = Marshalizer.unmarshalHexAux_PGroup(pGroupString,
                                                         randomSource,
                                                         certainty);
         } catch (final EIOException eioe) {
@@ -478,7 +478,7 @@ public class ProtocolElGamal extends ProtocolBBT {
             throw new ProtocolError("Key width is not positive! ("
                                     + ikeyWidth + ")");
         }
-        keyPGroup = getKeyPGroup(pGroup, ikeyWidth);
+        keyPGroup = getKeyPGroup(pgPGroup, ikeyWidth);
 
         // Hash function used to implement random oracles.
         setupROHashfunction(protocolInfo);
@@ -543,7 +543,7 @@ public class ProtocolElGamal extends ProtocolBBT {
         ckeygen = null;
 
         pGroupString = prot.pGroupString;
-        pGroup = prot.pGroup;
+        pgPGroup = prot.pgPGroup;
         keyPGroup = prot.keyPGroup;
 
         roHashfunctionString = prot.roHashfunctionString;
@@ -715,7 +715,7 @@ public class ProtocolElGamal extends ProtocolBBT {
      * @return Underlying group of this protocol.
      */
     public PGroup getPGroup() {
-        return pGroup;
+        return pgPGroup;
     }
 
     /**
@@ -818,7 +818,7 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         // Generate an "independent" generator.
         IndependentGenerator ig =
-            new IndependentGenerator("", this, pGroup, pkeys, skey, rbitlen);
+            new IndependentGenerator("", this, pgPGroup, pkeys, skey, rbitlen);
         final PGroupElement h = ig.generate(tempLog);
 
         // Construct a source of jointly generated random coins.

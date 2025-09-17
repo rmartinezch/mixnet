@@ -132,7 +132,7 @@ public final class DemoCoinFlipPRingSource extends DemoProtocolElGamalFactory {
                 final CoinFlipPRingSource coins =
                     new CoinFlipPRingSource("DemoSID",
                                             this,
-                                            pGroup.getg().exp(7),
+                                            pgPGroup.getg().exp(7),
                                             plainKeys.getPKeys(),
                                             plainKeys.getSKey(),
                                             rbitlen);

@@ -119,7 +119,7 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
 
                 //pGroup = new PPGroup(pGroup, 3);
 
-                final PGroupElement g = pGroup.getg();
+                final PGroupElement g = pgPGroup.getg();
                 PGroupElementArray h = null;
                 PGroupElementArray u = null;
 
@@ -127,12 +127,12 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
 
                 if (j == 1) {
 
-                    h = g.exp(pGroup.getPRing().randomElementArray(size,
+                    h = g.exp(pgPGroup.getPRing().randomElementArray(size,
                                                                    randomSource,
                                                                    rbitlen));
 
                     final PRingElementArray r =
-                        pGroup.getPRing().randomElementArray(size,
+                        pgPGroup.getPRing().randomElementArray(size,
                                                              randomSource,
                                                              rbitlen);
                     u = g.exp(r).mul(h);
@@ -159,8 +159,8 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
                         bullBoard.waitFor(1, "Data", ui.getLog());
 
                     try {
-                        h = pGroup.toElementArray(0, dataReader.getNextChild());
-                        u = pGroup.toElementArray(0, dataReader.getNextChild());
+                        h = pgPGroup.toElementArray(0, dataReader.getNextChild());
+                        u = pgPGroup.toElementArray(0, dataReader.getNextChild());
                     } catch (final ArithmFormatException afe) {
                         throw new DemoError("Failed to read data!", afe);
                     }

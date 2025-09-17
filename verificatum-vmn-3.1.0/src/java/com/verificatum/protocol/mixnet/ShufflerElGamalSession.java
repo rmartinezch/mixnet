@@ -381,7 +381,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         // Generate list of independent generators.
         final IndependentGenerators igs =
             igsFactory.newInstance("generators", this);
-        generators = igs.generate(tempLog, pGroup, ciphertexts.size());
+        generators = igs.generate(tempLog, pgPGroup, ciphertexts.size());
 
         // Generate random permutation and exponents and perform local
         // pre-computation.
@@ -490,7 +490,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
             reader.close();
 
             reader = new ByteTreeReaderF(raisedGeneratorsFile);
-            raisedGenerators = pGroup.unsafeToElementArray(maxciph, reader);
+            raisedGenerators = pgPGroup.unsafeToElementArray(maxciph, reader);
             reader.close();
 
         } else {
@@ -552,7 +552,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
             // Read reencryption exponents from file.
             tempLog.info("Read generators.");
             reader = new ByteTreeReaderF(generatorsFile);
-            generators = pGroup.unsafeToElementArray(actualMaxciph, reader);
+            generators = pgPGroup.unsafeToElementArray(actualMaxciph, reader);
             reader.close();
 
             // This is a little magical. If actualMaxciph == 0, then reading is
@@ -565,14 +565,14 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
             // Generate independent generators.
             final IndependentGenerators igs =
                 igsFactory.newInstance("generators", this);
-            generators = igs.generate(tempLog, pGroup, actualMaxciph);
+            generators = igs.generate(tempLog, pgPGroup, actualMaxciph);
 
             tempLog.info("Write generators to file.");
             generators.toByteTree().unsafeWriteTo(generatorsFile);
         }
 
         // Determine ciphertext group and associated exponent ring.
-        final PPGroup ciphPPGroup = getCiphPGroup(pGroup, actualWidth);
+        final PPGroup ciphPPGroup = getCiphPGroup(pgPGroup, actualWidth);
         final PRing exponentsPRing = ciphPPGroup.project(0).getPRing();
 
         // We widen the public key to accomodate wider ciphertexts.
@@ -583,7 +583,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         // verification of commitment-consistent proofs of shuffle by
         // a factor of roughly 2/3.
 
-        final PField pField = pGroup.getPRing().getPField();
+        final PField pField = pgPGroup.getPRing().getPField();
 
         raisedGenerators(tempLog, pField, actualMaxciph);
 

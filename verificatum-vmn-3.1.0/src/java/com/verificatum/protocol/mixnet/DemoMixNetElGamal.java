@@ -147,10 +147,10 @@ public class DemoMixNetElGamal extends DemoProtocolElGamalFactory {
 
                     final int width = l + 1;
 
-                    final PGroup plainPGroup = getPlainPGroup(pGroup, width);
+                    final PGroup plainPGroup = getPlainPGroup(pgPGroup, width);
                     final PRing plainPRing = plainPGroup.getPRing();
 
-                    final PPGroup ciphPGroup = getCiphPGroup(pGroup, width);
+                    final PPGroup ciphPGroup = getCiphPGroup(pgPGroup, width);
 
                     PPGroupElement widePublicKey;
 

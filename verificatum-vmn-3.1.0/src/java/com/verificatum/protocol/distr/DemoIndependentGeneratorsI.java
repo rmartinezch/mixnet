@@ -111,8 +111,8 @@ public class DemoIndependentGeneratorsI extends DemoProtocolElGamalFactory {
 
                 final IndependentGenerators ig =
                     new IndependentGeneratorsI("DemoSID", this);
-                generators = ig.generate(ui.getLog(), pGroup, 3);
-                generators = ig.generate(ui.getLog(), pGroup, 3);
+                generators = ig.generate(ui.getLog(), pgPGroup, 3);
+                generators = ig.generate(ui.getLog(), pgPGroup, 3);
 
                 ui.getLog().info("generators = " + generators.toString());
 

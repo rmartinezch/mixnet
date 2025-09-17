@@ -128,7 +128,7 @@ public class DemoPermutationCommitment extends DemoProtocolElGamalFactory {
                 if (j == 1) {
 
                     generators =
-                        pGroup.randomElementArray(10, randomSource, rbitlen);
+                        pgPGroup.randomElementArray(10, randomSource, rbitlen);
 
                     ui.getLog().info("Publish demo generators.");
                     bullBoard.publish("Generators",
@@ -138,7 +138,7 @@ public class DemoPermutationCommitment extends DemoProtocolElGamalFactory {
                     final ByteTreeReader reader =
                         bullBoard.waitFor(1, "Generators", ui.getLog());
                     try {
-                        generators = pGroup.toElementArray(0, reader);
+                        generators = pgPGroup.toElementArray(0, reader);
                     } catch (final ArithmFormatException afe) {
                         throw new DemoError("Failed to read public key!", afe);
                     }
@@ -158,7 +158,7 @@ public class DemoPermutationCommitment extends DemoProtocolElGamalFactory {
                 pc.precompute(ui.getLog());
 
                 final PRingElement raisedExponent =
-                    pGroup.getPRing().randomElement(randomSource, rbitlen);
+                    pgPGroup.getPRing().randomElement(randomSource, rbitlen);
                 pc.generate(ui.getLog(), raisedExponent);
 
                 commitment = pc.getCommitment();

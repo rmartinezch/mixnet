@@ -136,7 +136,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
         super(sid, protocol, rosid, nizkp);
         this.l = l;
         this.generators = generators;
-        this.pGroup = generators.getPGroup();
+        this.pgPGroup = generators.getPGroup();
         this.poscFactory = poscFactory;
     }
 
@@ -169,7 +169,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
             // Read identity commitment.
             tempLog.info("Read identity commitment from file.");
             reader = new ByteTreeReaderF(idCommFile);
-            identityCommitment = pGroup.unsafeToElementArray(size, reader);
+            identityCommitment = pgPGroup.unsafeToElementArray(size, reader);
             reader.close();
 
             // Compute permutation commitment.
@@ -179,7 +179,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
             // Read commitment exponents
             tempLog.info("Read commitment exponents from file.");
             reader = new ByteTreeReaderF(commExpFile);
-            exponents = pGroup.getPRing().unsafeToElementArray(size, reader);
+            exponents = pgPGroup.getPRing().unsafeToElementArray(size, reader);
             reader.close();
 
             fromFile = true;
@@ -188,7 +188,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
             // Generate commitment exponents.
             tempLog.info("Generate commitment exponents.");
-            exponents = pGroup.getPRing().randomElementArray(size,
+            exponents = pgPGroup.getPRing().randomElementArray(size,
                                                              randomSource,
                                                              rbitlen);
 
@@ -197,7 +197,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
             // Compute identity commitment.
             tempLog.info("Compute identity commitment.");
-            final PGroupElementArray tmp = pGroup.getg().exp(exponents);
+            final PGroupElementArray tmp = pgPGroup.getg().exp(exponents);
             identityCommitment = generators.mul(tmp);
             tmp.free();
 
@@ -276,13 +276,13 @@ public final class PermutationCommitment extends ProtocolElGamal {
                 // Read permutation commitment
                 tempLog.info("Read permutation commitment from file.");
                 reader = new ByteTreeReaderF(permCommFile);
-                commitment = pGroup.unsafeToElementArray(size, reader);
+                commitment = pgPGroup.unsafeToElementArray(size, reader);
                 reader.close();
 
                 // Read permutation commitment
                 tempLog.info("Read raised permutation commitment from file.");
                 reader = new ByteTreeReaderF(raisedPermCommFile);
-                raisedCommitment = pGroup.unsafeToElementArray(size, reader);
+                raisedCommitment = pgPGroup.unsafeToElementArray(size, reader);
                 reader.close();
 
                 // If we read data from file, then all parties have
@@ -303,7 +303,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
             // Prove knowledge of commitment exponents.
             posc.prove(tempLog,
-                       pGroup.getg(),
+                       pgPGroup.getg(),
                        generators,
                        commitment,
                        exponents,
@@ -322,7 +322,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
                 bullBoard.waitFor(l, "Commitment", tempLog);
             try {
 
-                commitment = pGroup.toElementArray(size, commitmentReader);
+                commitment = pgPGroup.toElementArray(size, commitmentReader);
 
             } catch (final ArithmFormatException afe) {
                 trivial = true;
@@ -335,7 +335,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
                 trivial = !posc.verify(tempLog,
                                        l,
-                                       pGroup.getg(),
+                                       pgPGroup.getg(),
                                        generators,
                                        commitment);
             }

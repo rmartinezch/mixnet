@@ -120,10 +120,10 @@ public final class DemoPedersen extends DemoProtocolElGamalFactory {
                     new PlainKeys("DemoSID", this, ckeygen, rbitlen);
                 plainKeys.generate(ui.getLog());
 
-                pGroup = new PPGroup(pGroup, 2);
+                pgPGroup = new PPGroup(pgPGroup, 2);
 
-                final BiPRingPGroup biExp = new BiExp(pGroup);
-                final HomPRingPGroup hom = biExp.restrict(pGroup.getg());
+                final BiPRingPGroup biExp = new BiExp(pgPGroup);
+                final HomPRingPGroup hom = biExp.restrict(pgPGroup.getg());
 
                 final Pedersen ped =
                     new Pedersen("DemoSID",
@@ -137,7 +137,7 @@ public final class DemoPedersen extends DemoProtocolElGamalFactory {
                 if (j == 1) {
                     if (!ped.stateOnFile()) {
                         final PRingElement secret =
-                            pGroup.getPRing().randomElement(randomSource,
+                            pgPGroup.getPRing().randomElement(randomSource,
                                                             rbitlen);
 
                         ped.dealSecret(ui.getLog(), secret);

@@ -123,8 +123,8 @@ public final class DemoPedersenSequential extends DemoProtocolElGamalFactory {
                 final boolean[] eliminated = new boolean[k + 1];
                 Arrays.fill(eliminated, false);
 
-                final BiPRingPGroup biExp = new BiExp(pGroup);
-                final HomPRingPGroup hom = biExp.restrict(pGroup.getg());
+                final BiPRingPGroup biExp = new BiExp(pgPGroup);
+                final HomPRingPGroup hom = biExp.restrict(pgPGroup.getg());
 
                 final PedersenSequential peds =
                     new PedersenSequential("DemoSID",
@@ -136,7 +136,7 @@ public final class DemoPedersenSequential extends DemoProtocolElGamalFactory {
                                            true);
 
                 final PRingElement secret =
-                    pGroup.getPRing().randomElement(randomSource, rbitlen);
+                    pgPGroup.getPRing().randomElement(randomSource, rbitlen);
 
                 ui.getLog().info("secret = " + secret.toString());
 

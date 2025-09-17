@@ -129,16 +129,16 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                 plaintexts = new PGroupElementArray[4];
                 plaintextsOut = new PGroupElementArray[4];
 
-                final PRing pRing = pGroup.getPRing();
-                final PPGroup pkPGroup = new PPGroup(pGroup, 2);
+                final PRing pRing = pgPGroup.getPRing();
+                final PPGroup pkPGroup = new PPGroup(pgPGroup, 2);
 
                 PRingElement x = null;
                 if (j == 1) {
 
                     // Generate and publish public key.
                     x = pRing.randomElement(randomSource, rbitlen);
-                    final PGroupElement y = pGroup.getg().exp(x);
-                    setPublicKey(pkPGroup.product(pGroup.getg(), y));
+                    final PGroupElement y = pgPGroup.getg().exp(x);
+                    setPublicKey(pkPGroup.product(pgPGroup.getg(), y));
 
                     ui.getLog().info("Publish demo public key.");
                     bullBoard.publish("PublicKey",
@@ -164,10 +164,10 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
 
                     final int width = l + 1;
 
-                    final PGroup plainPGroup = getPlainPGroup(pGroup, width);
+                    final PGroup plainPGroup = getPlainPGroup(pgPGroup, width);
                     final PRing plainPRing = plainPGroup.getPRing();
 
-                    final PPGroup ciphPGroup = getCiphPGroup(pGroup, width);
+                    final PPGroup ciphPGroup = getCiphPGroup(pgPGroup, width);
 
                     PPGroupElement widePublicKey;
 
