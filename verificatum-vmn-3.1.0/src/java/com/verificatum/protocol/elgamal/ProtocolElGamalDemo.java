@@ -55,7 +55,7 @@ import com.verificatum.ui.opt.OptUtil;
  * @author Douglas Wikstrom
  */
 public final class ProtocolElGamalDemo {
-
+    private static final String VALUE_PARAMETER = "value";
     /**
      * Avoid accidental instantiation.
      */
@@ -97,16 +97,16 @@ public final class ProtocolElGamalDemo {
                       "Print error messages as clean strings without any "
                       + "error prefix or newlines.");
         opt.addOption("-version", "", "Print the package version.");
-        opt.addOption("-keywidth", "value",
+        opt.addOption("-keywidth", VALUE_PARAMETER,
                       "Width of El Gamal keys. If equal to one the standard "
                       + "El Gamal cryptosystem is used, but if it is greater "
                       + "than one, then the natural generalization over a "
                       + "product group of the given width is used. This "
                       + "corresponds to letting each party holding multiple "
                       + "standard public keys.");
-        opt.addOption("-width", "value",
+        opt.addOption("-width", VALUE_PARAMETER,
                       "Width of ciphertexts. This defaults to one.");
-        opt.addOption("-wd", "value",
+        opt.addOption("-wd", VALUE_PARAMETER,
                       "Working directory used for file based arrays. This "
                       + "defaults to a uniquely named subdirectory of "
                       + "/tmp/com.verificatum.");
