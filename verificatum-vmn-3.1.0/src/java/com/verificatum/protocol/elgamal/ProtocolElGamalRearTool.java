@@ -57,7 +57,7 @@ import com.verificatum.ui.opt.OptUtil;
  * @author Douglas Wikstrom
  */
 public final class ProtocolElGamalRearTool {
-
+    private static final String WIDTH_PARAMETER = "-width";
     /**
      * Raw interface for reading and writing arithmetic objects
      * from/to file.
@@ -107,7 +107,7 @@ public final class ProtocolElGamalRearTool {
 
         // Re-arrange each of the two components separately.
         final List<List<PGroupElement>> components =
-            new ArrayList<List<PGroupElement>>();
+            new ArrayList<>();
         components.add(ProtocolElGamalRear.rearrangeElements(atomicPGroup,
                                                              uparts,
                                                              format));
@@ -352,7 +352,7 @@ public final class ProtocolElGamalRearTool {
     public static int getWidth(final Opt opt)
         throws ProtocolFormatException {
 
-        final int width = opt.getIntValue("-width", 1);
+        final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
         if (width <= 0) {
             final String e = String.format("Non-positive width! (%d)", width);
             throw new ProtocolFormatException(e);
@@ -670,7 +670,7 @@ public final class ProtocolElGamalRearTool {
                       + "considered as a single block in one of the input "
                       + "arrays. The number of input files is determined "
                       + "from the number of entries in the list of widths.");
-        opt.addOption("-width", valueString,
+        opt.addOption(WIDTH_PARAMETER, valueString,
                       "Width that specifies a number of ciphertexts/plaintexts "
                       + "considered as a single block in the input.");
         opt.addOption("-wd", stringString,
@@ -943,7 +943,7 @@ public final class ProtocolElGamalRearTool {
 
                 // Width of ciphertexts or plaintexts. All inputs must
                 // have the same width.
-                final int width = opt.getIntValue("-width", 1);
+                final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
 
                 final int numberOfPkeys = getNumberOfPkeys(opt);
                 final List<List<ProtocolElGamalRearPosition>> format =
@@ -991,28 +991,13 @@ public final class ProtocolElGamalRearTool {
                     RAW.writeElementArrays(outputArrays, outputFilenames);
 
                 } else if (ciphs) {
-
-
                     System.exit(0);
-
-                    // final PGroup[] ciphPGroups =
-                    //     RAW.getCiphPGroups(atomicPGroups, width);
-
-                    // final List<PGroupElementArray> inputArrays =
-                    //     RAW.readArrays(ciphPGroups, inputFilenames);
-
-                    //     final List<PGroupElementArray> outputArrays =
-                    //      rearrangeCiphs(atomicPGroup, inputArrays, format);
-
-                    //  RAW.writeElementArrays(outputArrays, outputFilenames);
-
                 } else {
                     final String e =
                         "Attempting to use neither ciphertexts nor plaintexts!";
                     throw new ProtocolFormatException(e);
                 }
             }
-
 
             // Read public key and derive underlying atomic group.
             final File pkeyFile = new File(opt.getStringValue("pkey"));
@@ -1085,7 +1070,7 @@ public final class ProtocolElGamalRearTool {
             if (sub || cat) {
 
                 // Width of ciphertexts or plaintexts.
-                final int width = opt.getIntValue("-width", 1);
+                final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
 
                 // Group to which elements in the array belongs.
                 PGroup inputPGroup = null;
