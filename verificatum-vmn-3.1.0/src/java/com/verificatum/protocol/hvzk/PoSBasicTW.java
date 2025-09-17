@@ -239,7 +239,7 @@ public final class PoSBasicTW {
      * Randomness to form the last bridging commitment in a different
      * way.
      */
-    PRingElement d;
+    PRingElement pD;
 
     // ######### Randomizers and blinders of the prover ########
 
@@ -344,7 +344,7 @@ public final class PoSBasicTW {
         this.Dp = null;
         this.ipe = null;
         this.pB = null;
-        this.d = null;
+        this.pD = null;
         this.alpha = null;
         this.beta = null;
         this.gamma = null;
@@ -595,7 +595,7 @@ public final class PoSBasicTW {
 
         final Pair<PRingElementArray, PRingElement> p = pB.recLin(ipe);
         final PRingElementArray x = p.first;
-        d = p.second;
+        pD = p.second;
 
         // Compute aggregated products:
         //
@@ -873,7 +873,7 @@ public final class PoSBasicTW {
         k_A = a.mulAdd(v, alpha);
         k_B = pB.mulAdd(v, beta);
         k_C = c.mulAdd(v, gamma);
-        k_D = d.mulAdd(v, delta);
+        k_D = pD.mulAdd(v, delta);
         k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
         k_F = f.mulAdd(v, phi);
 
