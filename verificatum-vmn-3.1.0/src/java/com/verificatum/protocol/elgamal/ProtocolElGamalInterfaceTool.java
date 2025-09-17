@@ -65,7 +65,7 @@ import com.verificatum.ui.opt.OptUtil;
  * @author Douglas Wikstrom
  */
 public final class ProtocolElGamalInterfaceTool {
-
+    private static final String PROTINFO_PARAMETER = "protInfo,in,out#";
     /**
      * Name of protocol info file used if the user does not provide a
      * file name.
@@ -167,15 +167,15 @@ public final class ProtocolElGamalInterfaceTool {
 
         opt.addUsageForm();
         opt.appendToUsageForm(1, "-pkey#-e,-cerr,-ini,-outi,-wd,-sloppy#"
-                              + "protInfo,in,out#");
+                              + PROTINFO_PARAMETER);
         opt.addUsageForm();
         opt.appendToUsageForm(2,
                               "-ciphs#-e,-cerr,-ini,-outi,-width,-wd,-sloppy#"
-                              + "protInfo,in,out#");
+                              + PROTINFO_PARAMETER);
         opt.addUsageForm();
         opt.appendToUsageForm(3,
                               "-plain#-e,-cerr,-outi,-width,-wd,-sloppy#"
-                              + "protInfo,in,out#");
+                              + PROTINFO_PARAMETER);
 
         opt.addUsageForm();
         opt.appendToUsageForm(4, "-version###");
