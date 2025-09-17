@@ -407,7 +407,7 @@ public class Demo {
     public void addDefaultPartyInfos(final ProtocolInfo pi, final Opt opt)
         throws InfoException {
 
-        final int k = opt.getIntValue(NOPART_PARAMETER, DemoConstants.NO_PARTIES);
+        final int ik = opt.getIntValue(NOPART_PARAMETER, DemoConstants.NO_PARTIES);
 
         boolean httpext = false;
         String http = null;
@@ -436,7 +436,7 @@ public class Demo {
 
         final PartyInfoFactory pif = pi.getFactory();
 
-        for (int j = 1; j <= k; j++) {
+        for (int j = 1; j <= ik; j++) {
             final PartyInfo p = pif.newInstance();
             p.addValue(Protocol.SORT_BY_ROLE, "DefaultRole");
             p.addValue(Protocol.NAME, String.format(PARTY_DIR_FORMAT, j));
