@@ -637,7 +637,7 @@ public class Demo {
      * @throws Exception If the factory can not be instantiated.
      */
     protected static DemoProtocolElGamalFactory
-        factory(final String factoryClassName)
+    demoFactory(final String factoryClassName)
         throws Exception {
 
         // Instantiate the demo protocol factory.
@@ -714,7 +714,7 @@ public class Demo {
 
                 // Get protocol factory.
                 final DemoProtocolElGamalFactory factory =
-                    factory(factoryClassName);
+                    demoFactory(factoryClassName);
 
                 // Run demo.
                 demo = new Demo(opt, factory);
