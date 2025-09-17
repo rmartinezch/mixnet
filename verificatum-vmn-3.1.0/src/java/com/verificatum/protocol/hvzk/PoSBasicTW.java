@@ -233,7 +233,7 @@ public final class PoSBasicTW {
     /**
      * Randomness to form the bridging commitments.
      */
-    PRingElementArray b;
+    PRingElementArray pB;
 
     /**
      * Randomness to form the last bridging commitment in a different
@@ -343,7 +343,7 @@ public final class PoSBasicTW {
         this.Cp = null;
         this.Dp = null;
         this.ipe = null;
-        this.b = null;
+        this.pB = null;
         this.d = null;
         this.alpha = null;
         this.beta = null;
@@ -568,7 +568,7 @@ public final class PoSBasicTW {
         //
         // where we generate the b array as follows:
 
-        b = pRing.randomElementArray(size, randomSource, rbitlen);
+        pB = pRing.randomElementArray(size, randomSource, rbitlen);
 
         // Thus, we form the committed product of the inverse permuted
         // random exponents.
@@ -593,7 +593,7 @@ public final class PoSBasicTW {
         // PRingElementArray x = pRing.toElementArray(xs);
         // d = xs[size-1];
 
-        final Pair<PRingElementArray, PRingElement> p = b.recLin(ipe);
+        final Pair<PRingElementArray, PRingElement> p = pB.recLin(ipe);
         final PRingElementArray x = p.first;
         d = p.second;
 
@@ -871,7 +871,7 @@ public final class PoSBasicTW {
         // k_{E,i} = ve_i' + \epsilon_i
         //
         k_A = a.mulAdd(v, alpha);
-        k_B = b.mulAdd(v, beta);
+        k_B = pB.mulAdd(v, beta);
         k_C = c.mulAdd(v, gamma);
         k_D = d.mulAdd(v, delta);
         k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
@@ -1090,7 +1090,7 @@ public final class PoSBasicTW {
         PRingElementArray.free(r);
         PGroupElementArray.free(u);
         PRingElementArray.free(e);
-        PRingElementArray.free(b);
+        PRingElementArray.free(pB);
         PGroupElementArray.free(B);
         PGroupElementArray.free(Bp);
         PRingElementArray.free(ipe);
