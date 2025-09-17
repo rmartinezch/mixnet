@@ -75,12 +75,12 @@ public class MixNetElGamal extends ProtocolElGamal {
     /**
      * Default width of ciphertexts processed by this mix-net.
      */
-    protected int width;
+    protected int iwidth;
 
     /**
      * Default maximal number of ciphertexts.
      */
-    protected int maxciph;
+    protected int imaxciph;
 
     /**
      * Creates a mix-net.
@@ -100,11 +100,11 @@ public class MixNetElGamal extends ProtocolElGamal {
 
         // Default number of ciphertexts processed in parallel, i.e.,
         // the "width" of the ciphertexts.
-        width = protocolInfo.getIntValue(WIDTH);
+        iwidth = protocolInfo.getIntValue(WIDTH);
 
         // Default maximal number of ciphertexts for which
         // pre-computation is performed.
-        maxciph = protocolInfo.getIntValue(MAXCIPH);
+        imaxciph = protocolInfo.getIntValue(MAXCIPH);
     }
 
     @Override
@@ -125,20 +125,20 @@ public class MixNetElGamal extends ProtocolElGamal {
      * @param nizkp Destination directory for random oracle
      * proofs. Note that this directory is deleted when {@link
      * #deleteState()} is called.
-     * @param width Default width of processed ciphertexts for which
+     * @param iwidth Default width of processed ciphertexts for which
      * pre-computation is performed.
-     * @param maxciph Default number of ciphertexts for which
+     * @param imaxciph Default number of ciphertexts for which
      * precomputation is performed.
      */
     public MixNetElGamal(final String sid,
                          final ProtocolElGamal prot,
                          final String rosid,
                          final File nizkp,
-                         final int width,
-                         final int maxciph) {
+                         final int iwidth,
+                         final int imaxciph) {
         super(sid, prot, rosid, nizkp);
-        this.width = width;
-        this.maxciph = maxciph;
+        this.iwidth = iwidth;
+        this.imaxciph = imaxciph;
     }
 
     /**
@@ -174,7 +174,7 @@ public class MixNetElGamal extends ProtocolElGamal {
      * @return Default width of the mix-net.
      */
     public int getDefaultWidth() {
-        return width;
+        return iwidth;
     }
 
     /**
@@ -183,7 +183,7 @@ public class MixNetElGamal extends ProtocolElGamal {
      * @return Default width of the mix-net.
      */
     public int getDefaultMaxCiph() {
-        return maxciph;
+        return imaxciph;
     }
 
     /**
