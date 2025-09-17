@@ -33,6 +33,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,7 +128,7 @@ public abstract class ProtocolElGamalInterfaceString
         throws ProtocolFormatException {
 
         final ArrayList<PGroupElementArray> ciphertextArrays =
-            new ArrayList<PGroupElementArray>();
+            new ArrayList<>();
 
         BufferedReader br = null;
 
@@ -140,7 +141,7 @@ public abstract class ProtocolElGamalInterfaceString
             while (moreLines) {
 
                 final ArrayList<PGroupElement> ciphertextList =
-                    new ArrayList<PGroupElement>();
+                    new ArrayList<>();
 
                 while (ciphertextList.size() < CIPHERTEXT_BUFFER_SIZE) {
 
@@ -195,12 +196,8 @@ public abstract class ProtocolElGamalInterfaceString
      * @return String embedded in the given group element.
      */
     protected String decodePlaintext(final PGroupElement plaintext) {
-        try {
-            final String s = new String(plaintext.decode(), "UTF-8");
-            return s.replaceAll("\n", "").replaceAll("\r", "");
-        } catch (final UnsupportedEncodingException uee) {
-            throw new ProtocolError("Unable to decode plaintext!", uee);
-        }
+        final String s = new String(plaintext.decode(), StandardCharsets.UTF_8);
+        return s.replace("\n", "").replace("\r", "");
     }
 
     @Override
@@ -373,7 +370,7 @@ public abstract class ProtocolElGamalInterfaceString
 
         // List of partial results.
         final List<PGroupElementArray> partialDummies =
-            new ArrayList<PGroupElementArray>();
+            new ArrayList<>();
 
         // Fill list with partial group element arrays.
         int remaining = noCiphs;
