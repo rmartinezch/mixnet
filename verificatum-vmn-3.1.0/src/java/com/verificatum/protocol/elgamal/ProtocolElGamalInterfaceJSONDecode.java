@@ -333,7 +333,7 @@ public class ProtocolElGamalInterfaceJSONDecode
     public String decodePlaintext(final PGroupElement plaintext) {
         try {
             final String s = new String(plaintext.decode(), "UTF-8");
-            return s.replaceAll("\n", "").replaceAll("\r", "");
+            return s.replace("\n", "").replace("\r", "");
         } catch (final UnsupportedEncodingException uee) {
             throw new ProtocolError("Unable to decode plaintext!", uee);
         }
