@@ -46,7 +46,9 @@ import com.verificatum.vcr.VCR;
  */
 @SuppressWarnings("PMD.MethodNamingConventions")
 public final class MixNetElGamalSession extends ProtocolElGamal {
-
+    private static final String SHUFFLE_PARAMETER = ".shuffle";
+    private static final String PRECOMP_PARAMETER = ".precomp";
+    private static final String DECRYPT_PARAMETER = ".decrypt";
     /**
      * Fiat-Shamir proof of a mixing.
      */
@@ -159,14 +161,14 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * performed.
      */
     public void precomp(final Log log, final int width, final int size) {
-        if (readBoolean(".precomp")
-            || readBoolean(".shuffle")
-            || readBoolean(".decrypt")) {
+        if (readBoolean(PRECOMP_PARAMETER)
+            || readBoolean(SHUFFLE_PARAMETER)
+            || readBoolean(DECRYPT_PARAMETER)) {
             throw new ProtocolError("Attempting to pre-compute in a used "
                                     + "session!");
         } else {
 
-            writeBoolean(".precomp");
+            writeBoolean(PRECOMP_PARAMETER);
         }
 
         // Write width to proof directory to make it self-contained.
@@ -209,10 +211,10 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
                                       final int width,
                                       final PGroupElementArray ciphertexts) {
 
-        if (readBoolean(".shuffle") || readBoolean(".decrypt")) {
+        if (readBoolean(SHUFFLE_PARAMETER) || readBoolean(DECRYPT_PARAMETER)) {
             throw new ProtocolError("Attempting to shuffle in a used session!");
         }
-        writeBoolean(".shuffle");
+        writeBoolean(SHUFFLE_PARAMETER);
 
         if (fnizkp != null) {
 
@@ -224,7 +226,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         }
 
         PGroupElementArray shufCiphertexts;
-        if (readBoolean(".precomp")) {
+        if (readBoolean(PRECOMP_PARAMETER)) {
 
             shufCiphertexts =
                 segSession.committedShuffle(log, width, ciphertexts);
@@ -275,14 +277,14 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
                                     + "have been generated. Thus, decryption "
                                     + "is not possible!");
         }
-        if (readBoolean(".decrypt")) {
+        if (readBoolean(DECRYPT_PARAMETER)) {
             throw new ProtocolError("Attempting to decrypt in a used session!");
         }
-        if (readBoolean(".precomp") && !readBoolean(".shuffle")) {
+        if (readBoolean(PRECOMP_PARAMETER) && !readBoolean(SHUFFLE_PARAMETER)) {
             throw new ProtocolError("Performed pre-computation, but no "
                                     + "shuffling!");
         }
-        writeBoolean(".decrypt");
+        writeBoolean(DECRYPT_PARAMETER);
 
         // Write width to proof directory to make it self-contained.
         if (fnizkp != null) {

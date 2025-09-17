@@ -44,7 +44,8 @@ import com.verificatum.ui.info.ProtocolInfo;
  * @author Douglas Wikstrom
  */
 public class MixNetElGamal extends ProtocolElGamal {
-
+    private static final String SET_PUBLIC_KEY_PARAMETER = ".setPublicKey";
+    private static final String PUBLIC_KEY_PARAMETER = ".publicKey";
     /**
      * Name of default width tag.
      */
@@ -194,7 +195,7 @@ public class MixNetElGamal extends ProtocolElGamal {
      */
     public void generatePublicKey(final Log log) {
 
-        if (readBoolean(".setPublicKey")) {
+        if (readBoolean(SET_PUBLIC_KEY_PARAMETER)) {
             throw new ProtocolError("Attempting to generate public key "
                                     + "after the public key has been set!");
         }
@@ -202,7 +203,7 @@ public class MixNetElGamal extends ProtocolElGamal {
             throw new ProtocolError("Attempting to generate key before "
                                     + "calling setup!");
         }
-        writeBoolean(".publicKey");
+        writeBoolean(PUBLIC_KEY_PARAMETER);
 
         distrElGamal.generatePublicKey(log);
         shufflerElGamal.setPublicKey(distrElGamal.getFullPublicKey());
@@ -225,11 +226,11 @@ public class MixNetElGamal extends ProtocolElGamal {
      * @param publicKey Full El Gamal public key.
      */
     public void setPublicKey(final PGroupElement publicKey) {
-        if (readBoolean(".publicKey")) {
+        if (readBoolean(PUBLIC_KEY_PARAMETER)) {
             throw new ProtocolError("Attempting to set public key after the "
                                     + "public key has been generated!");
         }
-        writeBoolean(".setPublicKey");
+        writeBoolean(SET_PUBLIC_KEY_PARAMETER);
 
         // Note that if this happens, then instantiating the
         // ShufflerElGamal and DistrElGamal in this way does not give
@@ -248,7 +249,7 @@ public class MixNetElGamal extends ProtocolElGamal {
      */
     public PGroupElement getPublicKey() {
 
-        if (!(readBoolean(".publicKey") || readBoolean(".publicKey"))) {
+        if (!(readBoolean(PUBLIC_KEY_PARAMETER) || readBoolean(PUBLIC_KEY_PARAMETER))) {
             throw new ProtocolError("Requesting public key before it has "
                                     + "been set or generated!");
         }
@@ -286,7 +287,7 @@ public class MixNetElGamal extends ProtocolElGamal {
      */
     public MixNetElGamalSession getSession(final String auxsid) {
 
-        if (!readBoolean(".publicKey") && !readBoolean(".setPublicKey")) {
+        if (!readBoolean(PUBLIC_KEY_PARAMETER) && !readBoolean(SET_PUBLIC_KEY_PARAMETER)) {
             throw new ProtocolError("Asking for session before any key has "
                                     + "been generated!");
         }
