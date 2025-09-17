@@ -76,6 +76,16 @@ import com.verificatum.vcr.VCR;
                    "PMD.AvoidCatchingThrowable"})
 public class Demo {
     private static final String PARTY_DIR_FORMAT = "Party%02d";
+    private static final String HIDE_PARAMETER = "-hide";
+    private static final String KEEP_PARAMETER = "-keep";
+    private static final String NOPART_PARAMETER = "-nopart";
+    private static final String HTTPEXT_PARAMETER = "-httpext";
+    private static final String HTTPHOST_PARAMETER = "-httphost";
+    private static final String HTTPHOSTL_PARAMETER = "-httphostl";
+    private static final String HINTHOST_PARAMETER = "-hinthost";
+    private static final String HINTHOSTl_PARAMETER = "-hinthostl";
+    private static final String HTTPDIR_PARAMETER = "-httpdir";
+    private static final String HTTPPORT_PARAMETER = "-httpport";
     /**
      * Name of local host parameter.
      */
@@ -274,7 +284,7 @@ public class Demo {
         }
 
         // Decide if we should display the logging or not.
-        if (!opt.getBooleanValue("-hide")) {
+        if (!opt.getBooleanValue(HIDE_PARAMETER)) {
             demoJFrame.setVisible(true);
         }
 
@@ -291,8 +301,8 @@ public class Demo {
         }
 
         // Keep the demo window open if requested.
-        if (!opt.getBooleanValue("-hide") && opt.valueIsGiven("-keep")) {
-            final int seconds = opt.getIntValue("-keep");
+        if (!opt.getBooleanValue(HIDE_PARAMETER) && opt.valueIsGiven(KEEP_PARAMETER)) {
+            final int seconds = opt.getIntValue(KEEP_PARAMETER);
             Thread.sleep(1000l * seconds);
         }
 
@@ -375,7 +385,7 @@ public class Demo {
         try {
             pi.addValue(Protocol.SID, "DemoID");
             pi.addValue(Protocol.NAME, "DemoName");
-            pi.addValue(Protocol.NOPARTIES, opt.getIntValue("-nopart", 3));
+            pi.addValue(Protocol.NOPARTIES, opt.getIntValue(NOPART_PARAMETER, 3));
             pi.addValue(ProtocolBBT.THRESHOLD, opt.getIntValue("-thres", 2));
 
             final ProtocolElGamalGen gen = new ProtocolElGamalGen();
@@ -397,29 +407,29 @@ public class Demo {
     public void addDefaultPartyInfos(final ProtocolInfo pi, final Opt opt)
         throws InfoException {
 
-        final int k = opt.getIntValue("-nopart", DemoConstants.NO_PARTIES);
+        final int k = opt.getIntValue(NOPART_PARAMETER, DemoConstants.NO_PARTIES);
 
         boolean httpext = false;
         String http = null;
         int httpport = 0;
 
-        if (opt.getBooleanValue("-httpext")) {
-            http = opt.getStringValue("-httpext");
+        if (opt.getBooleanValue(HTTPEXT_PARAMETER)) {
+            http = opt.getStringValue(HTTPEXT_PARAMETER);
             httpext = true;
         } else {
             http = LOCALHOST;
-            if (opt.valueIsGiven("-httphost")) {
-                http = opt.getStringValue("-httphost");
+            if (opt.valueIsGiven(HTTPHOST_PARAMETER)) {
+                http = opt.getStringValue(HTTPHOST_PARAMETER);
             }
             httpport =
-                opt.getIntValue("-httpport", ProtocolDefaults.HTTP_PORT);
+                opt.getIntValue(HTTPPORT_PARAMETER, ProtocolDefaults.HTTP_PORT);
         }
 
         http = normalizeURLString(http);
 
         String hinthost = LOCALHOST;
-        if (opt.valueIsGiven("-hinthost")) {
-            hinthost = opt.getStringValue("-hinthost");
+        if (opt.valueIsGiven(HINTHOST_PARAMETER)) {
+            hinthost = opt.getStringValue(HINTHOST_PARAMETER);
         }
         final int hintport =
             opt.getIntValue("-hintport", ProtocolDefaults.HINT_PORT);
@@ -508,8 +518,8 @@ public class Demo {
             pi.addValue("arrays", ProtocolDefaults.ARRAYS);
 
             File httpdir = new File(partyDir, "http");
-            if (opt.valueIsGiven("-httpdir")) {
-                httpdir = new File(opt.getStringValue("-httpdir"));
+            if (opt.valueIsGiven(HTTPDIR_PARAMETER)) {
+                httpdir = new File(opt.getStringValue(HTTPDIR_PARAMETER));
             }
             try {
                 ExtIO.mkdirs(httpdir);
@@ -520,14 +530,14 @@ public class Demo {
             pi.addValue(BullBoardBasicHTTP.HTTPDIR, httpdir.toString());
 
             String httptype = "internal";
-            if (opt.valueIsGiven("-httpext")) {
+            if (opt.valueIsGiven(HTTPEXT_PARAMETER)) {
                 httptype = "external";
             }
             pi.addValue(BullBoardBasicHTTP.HTTP_TYPE, httptype);
 
             String httpl = LOCALHOST;
-            if (opt.valueIsGiven("-httphostl")) {
-                httpl = opt.getStringValue("-httphostl");
+            if (opt.valueIsGiven(HTTPHOSTL_PARAMETER)) {
+                httpl = opt.getStringValue(HTTPHOSTL_PARAMETER);
             }
             final int httpportl = opt.getIntValue("-httpportl",
                                                   ProtocolDefaults.HTTP_PORT);
@@ -536,8 +546,8 @@ public class Demo {
                         + (httpportl + j - 1));
 
             String hinthostl = LOCALHOST;
-            if (opt.valueIsGiven("-hinthostl")) {
-                hinthostl = opt.getStringValue("-hinthostl");
+            if (opt.valueIsGiven(HINTHOSTl_PARAMETER)) {
+                hinthostl = opt.getStringValue(HINTHOSTl_PARAMETER);
             }
             final int hintportl = opt.getIntValue("-hintportl",
                                                   ProtocolDefaults.HINT_PORT);
@@ -573,26 +583,26 @@ public class Demo {
                       + "Each demonstrated class is given its own "
                       + "subdirectory.");
 
-        opt.addOption("-nopart", "value", "Number of parties.");
+        opt.addOption(NOPART_PARAMETER, "value", "Number of parties.");
         opt.addOption("-thres", "value", "Threshold number of parties.");
 
-        opt.addOption("-httphost", HOST, "Host address of http servers.");
-        opt.addOption("-httpport", PORT,
+        opt.addOption(HTTPHOST_PARAMETER, HOST, "Host address of http servers.");
+        opt.addOption(HTTPPORT_PARAMETER, PORT,
                       "Offset port number of http servers.");
-        opt.addOption("-httphostl", HOST,
+        opt.addOption(HTTPHOSTL_PARAMETER, HOST,
                       "Listening host address of http servers.");
         opt.addOption("-httpportl", PORT,
                       "Listening offset port number of http servers.");
-        opt.addOption("-httpext", "url", "Use external http server.");
+        opt.addOption(HTTPEXT_PARAMETER, "url", "Use external http server.");
 
-        opt.addOption("-httpdir", "dir",
+        opt.addOption(HTTPDIR_PARAMETER, "dir",
                       "Prefix of directories of http servers.");
 
-        opt.addOption("-hinthost", HOST,
+        opt.addOption(HINTHOST_PARAMETER, HOST,
                       "Hostname of hint server (defaults to \"localhost\").");
         opt.addOption("-hintport", PORT,
                       "Offset port number of hint servers.");
-        opt.addOption("-hinthostl", HOST,
+        opt.addOption(HINTHOSTl_PARAMETER, HOST,
                       "Listening hostname of hint server "
                       + "(defaults to \"localhost\").");
         opt.addOption("-hintportl", PORT,
@@ -600,8 +610,8 @@ public class Demo {
 
         opt.addOption("-seed", "", "Generate random seed for each party "
                       + "(only works when -rs is not a random device).");
-        opt.addOption("-hide", "", "Hide the demonstration window.");
-        opt.addOption("-keep", "secs",
+        opt.addOption(HIDE_PARAMETER, "", "Hide the demonstration window.");
+        opt.addOption(KEEP_PARAMETER, "secs",
                       "Sleep for the given number of seconds inbetween demos, "
                       + "keeping the log windows open. This is ignored if "
                       + "\"-hide\" is used.");
@@ -676,9 +686,9 @@ public class Demo {
             }
 
             // Rudimentary sanity check of command line arguments.
-            if (opt.getBooleanValue("-httpext")
-                && opt.valueIsGiven("-httphost")
-                || opt.valueIsGiven("-httpport")) {
+            if (opt.getBooleanValue(HTTPEXT_PARAMETER)
+                && opt.valueIsGiven(HTTPHOST_PARAMETER)
+                || opt.valueIsGiven(HTTPPORT_PARAMETER)) {
                 System.out.println("\nERROR: You may not use both "
                                    + "-httpext and "
                                    + "(-httphost or -httpport).\n");
