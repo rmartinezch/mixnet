@@ -183,7 +183,7 @@ public final class PoSCBasicTW {
     /**
      * Randomness to form the bridging commitments.
      */
-    PRingElementArray b;
+    PRingElementArray pB;
 
     /**
      * Randomness to form the last bridging commitment in a different
@@ -281,7 +281,7 @@ public final class PoSCBasicTW {
         this.Cp = null;
         this.Dp = null;
         this.ipe = null;
-        this.b = null;
+        this.pB = null;
         this.d = null;
         this.alpha = null;
         this.beta = null;
@@ -382,7 +382,7 @@ public final class PoSCBasicTW {
         // B_i = g^{b_i} * B_{i-1}^{e_i'} (2)
         //
         // where we generate the b array as follows:
-        b = pRing.randomElementArray(size, randomSource, rbitlen);
+        pB = pRing.randomElementArray(size, randomSource, rbitlen);
 
         // Thus, we form the committed product of the inverse permuted
         // random exponents.
@@ -407,7 +407,7 @@ public final class PoSCBasicTW {
         // PRingElementArray x = pRing.toElementArray(xs);
         // d = xs[size-1];
 
-        final Pair<PRingElementArray, PRingElement> p = b.recLin(ipe);
+        final Pair<PRingElementArray, PRingElement> p = pB.recLin(ipe);
         final PRingElementArray x = p.first;
         d = p.second;
 
@@ -621,7 +621,7 @@ public final class PoSCBasicTW {
         // k_{E,i} = ve_i' + \epsilon_i
         //
         k_A = a.mulAdd(v, alpha);
-        k_B = b.mulAdd(v, beta);
+        k_B = pB.mulAdd(v, beta);
         k_C = c.mulAdd(v, gamma);
         k_D = d.mulAdd(v, delta);
         k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
@@ -749,8 +749,8 @@ public final class PoSCBasicTW {
         if (e != null) {
             e.free();
         }
-        if (b != null) {
-            b.free();
+        if (pB != null) {
+            pB.free();
         }
         if (B != null) {
             B.free();
