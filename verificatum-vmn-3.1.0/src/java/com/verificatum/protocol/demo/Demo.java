@@ -75,7 +75,7 @@ import com.verificatum.vcr.VCR;
 @SuppressWarnings({"PMD.SignatureDeclareThrowsException",
                    "PMD.AvoidCatchingThrowable"})
 public class Demo {
-
+    private static final String PARTY_DIR_FORMAT = "Party%02d";
     /**
      * Name of local host parameter.
      */
@@ -199,7 +199,7 @@ public class Demo {
         // Directories for all parties.
         partyDirs = new File[k + 1];
         for (int j = 1; j <= k; j++) {
-            partyDirs[j] = new File(demoRoot, String.format("Party%02d", j));
+            partyDirs[j] = new File(demoRoot, String.format(PARTY_DIR_FORMAT, j));
             try {
                 ExtIO.mkdirs(partyDirs[j]);
             } catch (final EIOException eioe) {
@@ -429,7 +429,7 @@ public class Demo {
         for (int j = 1; j <= k; j++) {
             final PartyInfo p = pif.newInstance();
             p.addValue(Protocol.SORT_BY_ROLE, "DefaultRole");
-            p.addValue(Protocol.NAME, String.format("Party%02d", j));
+            p.addValue(Protocol.NAME, String.format(PARTY_DIR_FORMAT, j));
             p.addValue(Protocol.DESCRIPTION, "Description" + j);
 
             final String pkeyString =
@@ -463,7 +463,7 @@ public class Demo {
                                  final int j,
                                  final Opt opt) {
 
-        final String name = String.format("Party%02d", j);
+        final String name = String.format(PARTY_DIR_FORMAT, j);
         try {
             pi.addValue(RootInfo.VERSION, VCR.version());
             pi.addValue(Protocol.NAME, name);
