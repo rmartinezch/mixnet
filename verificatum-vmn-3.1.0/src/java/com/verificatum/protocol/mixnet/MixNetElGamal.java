@@ -157,8 +157,8 @@ public class MixNetElGamal extends ProtocolElGamal {
         // guarantee to be used when we generate it in
         // generatePublicKey(Log) below.
 
-        shufflerElGamal = new ShufflerElGamal("SEG", this, nizkp);
-        distrElGamal = new DistrElGamal("DEG", this, nizkp);
+        shufflerElGamal = new ShufflerElGamal("SEG", this, fnizkp);
+        distrElGamal = new DistrElGamal("DEG", this, fnizkp);
     }
 
     /**
@@ -236,7 +236,7 @@ public class MixNetElGamal extends ProtocolElGamal {
         // completely initialized subprotocols. This is still useful
         // to set a key without running the setup of the mix-net.
         if (shufflerElGamal == null) {
-            shufflerElGamal = new ShufflerElGamal("SEG", this, nizkp);
+            shufflerElGamal = new ShufflerElGamal("SEG", this, fnizkp);
         }
         shufflerElGamal.setPublicKey(publicKey);
     }
@@ -294,8 +294,8 @@ public class MixNetElGamal extends ProtocolElGamal {
         File sessionNizk = null;
         final String sessionRosid = rosid + "." + auxsid;
 
-        if (nizkp != null) {
-            sessionNizk = new File(nizkp, auxsid);
+        if (fnizkp != null) {
+            sessionNizk = new File(fnizkp, auxsid);
         }
 
         // Note that if this happens, then instantiating the
@@ -305,8 +305,8 @@ public class MixNetElGamal extends ProtocolElGamal {
         // the mix-net.
         if (shufflerElGamal == null) {
 
-            shufflerElGamal = new ShufflerElGamal("SEG", this, nizkp);
-            distrElGamal = new DistrElGamal("DEG", this, nizkp);
+            shufflerElGamal = new ShufflerElGamal("SEG", this, fnizkp);
+            distrElGamal = new DistrElGamal("DEG", this, fnizkp);
 
         }
 

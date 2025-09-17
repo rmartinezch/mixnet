@@ -107,8 +107,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         tempLog.info("Publish our permutation commitment.");
         bullBoard.publish("PermutationCommitment", P.u.toByteTree(), tempLog);
 
-        if (nizkp != null) {
-            P.u.toByteTree().unsafeWriteTo(PCfile(nizkp, j));
+        if (fnizkp != null) {
+            P.u.toByteTree().unsafeWriteTo(PCfile(fnizkp, j));
         }
 
         // Generate a seed to the PRG for batching.
@@ -133,8 +133,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         tempLog.info("Compute commitment.");
         final ByteTreeBasic commitment = P.commit(prgSeed);
 
-        if (nizkp != null) {
-            commitment.unsafeWriteTo(PoSCfile(nizkp, j));
+        if (fnizkp != null) {
+            commitment.unsafeWriteTo(PoSCfile(fnizkp, j));
         }
 
         tempLog.info("Publish our commitment.");
@@ -154,8 +154,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         tempLog.info("Compute reply.");
         final ByteTreeBasic reply = P.reply(integerChallenge);
 
-        if (nizkp != null) {
-            reply.unsafeWriteTo(PoSRfile(nizkp, j));
+        if (fnizkp != null) {
+            reply.unsafeWriteTo(PoSRfile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
@@ -193,8 +193,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         V.setPermutationCommitment(permutationCommitmentReader);
         permutationCommitmentReader.close();
 
-        if (nizkp != null) {
-            V.u.toByteTree().unsafeWriteTo(PCfile(nizkp, l));
+        if (fnizkp != null) {
+            V.u.toByteTree().unsafeWriteTo(PCfile(fnizkp, l));
         }
 
         // Generate a seed to the PRG for batching.
@@ -230,8 +230,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
         commitmentReader.close();
 
-        if (nizkp != null) {
-            commitment.unsafeWriteTo(PoSCfile(nizkp, l));
+        if (fnizkp != null) {
+            commitment.unsafeWriteTo(PoSCfile(fnizkp, l));
         }
 
         // Generate a challenge
@@ -256,8 +256,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         final boolean verdict = V.verify(replyReader);
         replyReader.close();
 
-        if (verdict && nizkp != null) {
-            V.getReply().unsafeWriteTo(PoSRfile(nizkp, l));
+        if (verdict && fnizkp != null) {
+            V.getReply().unsafeWriteTo(PoSRfile(fnizkp, l));
         }
 
         if (verdict) {

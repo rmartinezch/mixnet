@@ -163,8 +163,8 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
     public void deleteState() {
         super.deleteState();
 
-        if (nizkp != null) {
-            ExtIO.delete(nizkp);
+        if (fnizkp != null) {
+            ExtIO.delete(fnizkp);
         }
     }
 
@@ -295,7 +295,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 reencExponents.free();
                 reencExponents = null;
 
-                writeOutput(nizkp, l, activeThreshold, output);
+                writeOutput(fnizkp, l, activeThreshold, output);
 
             } else if (getActive(l)) {
 
@@ -309,7 +309,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 // formed output list.
 
                 final PoS V =
-                    posFactory.newPoS(Integer.toString(l), this, rosid, nizkp);
+                    posFactory.newPoS(Integer.toString(l), this, rosid, fnizkp);
                 V.precompute(log,
                              generators.getPGroup().getg(),
                              generators);
@@ -326,7 +326,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                     V.free();
                 }
 
-                writeOutput(nizkp, l, activeThreshold, output);
+                writeOutput(fnizkp, l, activeThreshold, output);
             }
 
             if (getActive(l)) {
@@ -390,8 +390,8 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         final int activeThreshold = getActiveThreshold();
 
-        if (nizkp != null) {
-            ExtIO.unsafeWriteInt(ATfile(nizkp), activeThreshold);
+        if (fnizkp != null) {
+            ExtIO.unsafeWriteInt(ATfile(fnizkp), activeThreshold);
         }
 
         if (j <= activeThreshold) {
@@ -410,7 +410,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
             tempLog.info("Perform local pre-computation.");
             P = getShuffler().posFactory.newPoS(Integer.toString(j),
-                                                this, rosid, nizkp);
+                                                this, rosid, fnizkp);
             P.precompute(tempLog,
                          generators.getPGroup().getg(),
                          generators,
@@ -516,8 +516,8 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * can be shuffled or mixed.
      */
     private void writeMaxciph(final int actualMaxciph) {
-        if (nizkp != null && actualMaxciph != 0) {
-            ExtIO.unsafeWriteInt(MCfile(nizkp), actualMaxciph);
+        if (fnizkp != null && actualMaxciph != 0) {
+            ExtIO.unsafeWriteInt(MCfile(fnizkp), actualMaxciph);
         }
     }
 
@@ -589,8 +589,8 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         final int activeThreshold = getActiveThreshold();
 
-        if (nizkp != null) {
-            ExtIO.unsafeWriteInt(ATfile(nizkp), activeThreshold);
+        if (fnizkp != null) {
+            ExtIO.unsafeWriteInt(ATfile(fnizkp), activeThreshold);
         }
 
         // Generate permutation commitments.
@@ -601,7 +601,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 new PermutationCommitment(Integer.toString(l),
                                           this,
                                           rosid,
-                                          nizkp,
+                        fnizkp,
                                           l,
                                           generators,
                                           poscFactory);
@@ -1013,7 +1013,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                                                  widePublicKey,
                                                  input,
                                                  nextOutput,
-                                                 nizkp,
+                        fnizkp,
                                                  activeThreshold,
                                                  tempLog);
 
@@ -1024,7 +1024,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                                                 widePublicKey,
                                                 input,
                                                 nextOutput,
-                                                nizkp,
+                        fnizkp,
                                                 activeThreshold,
                                                 tempLog);
             }

@@ -144,8 +144,8 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         }
 
         super.deleteState();
-        if (nizkp != null) {
-            ExtIO.delete(nizkp);
+        if (fnizkp != null) {
+            ExtIO.delete(fnizkp);
         }
     }
 
@@ -170,18 +170,18 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         }
 
         // Write width to proof directory to make it self-contained.
-        if (nizkp != null) {
-            final File widthFile = Wfile(nizkp);
+        if (fnizkp != null) {
+            final File widthFile = Wfile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
         }
 
         segSession.precomp(log, width, size);
 
-        if (nizkp != null) {
+        if (fnizkp != null) {
 
-            ExtIO.unsafeWriteString(Tfile(nizkp), SHUFFLE_TYPE);
+            ExtIO.unsafeWriteString(Tfile(fnizkp), SHUFFLE_TYPE);
 
-            getMixNet().writeKeys(nizkp, proofs);
+            getMixNet().writeKeys(fnizkp, proofs);
         }
     }
 
@@ -214,13 +214,13 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         }
         writeBoolean(".shuffle");
 
-        if (nizkp != null) {
+        if (fnizkp != null) {
 
             // Write width to proof directory to make it self-contained.
-            final File widthFile = Wfile(nizkp);
+            final File widthFile = Wfile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
 
-            ciphertexts.toByteTree().unsafeWriteTo(Lfile(nizkp));
+            ciphertexts.toByteTree().unsafeWriteTo(Lfile(fnizkp));
         }
 
         PGroupElementArray shufCiphertexts;
@@ -234,12 +234,12 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         }
 
         // Write output shuffled list of ciphertexts.
-        if (nizkp != null) {
+        if (fnizkp != null) {
 
-            ExtIO.unsafeWriteString(Tfile(nizkp), SHUFFLE_TYPE);
+            ExtIO.unsafeWriteString(Tfile(fnizkp), SHUFFLE_TYPE);
 
-            shufCiphertexts.toByteTree().unsafeWriteTo(LSfile(nizkp));
-            getMixNet().writeKeys(nizkp, proofs);
+            shufCiphertexts.toByteTree().unsafeWriteTo(LSfile(fnizkp));
+            getMixNet().writeKeys(fnizkp, proofs);
         }
 
         return shufCiphertexts;
@@ -285,28 +285,28 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         writeBoolean(".decrypt");
 
         // Write width to proof directory to make it self-contained.
-        if (nizkp != null) {
-            final File widthFile = Wfile(nizkp);
+        if (fnizkp != null) {
+            final File widthFile = Wfile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
 
             // If we execute after shuffle, then we move its output
             // shuffled ciphertexts into the proofs directory.
-            if (LSfile(nizkp).exists()) {
+            if (LSfile(fnizkp).exists()) {
 
-                ExtIO.unsafeWriteString(Tfile(nizkp), MIX_TYPE);
+                ExtIO.unsafeWriteString(Tfile(fnizkp), MIX_TYPE);
 
                 final File tmpFile =
                     ShufflerElGamalSession.Lfile(proofs, threshold);
 
-                if (!LSfile(nizkp).renameTo(tmpFile)) {
+                if (!LSfile(fnizkp).renameTo(tmpFile)) {
                     throw new ProtocolError("Unable to rename file!");
                 }
 
             } else {
 
-                ExtIO.unsafeWriteString(Tfile(nizkp), DECRYPT_TYPE);
+                ExtIO.unsafeWriteString(Tfile(fnizkp), DECRYPT_TYPE);
 
-                ciphertexts.toByteTree().unsafeWriteTo(Lfile(nizkp));
+                ciphertexts.toByteTree().unsafeWriteTo(Lfile(fnizkp));
             }
         }
 
@@ -314,9 +314,9 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
             degSession.decrypt(log, ciphertexts);
 
         // Write output.
-        if (nizkp != null) {
-            plaintexts.toByteTree().unsafeWriteTo(Pfile(nizkp));
-            getMixNet().writeKeys(nizkp, proofs);
+        if (fnizkp != null) {
+            plaintexts.toByteTree().unsafeWriteTo(Pfile(fnizkp));
+            getMixNet().writeKeys(fnizkp, proofs);
         }
 
         return plaintexts;

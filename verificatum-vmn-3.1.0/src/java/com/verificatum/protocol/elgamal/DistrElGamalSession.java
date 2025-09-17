@@ -85,8 +85,8 @@ public final class DistrElGamalSession extends ProtocolElGamal {
     public void deleteState() {
         super.deleteState();
 
-        if (nizkp != null) {
-            ExtIO.delete(nizkp);
+        if (fnizkp != null) {
+            ExtIO.delete(fnizkp);
         }
     }
 
@@ -344,8 +344,8 @@ public final class DistrElGamalSession extends ProtocolElGamal {
     public PGroupElementArray decrypt(final Log log,
                                       final PGroupElementArray ciphertexts) {
 
-        if (nizkp != null) {
-            ExtIO.unsafeWriteInt(ShufflerElGamalSession.ATfile(nizkp),
+        if (fnizkp != null) {
+            ExtIO.unsafeWriteInt(ShufflerElGamalSession.ATfile(fnizkp),
                                  getActiveThreshold());
         }
 
@@ -385,8 +385,8 @@ public final class DistrElGamalSession extends ProtocolElGamal {
             firstComponents.exp(dkg.getSecretKey().neg().mul(inverseFactor));
 
         // Export our own decryption factors.
-        if (nizkp != null) {
-            decryptionFactors[j].toByteTree().unsafeWriteTo(DFfile(nizkp, j));
+        if (fnizkp != null) {
+            decryptionFactors[j].toByteTree().unsafeWriteTo(DFfile(fnizkp, j));
         }
 
         final PGroup leftPGroup = firstComponents.getPGroup();
@@ -395,7 +395,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
         exchangeDecryptionFactors(leftPGroup,
                                   decryptionFactors,
                                   correct,
-                                  nizkp,
+                fnizkp,
                                   tempLog);
 
 
@@ -466,7 +466,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
         basic.batchInput();
 
         // Collect commitments.
-        exchangeCommitments(basic, correct, nizkp, tempLog);
+        exchangeCommitments(basic, correct, fnizkp, tempLog);
 
         // Generate a challenge
         tempLog.info("Generate challenge.");
@@ -480,7 +480,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
             LargeInteger.toPositive(challengeBytes);
 
         // Collect replies.
-        exchangeReplies(basic, integerChallenge, correct, nizkp, log);
+        exchangeReplies(basic, integerChallenge, correct, fnizkp, log);
 
         // Try to verify a combined proof for the first threshold
         // parties for which we don't already know submitted faulty
@@ -539,7 +539,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
         combDecryptionFactors.free();
 
         // Store the array indicating the indices of correct shares.
-        ByteTree.booleanArrayToByteTree(correct).unsafeWriteTo(CRfile(nizkp));
+        ByteTree.booleanArrayToByteTree(correct).unsafeWriteTo(CRfile(fnizkp));
 
         return plaintexts;
     }

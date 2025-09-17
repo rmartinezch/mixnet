@@ -211,7 +211,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                                           ciphertexts.toByteTree(),
                                           ui.getLog());
 
-                        session = getSession("mysid" + l, nizkp);
+                        session = getSession("mysid" + l, fnizkp);
 
                         PPGroupElementArray ciphertextsOut;
                         if (l < 2) {
@@ -252,7 +252,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                             ciphertextsReader.close();
                         }
 
-                        session = getSession("mysid" + l, nizkp);
+                        session = getSession("mysid" + l, fnizkp);
 
                         if (l < 2) {
                             session.shuffle(ui.getLog(), width, ciphertexts);

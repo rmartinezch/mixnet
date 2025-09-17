@@ -102,8 +102,8 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         tempLog.info("Compute commitment.");
         final ByteTreeBasic commitment = P.commit(prgSeed);
 
-        if (nizkp != null) {
-            commitment.unsafeWriteTo(PoSCCfile(nizkp, j));
+        if (fnizkp != null) {
+            commitment.unsafeWriteTo(PoSCCfile(fnizkp, j));
         }
 
         tempLog.info("Publish our commitment.");
@@ -123,8 +123,8 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         tempLog.info("Compute reply.");
         final ByteTreeBasic reply = P.reply(integerChallenge);
 
-        if (nizkp != null) {
-            reply.unsafeWriteTo(PoSCRfile(nizkp, j));
+        if (fnizkp != null) {
+            reply.unsafeWriteTo(PoSCRfile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
@@ -170,8 +170,8 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
         commitmentReader.close();
 
-        if (nizkp != null) {
-            commitment.unsafeWriteTo(PoSCCfile(nizkp, l));
+        if (fnizkp != null) {
+            commitment.unsafeWriteTo(PoSCCfile(fnizkp, l));
         }
 
         // Generate a challenge
@@ -196,8 +196,8 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         final boolean verdict = V.verify(replyReader);
         replyReader.close();
 
-        if (verdict && nizkp != null) {
-            V.getReply().unsafeWriteTo(PoSCRfile(nizkp, l));
+        if (verdict && fnizkp != null) {
+            V.getReply().unsafeWriteTo(PoSCRfile(fnizkp, l));
         }
 
         if (verdict) {

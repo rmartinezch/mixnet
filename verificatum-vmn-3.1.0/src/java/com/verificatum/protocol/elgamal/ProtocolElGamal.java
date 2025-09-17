@@ -251,7 +251,7 @@ public class ProtocolElGamal extends ProtocolBBT {
     /**
      * Destination directory for universally verifiable proofs.
      */
-    protected File nizkp;
+    protected File fnizkp;
 
     /**
      * Global prefix computed as hash digest of basic parameters to
@@ -497,15 +497,15 @@ public class ProtocolElGamal extends ProtocolBBT {
 
         final String nizkpString = privateInfo.getStringValue(NIZKP);
         if (!nonInteractiveProofs || "".equals(nizkpString)) {
-            nizkp = null;
+            fnizkp = null;
         } else {
             if (nizkpString.charAt(0) == '/') {
-                nizkp = new File(nizkpString);
+                fnizkp = new File(nizkpString);
             } else {
-                nizkp = new File(directory, nizkpString);
+                fnizkp = new File(directory, nizkpString);
             }
             try {
-                ExtIO.mkdirs(nizkp);
+                ExtIO.mkdirs(fnizkp);
             } catch (final EIOException eioe) {
                 throw new ProtocolError("Unable to create NIZKP directory!",
                                         eioe);
@@ -521,14 +521,14 @@ public class ProtocolElGamal extends ProtocolBBT {
      * @param prot Protocol that invokes this protocol as a
      * subprotocol.
      * @param rosid Session identifier for random oracle proofs.
-     * @param nizkp Destination directory for random oracle
+     * @param fnizkp Destination directory for random oracle
      * proofs. Note that this directory is deleted when {@link
      * #deleteState()} is called.
      */
     public ProtocolElGamal(final String sid,
                            final ProtocolElGamal prot,
                            final String rosid,
-                           final File nizkp) {
+                           final File fnizkp) {
         super(sid, prot);
 
         ivbitlen = prot.ivbitlen;
@@ -571,10 +571,10 @@ public class ProtocolElGamal extends ProtocolBBT {
             challenger = new ChallengerI(coins);
         }
 
-        this.nizkp = nizkp;
-        if (nizkp != null) {
+        this.fnizkp = fnizkp;
+        if (fnizkp != null) {
             try {
-                ExtIO.mkdirs(nizkp);
+                ExtIO.mkdirs(fnizkp);
             } catch (final EIOException eioe) {
                 throw new ProtocolError("Unable to create proof directory!",
                                         eioe);
@@ -590,10 +590,10 @@ public class ProtocolElGamal extends ProtocolBBT {
      */
     public long getNizkpBytes() {
         try {
-            if (nizkp == null) {
+            if (fnizkp == null) {
                 return -1;
             } else {
-                return ExtIO.fileSize(nizkp);
+                return ExtIO.fileSize(fnizkp);
             }
         } catch (IOException ioe) {
             final String e = "Unable to determine size of proof!";
@@ -605,8 +605,8 @@ public class ProtocolElGamal extends ProtocolBBT {
     public void deleteState() {
         super.deleteState();
 
-        if (nizkp != null) {
-            ExtIO.delete(nizkp);
+        if (fnizkp != null) {
+            ExtIO.delete(fnizkp);
         }
     }
 

@@ -293,7 +293,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
         // We did not read from file, so we need to interact and
         // prove/verify using a proof of a shuffle of commitments.
-        this.posc = poscFactory.newPoSC("", this, rosid, nizkp);
+        this.posc = poscFactory.newPoSC("", this, rosid, fnizkp);
 
         if (l == j) {
 
@@ -360,8 +360,8 @@ public final class PermutationCommitment extends ProtocolElGamal {
             raisedCommitment.toByteTree().unsafeWriteTo(raisedPermCommFile);
         }
 
-        if (nizkp != null) {
-            commitment.toByteTree().unsafeWriteTo(PCfile(nizkp, l));
+        if (fnizkp != null) {
+            commitment.toByteTree().unsafeWriteTo(PCfile(fnizkp, l));
         }
     }
 
@@ -409,8 +409,8 @@ public final class PermutationCommitment extends ProtocolElGamal {
             final ByteTree bt = ByteTree.booleanArrayToByteTree(keepList);
             bullBoard.publish("KeepList", bt, tempLog);
 
-            if (nizkp != null) {
-                bt.unsafeWriteTo(KLfile(nizkp, j));
+            if (fnizkp != null) {
+                bt.unsafeWriteTo(KLfile(fnizkp, j));
             }
 
             // Shrink private data.
@@ -450,9 +450,9 @@ public final class PermutationCommitment extends ProtocolElGamal {
             }
         }
 
-        if (nizkp != null) {
+        if (fnizkp != null) {
             final ByteTreeBasic bt = ByteTree.booleanArrayToByteTree(keepList);
-            bt.unsafeWriteTo(KLfile(nizkp, l));
+            bt.unsafeWriteTo(KLfile(fnizkp, l));
         }
 
         // Use the keep list to extract a smaller permutation

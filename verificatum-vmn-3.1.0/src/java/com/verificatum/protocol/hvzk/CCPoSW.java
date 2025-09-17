@@ -112,11 +112,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         final ByteTreeBasic commitment = P.commit(prgSeed, randomSource);
 
         Thread commitmentExportThread = null;
-        if (nizkp != null) {
+        if (fnizkp != null) {
             commitmentExportThread = new Thread() {
                     @Override
                     public void run() {
-                        commitment.unsafeWriteTo(CCPoSCfile(nizkp, j));
+                        commitment.unsafeWriteTo(CCPoSCfile(fnizkp, j));
                     }
                 };
             commitmentExportThread.start();
@@ -139,8 +139,8 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         tempLog.info("Compute reply.");
         final ByteTreeBasic reply = P.reply(integerChallenge);
 
-        if (nizkp != null) {
-            reply.unsafeWriteTo(CCPoSRfile(nizkp, j));
+        if (fnizkp != null) {
+            reply.unsafeWriteTo(CCPoSRfile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
@@ -209,11 +209,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         commitmentReader.close();
 
         Thread commitmentExportThread = null;
-        if (nizkp != null) {
+        if (fnizkp != null) {
             commitmentExportThread = new Thread() {
                     @Override
                     public void run() {
-                        commitment.unsafeWriteTo(CCPoSCfile(nizkp, l));
+                        commitment.unsafeWriteTo(CCPoSCfile(fnizkp, l));
                     }
                 };
             commitmentExportThread.start();
@@ -241,8 +241,8 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         final boolean verdict = V.verify(replyReader, raisedh, raisedExponent);
         replyReader.close();
 
-        if (nizkp != null) {
-            V.getReply().unsafeWriteTo(CCPoSRfile(nizkp, l));
+        if (fnizkp != null) {
+            V.getReply().unsafeWriteTo(CCPoSRfile(fnizkp, l));
         }
 
         if (verdict) {
