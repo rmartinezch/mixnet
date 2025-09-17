@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.Collections;
 import com.verificatum.arithm.LargeInteger;
 import com.verificatum.arithm.PFieldElement;
 import com.verificatum.arithm.PGroupElement;
@@ -64,7 +64,7 @@ import com.verificatum.ui.Log;
  * @author Douglas Wikstrom
  */
 public final class CoinFlipPRingSource extends ProtocolBBT {
-
+    private static final String JSON_KEY_COUNTER = "Counter";
     /**
      * An "independent" generator.
      */
@@ -113,7 +113,7 @@ public final class CoinFlipPRingSource extends ProtocolBBT {
         this.pkeys = Arrays.copyOf(pkeys, pkeys.length);
         this.rbitlen = rbitlen;
 
-        preparedCoins = new LinkedList<CoinFlipPRing>();
+        preparedCoins = new LinkedList<>();
     }
 
     /**
@@ -127,7 +127,7 @@ public final class CoinFlipPRingSource extends ProtocolBBT {
         log.info("Read prepared coins.");
         final Log tempLog = log.newChildLog();
 
-        final int counter = readInt("Counter");
+        final int counter = readInt(JSON_KEY_COUNTER);
 
         for (int i = 0; i < counter; i++) {
 
@@ -155,7 +155,7 @@ public final class CoinFlipPRingSource extends ProtocolBBT {
         log.info("Generate " + noCoins + " coins.");
         final Log tempLog = log.newChildLog();
 
-        final int counter = readInt("Counter");
+        final int counter = readInt(JSON_KEY_COUNTER);
 
         final PPGroup pPGroup = new PPGroup(h.getPGroup(), noCoins);
 
@@ -167,9 +167,9 @@ public final class CoinFlipPRingSource extends ProtocolBBT {
 
         final CoinFlipPRing[] cfpfs = cfpf.getFactors(tempLog);
         for (int i = 0; i < cfpfs.length; i++) {
-            preparedCoins.add(cfpfs[i]);
+            Collections.addAll(preparedCoins, cfpfs);
         }
-        writeInt("Counter", counter + noCoins);
+        writeInt(JSON_KEY_COUNTER, counter + noCoins);
     }
 
     /**
@@ -280,7 +280,7 @@ public final class CoinFlipPRingSource extends ProtocolBBT {
         } else {
 
             final PRingElement[] els = ((PPRingElement) el).getFactors();
-            final ArrayList<byte[]> list = new ArrayList<byte[]>();
+            final ArrayList<byte[]> list = new ArrayList<>();
             for (int i = 0; i < els.length; i++) {
                 list.add(unpack(els[i], offset));
             }
