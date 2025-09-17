@@ -37,6 +37,7 @@ import com.verificatum.arithm.PRing;
 import com.verificatum.arithm.PRingElement;
 import com.verificatum.arithm.PRingElementArray;
 import com.verificatum.eio.ByteTreeReader;
+import com.verificatum.protocol.ProtocolError;
 import com.verificatum.protocol.demo.DemoError;
 import com.verificatum.protocol.demo.DemoException;
 import com.verificatum.protocol.demo.DemoProtocol;
@@ -110,12 +111,12 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
          * executed, including information about other
          * parties.
          * @param ui User interface.
-         * @throws Exception If the info instances are malformed.
+         * @throws ProtocolError If the info instances are malformed.
          */
         ExecShufflerElGamal(final PrivateInfo privateInfo,
                             final ProtocolInfo protocolInfo,
                             final UI ui)
-            throws Exception {
+            throws ProtocolError {
             super(privateInfo, protocolInfo, ui);
         }
 
