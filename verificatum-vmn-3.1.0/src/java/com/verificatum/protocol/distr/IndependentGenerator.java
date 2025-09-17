@@ -64,7 +64,7 @@ import com.verificatum.ui.Log;
  * @author Douglas Wikstrom
  */
 public final class IndependentGenerator extends ProtocolBBT {
-
+    private static final String IND_GEN_PARAMETER = "IndependentGenerator";
     /**
      * Group for which the independent generator is generated.
      */
@@ -121,7 +121,7 @@ public final class IndependentGenerator extends ProtocolBBT {
         log.info("Generate independent generator.");
 
         final Log tempLog = log.newChildLog();
-        File file = getFile("IndependentGenerator");
+        File file = getFile(IND_GEN_PARAMETER);
         if (file.exists()) {
 
             tempLog.info("Read independent generator from file.");
@@ -136,7 +136,7 @@ public final class IndependentGenerator extends ProtocolBBT {
             final HomPRingPGroup hom = biExp.restrict(pGroup.getg());
 
             final PedersenSequential independentGenerator =
-                new PedersenSequential("IndependentGenerator",
+                new PedersenSequential(IND_GEN_PARAMETER,
                                        this,
                                        hom,
                                        pkeys,
@@ -151,7 +151,7 @@ public final class IndependentGenerator extends ProtocolBBT {
 
             h = independentGenerator.getConstantElementProduct(tempLog);
 
-            file = getFile("IndependentGenerator");
+            file = getFile(IND_GEN_PARAMETER);
             h.toByteTree().unsafeWriteTo(file);
 
             tempLog.info("Write independent generator to file.");
