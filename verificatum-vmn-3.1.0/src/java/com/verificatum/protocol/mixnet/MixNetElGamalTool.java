@@ -63,7 +63,8 @@ import com.verificatum.util.UtilException;
  * @author Douglas Wikstrom
  */
 public final class MixNetElGamalTool {
-
+    private static final String PUBLIC_KEY_PARAMETER = "publicKey";
+    private static final String KEY_GEN_PARAMETER = ".keygen";
     /**
      * Name of private info file used if the user does not provide a
      * file name.
@@ -325,7 +326,7 @@ public final class MixNetElGamalTool {
 
         opt.addParameter("protInfo", "Protocol info file.");
         opt.addParameter("privInfo", "Private info file.");
-        opt.addParameter("publicKey", "Destination of public key.");
+        opt.addParameter(PUBLIC_KEY_PARAMETER, "Destination of public key.");
         opt.addParameter("ciphertexts", "Ciphertexts to be mixed.");
         opt.addParameter("ciphertextsout", "Mixed ciphertexts.");
         opt.addParameter("plaintexts", "Resulting plaintexts from mixnet.");
@@ -569,7 +570,7 @@ public final class MixNetElGamalTool {
     private static String processAuxsidString(final Opt opt)
         throws ProtocolFormatException {
 
-        final String auxsidString = opt.getStringValue("-auxsid", "default");
+        final String auxsidString = opt.getStringValue("-auxsid", DEFAULT_SESSION_NAME);
 
         if (validateAuxsid(auxsidString)) {
 
@@ -708,13 +709,13 @@ public final class MixNetElGamalTool {
     private static void processKeyGen(final MixNetElGamal mixnet,
                                       final Opt opt)
         throws ProtocolFormatException {
-        mixnet.writeBoolean(".keygen");
+        mixnet.writeBoolean(KEY_GEN_PARAMETER);
 
         prelude(mixnet);
 
         mixnet.generatePublicKey();
         final PGroupElement fullPublicKey = mixnet.getPublicKey();
-        final File publicKeyFile = new File(opt.getStringValue("publicKey"));
+        final File publicKeyFile = new File(opt.getStringValue(PUBLIC_KEY_PARAMETER));
         RAW_INTERFACE.writePublicKey(fullPublicKey, publicKeyFile);
 
         postlude(mixnet, "key generation");
@@ -797,7 +798,7 @@ public final class MixNetElGamalTool {
     private static void sanityCheckKeyGen(final MixNetElGamal mixnet)
         throws ProtocolFormatException {
 
-        if (!mixnet.readBoolean(".keygen") && !mixnet.readBoolean(".setpk")) {
+        if (!mixnet.readBoolean(KEY_GEN_PARAMETER) && !mixnet.readBoolean(".setpk")) {
             final String e =
                 "Either \"-keygen\" or \"-setpk\" must be used first!";
             throw new ProtocolFormatException(e);
@@ -895,7 +896,7 @@ public final class MixNetElGamalTool {
 
         mixnet.writeBoolean(".setpk");
 
-        final File publicKeyFile = new File(opt.getStringValue("publicKey"));
+        final File publicKeyFile = new File(opt.getStringValue(PUBLIC_KEY_PARAMETER));
 
         final PGroupElement marshalledPublicKey =
             RAW_INTERFACE.readPublicKey(publicKeyFile,
@@ -928,7 +929,7 @@ public final class MixNetElGamalTool {
 
         prelude(mixnet);
 
-        if (mixnet.readBoolean(".keygen")) {
+        if (mixnet.readBoolean(KEY_GEN_PARAMETER)) {
             mixnet.generatePublicKey();
         }
         final MixNetElGamalSession session = mixnet.getSession(auxsidString);
@@ -936,7 +937,6 @@ public final class MixNetElGamalTool {
         final PGroupElementArray outputCiphertexts =
             session.shuffle(width, inputCiphertexts);
         RAW_INTERFACE.writeCiphertexts(outputCiphertexts, outputCiphFile);
-        // inputCiphertexts.free();
         outputCiphertexts.free();
 
         postlude(mixnet, "shuffling");
@@ -1083,12 +1083,6 @@ public final class MixNetElGamalTool {
                 processSetpk(mixnet, opt);
                 return;
             }
-            // try {
-            //     new PID(parentPidString, pidFile);
-            // } catch (UtilException ue) {
-            //     throw new ProtocolFormatException("Failed to create PID file!",
-            //                                       ue);
-            // }
 
             // Key generation.
             if (opt.getBooleanValue("-keygen")) {
@@ -1096,7 +1090,6 @@ public final class MixNetElGamalTool {
                 processKeyGen(mixnet, opt);
                 return;
             }
-
 
             // Check that key generation has been executed.
             sanityCheckKeyGen(mixnet);
