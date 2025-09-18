@@ -73,7 +73,8 @@ import com.verificatum.vcr.VCR;
  * @author Douglas Wikstrom
  */
 public final class MixNetElGamalVerifyFiatShamirSession {
-
+    private static final String DONE_MSG = "done.";
+    private static final String DECRYPTION = "decryption";
     /**
      * Main verifier.
      */
@@ -230,7 +231,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             v.failStop("Basic public key is not the standard generator!");
         }
 
-        v.println("done.");
+        v.println(DONE_MSG);
     }
 
     /**
@@ -254,7 +255,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             v.failStop("Unable to read polynomial in exponent from file! ("
                        + file.toString() + ")");
         }
-        v.println("done.");
+        v.println(DONE_MSG);
 
         btr.close();
 
@@ -270,7 +271,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
             v.failStop("Mismatching public keys!");
         }
-        v.println("done.");
+        v.println(DONE_MSG);
 
         if (v.checkTestVector("bas.y_l")) {
             final StringBuilder sb =
@@ -314,7 +315,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         } catch (final IOException ioe) {
             v.failStop("Can not read version from file!", ioe);
         }
-        v.println("done.");
+        v.println(DONE_MSG);
     }
 
     /**
@@ -352,7 +353,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                        + ", but proof is a proof of " + actualType + "!");
         }
 
-        v.println("done.");
+        v.println(DONE_MSG);
 
         return actualType;
     }
@@ -390,7 +391,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                        + "not match the one in the proof!");
         }
 
-        v.println("done.");
+        v.println(DONE_MSG);
 
         return actualAuxsid;
     }
@@ -449,7 +450,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             v.failStop("Width is not positive!");
         }
 
-        v.println("done.");
+        v.println(DONE_MSG);
 
         v.checkPrintTestVector("par.omega", actualWidth);
 
@@ -493,7 +494,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
             v.failStop("Active threshold is smaller than threshold!");
         }
-        v.println("done.");
+        v.println(DONE_MSG);
 
         v.checkPrintTestVector("par.lambda", activeThreshold);
 
@@ -563,7 +564,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                             globalPrefix,
                                             v.rbitlen);
             generators = igRO.generate(null, v.pGroup, maxciph);
-            v.println("done.");
+            v.println(DONE_MSG);
 
             v.checkPrintTestVector("bas.h", generators);
 
@@ -635,7 +636,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         final PGroupElementArray permutationCommitment =
             readArray(size, v.pGroup, file);
 
-        v.println("done.");
+        v.println(DONE_MSG);
 
         return permutationCommitment;
     }
@@ -653,11 +654,11 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                        final PGroupElementArray permutationCommitment) {
 
         // Initialize proof.
-        final PoSCBasicTW V =
+        final PoSCBasicTW poSCBasicTW =
             new PoSCBasicTW(v.vbitlenro, v.ebitlenro, v.rbitlen, v.prg,
                             null);
         final PGroupElement g = v.pGroup.getg();
-        V.setInstance(g, generators, permutationCommitment);
+        poSCBasicTW.setInstance(g, generators, permutationCommitment);
 
         // Generate and set batching vector.
         ByteTreeContainer challengeData =
@@ -670,12 +671,12 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.checkPrintTestVector("PoSC.s", Hex.toHexString(prgSeed));
 
-        V.setBatchVector(prgSeed);
+        poSCBasicTW.setBatchVector(prgSeed);
 
         // Read commitment.
         File file = PoSCTW.PoSCCfile(proofs, l);
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = poSCBasicTW.setCommitment(commitmentReader);
         commitmentReader.close();
 
         // Generate a challenge.
@@ -689,15 +690,15 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.checkPrintTestVector("PoSC.v", integerChallenge.toString());
 
         // Set the commitment and challenge.
-        V.setChallenge(integerChallenge);
+        poSCBasicTW.setChallenge(integerChallenge);
 
         // Read and verify reply.
         file = PoSCTW.PoSCRfile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
-        final boolean verdict = V.verify(replyReader);
+        final boolean verdict = poSCBasicTW.verify(replyReader);
         replyReader.close();
 
-        V.free();
+        poSCBasicTW.free();
 
         return verdict;
     }
@@ -764,10 +765,10 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             ProtocolElGamal.getWidePublicKey(elGamalFullPKey, width);
 
         // Initialize proof.
-        final CCPoSBasicW V =
+        final CCPoSBasicW ccPoSBasicW =
             new CCPoSBasicW(v.vbitlenro, v.ebitlenro, v.rbitlen, v.prg);
         final PGroupElement g = v.pGroup.getg();
-        V.setInstance(g,
+        ccPoSBasicW.setInstance(g,
                       shrunkGenerators,
                       shrunkPermutationCommitment,
                       wideElGamalFullPKey,
@@ -789,16 +790,16 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.checkPrintTestVector("CCPoS.s", Hex.toHexString(prgSeed));
 
-        V.setBatchVector(prgSeed);
+        ccPoSBasicW.setBatchVector(prgSeed);
 
         // Compute A and B.
-        V.computeAB(null);
+        ccPoSBasicW.computeAB(null);
 
         // Read commitment.
         File file = CCPoSW.CCPoSCfile(proofs, l);
 
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = ccPoSBasicW.setCommitment(commitmentReader);
         commitmentReader.close();
 
 
@@ -815,16 +816,16 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.checkPrintTestVector("CCPoS.v", integerChallenge.toString());
 
         // Set the commitment and challenge.
-        V.setChallenge(integerChallenge);
+        ccPoSBasicW.setChallenge(integerChallenge);
 
 
         // Read and verify reply.
         file = CCPoSW.CCPoSRfile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
-        final boolean verdict = V.verify(replyReader, null, null);
+        final boolean verdict = ccPoSBasicW.verify(replyReader, null, null);
         replyReader.close();
 
-        V.free();
+        ccPoSBasicW.free();
 
         return verdict;
     }
@@ -849,26 +850,26 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         final PGroupElement wideElGamalFullPKey =
             ProtocolElGamal.getWidePublicKey(elGamalFullPKey, width);
 
-        final PoSBasicTW V = new PoSBasicTW(v.vbitlenro,
+        final PoSBasicTW poSBasicTW = new PoSBasicTW(v.vbitlenro,
                                             v.ebitlenro,
                                             v.rbitlen,
                                             v.prg,
                                             null);
-        V.precompute(g, generators);
-        V.setInstance(wideElGamalFullPKey, input, output);
+        poSBasicTW.precompute(g, generators);
+        poSBasicTW.setInstance(wideElGamalFullPKey, input, output);
 
         // Read and set the permutation commitment of the prover.
         File file = PoSTW.PCfile(proofs, l);
         final ByteTreeReader permutationCommitmentReader =
             new ByteTreeReaderF(file);
-        V.setPermutationCommitment(permutationCommitmentReader);
+        poSBasicTW.setPermutationCommitment(permutationCommitmentReader);
         permutationCommitmentReader.close();
 
         // Generate a seed to the PRG for batching.
         ByteTreeContainer challengeData =
             new ByteTreeContainer(g.toByteTree(),
                                   generators.toByteTree(),
-                                  V.getPermutationCommitment().toByteTree(),
+                                  poSBasicTW.getPermutationCommitment().toByteTree(),
                                   wideElGamalFullPKey.toByteTree(),
                                   input.toByteTree(),
                                   output.toByteTree());
@@ -879,26 +880,26 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.checkPrintTestVector("PoS.s", Hex.toHexString(prgSeed));
 
-        V.setBatchVector(prgSeed);
+        poSBasicTW.setBatchVector(prgSeed);
 
         // Compute A and F.
-        V.computeAF();
+        poSBasicTW.computeAF();
 
-        v.checkPrintTestVector("PoS.A", V.getA().toString());
-        v.checkPrintTestVector("PoS.F", V.getF().toString());
+        v.checkPrintTestVector("PoS.A", poSBasicTW.getA().toString());
+        v.checkPrintTestVector("PoS.F", poSBasicTW.getF().toString());
 
         // Read and set the commitment of the prover.
         file = PoSTW.PoSCfile(proofs, l);
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = poSBasicTW.setCommitment(commitmentReader);
         commitmentReader.close();
 
-        v.checkPrintTestVector("PoS.B", V.getB());
-        v.checkPrintTestVector("PoS.Ap", V.getAp().toString());
-        v.checkPrintTestVector("PoS.Bp", V.getBp());
-        v.checkPrintTestVector("PoS.Cp", V.getCp().toString());
-        v.checkPrintTestVector("PoS.Dp", V.getDp().toString());
-        v.checkPrintTestVector("PoS.Fp", V.getFp().toString());
+        v.checkPrintTestVector("PoS.B", poSBasicTW.getB());
+        v.checkPrintTestVector("PoS.Ap", poSBasicTW.getAp().toString());
+        v.checkPrintTestVector("PoS.Bp", poSBasicTW.getBp());
+        v.checkPrintTestVector("PoS.Cp", poSBasicTW.getCp().toString());
+        v.checkPrintTestVector("PoS.Dp", poSBasicTW.getDp().toString());
+        v.checkPrintTestVector("PoS.Fp", poSBasicTW.getFp().toString());
 
         // Generate a challenge
         challengeData =
@@ -913,25 +914,25 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.checkPrintTestVector("PoS.v", integerChallenge.toString());
 
         // Set the commitment and challenge.
-        V.setChallenge(integerChallenge);
+        poSBasicTW.setChallenge(integerChallenge);
 
         // Read and verify reply.
         file = PoSTW.PoSRfile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
 
-        final boolean verdict = V.verify(replyReader);
+        final boolean verdict = poSBasicTW.verify(replyReader);
         replyReader.close();
 
-        v.checkPrintTestVector("PoS.C", V.getC().toString());
-        v.checkPrintTestVector("PoS.D", V.getD().toString());
+        v.checkPrintTestVector("PoS.C", poSBasicTW.getC().toString());
+        v.checkPrintTestVector("PoS.D", poSBasicTW.getD().toString());
 
-        v.checkPrintTestVector("PoS.k_A", V.getk_A().toString());
-        v.checkPrintTestVector("PoS.k_B", V.getk_B());
-        v.checkPrintTestVector("PoS.k_C", V.getk_C().toString());
-        v.checkPrintTestVector("PoS.k_D", V.getk_D().toString());
-        v.checkPrintTestVector("PoS.k_F", V.getk_F().toString());
+        v.checkPrintTestVector("PoS.k_A", poSBasicTW.getk_A().toString());
+        v.checkPrintTestVector("PoS.k_B", poSBasicTW.getk_B());
+        v.checkPrintTestVector("PoS.k_C", poSBasicTW.getk_C().toString());
+        v.checkPrintTestVector("PoS.k_D", poSBasicTW.getk_D().toString());
+        v.checkPrintTestVector("PoS.k_F", poSBasicTW.getk_F().toString());
 
-        V.free();
+        poSBasicTW.free();
 
         return verdict;
     }
@@ -984,25 +985,25 @@ public final class MixNetElGamalVerifyFiatShamirSession {
     private SessionParams
         determineSessionParams(final SessionParams expectedParams) {
 
-        final String type = determineType(expectedParams.type);
-        final String auxsid = determineAuxsid(expectedParams.auxsid);
-        int width = expectedParams.width;
+        final String stype = determineType(expectedParams.type);
+        final String sauxsid = determineAuxsid(expectedParams.auxsid);
+        int iwidth = expectedParams.width;
 
         boolean dec = expectedParams.dec;
         boolean posc = expectedParams.posc;
         boolean ccpos = expectedParams.ccpos;
-        if ("shuffling".equals(type)) {
+        if ("shuffling".equals(stype)) {
             dec = false;
-        } else if ("decryption".equals(type)) {
+        } else if (DECRYPTION.equals(stype)) {
             posc = false;
             ccpos = false;
         }
 
         if (ccpos || dec) {
-            width = determineWidth(expectedParams.width);
+            iwidth = determineWidth(expectedParams.width);
         }
 
-        return new SessionParams(type, auxsid, width, dec, posc, ccpos);
+        return new SessionParams(stype, sauxsid, iwidth, dec, posc, ccpos);
     }
 
     /**
@@ -1020,7 +1021,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                                final int activeThreshold) {
         PGroupElementArray ciphertexts = null;
 
-        if (sp.ccpos || "decryption".equals(type)) {
+        if (sp.ccpos || DECRYPTION.equals(type)) {
 
             // Read the original ciphertexts.
             final File file = MixNetElGamalSession.Lfile(nizkp);
@@ -1109,7 +1110,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                              ciphPGroup.project(0),
                                              dffile);
         }
-        v.println("done.");
+        v.println(DONE_MSG);
         return decryptionFactors;
     }
 
@@ -1147,7 +1148,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         } catch (final EIOException eioe) {
             v.failStop("Failed to read indices of correct decryption factors!");
         }
-        v.println("done.");
+        v.println(DONE_MSG);
         return correct;
     }
 
@@ -1218,7 +1219,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.print("Verify combined proof of decryption... ");
         if (basic.verifyCombined(integerChallenge)) {
 
-            v.println("done.");
+            v.println(DONE_MSG);
 
         } else {
 
@@ -1253,7 +1254,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         if (!plaintextElements.equals(cPlaintextElements)) {
             v.failStop("Plaintexts are incorrect!");
         }
-        v.println("done.");
+        v.println(DONE_MSG);
     }
 
     /**
@@ -1271,7 +1272,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         final PGroupElementArray computedPlaintextElements =
             ((PPGroupElementArray) ciphertexts).project(1).
             mul(combinedDecryptionFactors);
-        v.println("done.");
+        v.println(DONE_MSG);
         return computedPlaintextElements;
     }
 
@@ -1292,7 +1293,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             readArray(computedPlaintextElements.size(),
                       computedPlaintextElements.getPGroup(),
                       file);
-        v.println("done.");
+        v.println(DONE_MSG);
         return plaintextElements;
     }
 
@@ -1355,7 +1356,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         final boolean precomp = precomp();
 
         int activeThreshold = determineActiveThreshold(v.threshold);
-        if ("decryption".equals(sp.type)) {
+        if (DECRYPTION.equals(sp.type)) {
             activeThreshold = determineActiveThreshold(v.threshold);
         }
 
@@ -1421,7 +1422,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                         v.print("Verify proof of shuffle of commitments... ");
                         if (verifyPoSC(l, permutationCommitment)) {
 
-                            v.println("done.");
+                            v.println(DONE_MSG);
 
                         } else {
 
@@ -1452,7 +1453,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
                         v.checkPrintTestVector("bas.L_l", l, output);
 
-                        v.println("done.");
+                        v.println(DONE_MSG);
 
                         if (precomp) {
 
@@ -1463,7 +1464,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                                permutationCommitment,
                                                shrunkGenerators.size());
                             permutationCommitment.free();
-                            v.println("done.");
+                            v.println(DONE_MSG);
 
                             // Verify commitment consistent proof of shuffle.
                             v.print("Verify commitment-consistent proof of "
@@ -1489,7 +1490,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
                         if (verdict) {
 
-                            v.println("done.");
+                            v.println(DONE_MSG);
 
                         } else {
 
@@ -1572,7 +1573,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                          correct,
                                          v.k,
                                          v.threshold);
-            v.println("done.");
+            v.println(DONE_MSG);
 
             basic.setInstance(v.plainPGroup.getg(),
                               leftComponents,
@@ -1612,11 +1613,11 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
             v.print("Batch input... ");
             basic.batchInput();
-            v.println("done.");
+            v.println(DONE_MSG);
 
             v.print("Batch combined decryption factors... ");
             basic.batchCombined();
-            v.println("done.");
+            v.println(DONE_MSG);
 
             // Read commitments.
             readCommitments(basic);
@@ -1638,7 +1639,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
             v.print("Combined proofs... ");
             basic.combine(correct);
-            v.println("done.");
+            v.println(DONE_MSG);
 
             // Verify combined proof.
             verifyCombined(basic, integerChallenge);
