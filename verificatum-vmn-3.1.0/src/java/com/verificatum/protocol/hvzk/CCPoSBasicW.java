@@ -379,12 +379,7 @@ public final class CCPoSBasicW {
 
         Ap = g.exp(alpha).mul(h.expProd(epsilon));
 
-        // We must show that we can open B = \prod w_i^{e_i} as
-        //
-        // B = Enc_pk(-b)\prod (w_i')^{e_i'}
-        //
-        // where b=<s,e>.
-        //
+        // We must show that we can open B = \prod w_i^{e_i} as B = Enc_pk(-b)\prod (w_i')^{e_i'} where b=<s,e>.
         final PRing ciphPRing = pkey.project(0).getPGroup().getPRing();
         beta = ciphPRing.randomElement(randomSource, rbitlen);
 
@@ -546,11 +541,7 @@ public final class CCPoSBasicW {
         // Assume prover makes us accept.
         boolean verdict = true;
 
-        // Verify that prover knows a=<r,e'> and e' such that:
-        //
-        // A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
-        //
-
+        // Verify that prover knows a=<r,e'> and e' such that: A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
         if (raisedExponent == null
             && !A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)))) {
             verdict = false;
@@ -558,10 +549,7 @@ public final class CCPoSBasicW {
 
         if (verdict) {
 
-            // Verify that the prover knows b = <s,e> such that
-            //
-            // B = \prod w_i^{e_i} = \phi(-b)\prod (w_i')^{e_i'}
-            //
+            // Verify that the prover knows b = <s,e> such that B = \prod w_i^{e_i} = \phi(-b)\prod (w_i')^{e_i'}
             if (raisedExponent == null) {
                 if (!B.expMul(v, Bp).
                     equals(pkey.exp(k_B.neg()).mul(wp.expProd(k_E)))) {

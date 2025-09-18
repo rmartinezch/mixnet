@@ -117,8 +117,6 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
                     new PlainKeys("DemoSID", this, ckeygen, rbitlen);
                 plainKeys.generate(ui.getLog());
 
-                //pGroup = new PPGroup(pGroup, 3);
-
                 final PGroupElement g = pgPGroup.getg();
                 PGroupElementArray h = null;
                 PGroupElementArray u = null;
