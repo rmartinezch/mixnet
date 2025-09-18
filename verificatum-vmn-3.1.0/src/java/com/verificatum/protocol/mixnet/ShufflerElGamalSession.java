@@ -66,7 +66,11 @@ import com.verificatum.ui.Log;
 @SuppressWarnings({"PMD.VariableNamingConventions",
                    "PMD.MethodNamingConventions"})
 public final class ShufflerElGamalSession extends ProtocolElGamal {
-
+    private static final String SHUFFLE_PARAMETER = ".shuffle";
+    private static final String PRECOMP_PARAMETER = ".precomp";
+    private static final String CIPHERTEXT_VAR = "Ciphertext";
+    private static final String CIPHERTEXTS_MSG = " ciphertexts.";
+    private static final String GENERATORS_FILE = "generators";
     /**
      * Number of bits in exponent used to squeeze lists into a single
      * list before verifying a commitment-consistent proof of a
@@ -175,10 +179,10 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         // Check that the methods of this session are not called out
         // of order.
-        if (readBoolean(".shuffle") || readBoolean(".precomp")) {
+        if (readBoolean(SHUFFLE_PARAMETER) || readBoolean(PRECOMP_PARAMETER)) {
             throw new ProtocolError("Attempting to re-use session!");
         } else {
-            writeBoolean(".shuffle");
+            writeBoolean(SHUFFLE_PARAMETER);
         }
     }
 
@@ -199,7 +203,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                                           final PGroupElementArray input) {
 
         final ByteTreeReader listReader =
-            bullBoard.waitFor(l, "Ciphertext", log);
+            bullBoard.waitFor(l, CIPHERTEXT_VAR, log);
         try {
 
             return ciphPPGroup.toElementArray(input.size(), listReader);
@@ -281,7 +285,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
                 // Publish our output.
                 log.info("Publish output list.");
-                bullBoard.publish("Ciphertext",
+                bullBoard.publish(CIPHERTEXT_VAR,
                                   output.toByteTree(),
                                   log);
 
@@ -375,12 +379,12 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         final PGroupElement widePublicKey =
             getWidePublicKey(getShuffler().publicKey, width);
 
-        log.info("Shuffle " + ciphertexts.size() + " ciphertexts.");
+        log.info("Shuffle " + ciphertexts.size() + CIPHERTEXTS_MSG);
         final Log tempLog = log.newChildLog();
 
         // Generate list of independent generators.
         final IndependentGenerators igs =
-            igsFactory.newInstance("generators", this);
+            igsFactory.newInstance(GENERATORS_FILE, this);
         generators = igs.generate(tempLog, pgPGroup, ciphertexts.size());
 
         // Generate random permutation and exponents and perform local
@@ -444,10 +448,10 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         // Check that the methods of this session are not called out
         // of order.
-        if (readBoolean(".shuffle")) {
+        if (readBoolean(SHUFFLE_PARAMETER)) {
             throw new ProtocolError("Attempting to re-use session!");
         } else {
-            writeBoolean(".precomp");
+            writeBoolean(PRECOMP_PARAMETER);
         }
 
         // If we are called to simply read our state, then width may
@@ -545,7 +549,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         ByteTreeReader reader;
 
         // Generate list of independent generators.
-        final File generatorsFile = getFile("generators");
+        final File generatorsFile = getFile(GENERATORS_FILE);
 
         if (generatorsFile.exists()) {
 
@@ -564,7 +568,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
             // Generate independent generators.
             final IndependentGenerators igs =
-                igsFactory.newInstance("generators", this);
+                igsFactory.newInstance(GENERATORS_FILE, this);
             generators = igs.generate(tempLog, pgPGroup, actualMaxciph);
 
             tempLog.info("Write generators to file.");
@@ -675,7 +679,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         final int activeThreshold = getActiveThreshold();
 
         log.info("Shrink pre-computed values to " + noCiphertexts
-                 + " ciphertexts.");
+                 + CIPHERTEXTS_MSG);
         final Log tempLog = log.newChildLog();
 
         // Shrink independent generators.
@@ -718,8 +722,8 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         // Check that the methods of this session are not called out
         // of order.
-        if (readBoolean(".precomp")) {
-            writeBoolean(".precomp");
+        if (readBoolean(PRECOMP_PARAMETER)) {
+            writeBoolean(PRECOMP_PARAMETER);
         } else {
             final String e =
                 "Attempting to use commitment-consistent proofs of "
@@ -802,7 +806,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         // Publish our output.
         log.info("Publish output list.");
-        bullBoard.publish("Ciphertext", output.toByteTree(), log);
+        bullBoard.publish(CIPHERTEXT_VAR, output.toByteTree(), log);
 
         // Prove correctness of our output.
         final CCPoS P =
@@ -988,7 +992,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         final PGroupElement widePublicKey =
             getWidePublicKey(getShuffler().publicKey, width);
 
-        log.info("Shuffle " + ciphertexts.size() + " ciphertexts.");
+        log.info("Shuffle " + ciphertexts.size() + CIPHERTEXTS_MSG);
         final Log tempLog = log.newChildLog();
 
         // Shrink the pre-computed values and the commitments to the
