@@ -60,7 +60,9 @@ import com.verificatum.vcr.VCR;
  * @author Douglas Wikstrom
  */
 public final class MixNetElGamalVerifyFiatShamir {
-
+    private static final String HASH_FUNC_SHA384 = "SHA-384";
+    private static final String HASH_FUNC_SHA256 = "SHA-256";
+    private static final String HASH_FUNC_SHA512 = "SHA-512";
     /**
      * Stream to which info and errors are written.
      */
@@ -179,12 +181,12 @@ public final class MixNetElGamalVerifyFiatShamir {
 
             roHashfunctionString =
                 protocolInfo.getStringValue(ProtocolElGamal.ROHASH);
-            if ("SHA-256".equals(roHashfunctionString)) {
-                roHashfunction = new HashfunctionHeuristic("SHA-256");
-            } else if ("SHA-384".equals(roHashfunctionString)) {
-                roHashfunction = new HashfunctionHeuristic("SHA-384");
-            } else if ("SHA-512".equals(roHashfunctionString)) {
-                roHashfunction = new HashfunctionHeuristic("SHA-512");
+            if (HASH_FUNC_SHA256.equals(roHashfunctionString)) {
+                roHashfunction = new HashfunctionHeuristic(HASH_FUNC_SHA256);
+            } else if (HASH_FUNC_SHA384.equals(roHashfunctionString)) {
+                roHashfunction = new HashfunctionHeuristic(HASH_FUNC_SHA384);
+            } else if (HASH_FUNC_SHA512.equals(roHashfunctionString)) {
+                roHashfunction = new HashfunctionHeuristic(HASH_FUNC_SHA512);
             } else {
                 roHashfunction =
                     Marshalizer.
@@ -238,12 +240,12 @@ public final class MixNetElGamalVerifyFiatShamir {
         prgString = null;
         try {
             prgString = protocolInfo.getStringValue(ProtocolElGamal.PRG);
-            if ("SHA-256".equals(prgString)) {
-                prg = new PRGHeuristic(new HashfunctionHeuristic("SHA-256"));
-            } else if ("SHA-384".equals(prgString)) {
-                prg = new PRGHeuristic(new HashfunctionHeuristic("SHA-384"));
-            } else if ("SHA-512".equals(prgString)) {
-                prg = new PRGHeuristic(new HashfunctionHeuristic("SHA-512"));
+            if (HASH_FUNC_SHA256.equals(prgString)) {
+                prg = new PRGHeuristic(new HashfunctionHeuristic(HASH_FUNC_SHA256));
+            } else if (HASH_FUNC_SHA384.equals(prgString)) {
+                prg = new PRGHeuristic(new HashfunctionHeuristic(HASH_FUNC_SHA384));
+            } else if (HASH_FUNC_SHA512.equals(prgString)) {
+                prg = new PRGHeuristic(new HashfunctionHeuristic(HASH_FUNC_SHA512));
             } else {
                 prg = Marshalizer.unmarshalHexAux_PRG(prgString,
                                                       randomSource,
@@ -541,14 +543,14 @@ public final class MixNetElGamalVerifyFiatShamir {
      */
     void failStop(final String message, final Throwable throwable) {
         if (verbose) {
-
+            final String hashes = "###############################################";
             println("");
             println("");
-            println("###############################################");
+            println(hashes);
             println("################## FAIL! ######################");
-            println("###############################################");
+            println(hashes);
             println(message);
-            println("###############################################");
+            println(hashes);
             println("");
 
             if (throwable != null && stackTrace) {
