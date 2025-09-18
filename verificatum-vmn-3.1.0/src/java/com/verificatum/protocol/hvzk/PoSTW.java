@@ -108,7 +108,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         bullBoard.publish("PermutationCommitment", P.u.toByteTree(), tempLog);
 
         if (fnizkp != null) {
-            P.u.toByteTree().unsafeWriteTo(PCfile(fnizkp, j));
+            P.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, j));
         }
 
         // Generate a seed to the PRG for batching.
@@ -194,7 +194,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         permutationCommitmentReader.close();
 
         if (fnizkp != null) {
-            V.u.toByteTree().unsafeWriteTo(PCfile(fnizkp, l));
+            V.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, l));
         }
 
         // Generate a seed to the PRG for batching.
@@ -278,7 +278,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
      * @param index Index of party.
      * @return File where permutation commitments are stored.
      */
-    public static File PCfile(final File nizkp, final int index) {
+    public static File pcfile(final File nizkp, final int index) {
         return new File(nizkp,
                         String.format("PermutationCommitment%02d.bt", index));
     }

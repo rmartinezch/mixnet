@@ -54,7 +54,7 @@ import com.verificatum.ui.Log;
  * @author Douglas Wikstrom
  */
 public final class PermutationCommitment extends ProtocolElGamal {
-
+    private static final String COMMITMENT_FILE = "Commitment";
     /**
      * Index of committer.
      */
@@ -225,8 +225,8 @@ public final class PermutationCommitment extends ProtocolElGamal {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    protected static File PCfile(final File nizkp, final int index) { // NOPMD
-        return PoSTW.PCfile(nizkp, index);
+    protected static File pcFile(final File nizkp, final int index) { // NOPMD
+        return PoSTW.pcfile(nizkp, index);
     }
 
     /**
@@ -237,7 +237,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
      * @param index Index of mix-server.
      * @return File where shrinking list is stored.
      */
-    protected static File KLfile(final File nizkp, final int index) { // NOPMD
+    protected static File kLfile(final File nizkp, final int index) { // NOPMD
         return new File(nizkp, String.format("KeepList%02d.bt", index));
     }
 
@@ -252,7 +252,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
         final int size = generators.size();
         ByteTreeReader reader;
-        final File permCommFile = getFile("Commitment");
+        final File permCommFile = getFile(COMMITMENT_FILE);
         final File raisedPermCommFile = getFile("RaisedCommitment");
 
         log.info("Generate permutation commitment of "
@@ -299,7 +299,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
             // Publish permutation commitment
             tempLog.info("Publish permutation commitment.");
-            bullBoard.publish("Commitment", commitment.toByteTree(), tempLog);
+            bullBoard.publish(COMMITMENT_FILE, commitment.toByteTree(), tempLog);
 
             // Prove knowledge of commitment exponents.
             posc.prove(tempLog,
@@ -319,7 +319,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
             tempLog.info("Read permutation commitment of "
                          + ui.getDescrString(l) + ".");
             final ByteTreeReader commitmentReader =
-                bullBoard.waitFor(l, "Commitment", tempLog);
+                bullBoard.waitFor(l, COMMITMENT_FILE, tempLog);
             try {
 
                 commitment = pgPGroup.toElementArray(size, commitmentReader);
@@ -361,7 +361,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
         }
 
         if (fnizkp != null) {
-            commitment.toByteTree().unsafeWriteTo(PCfile(fnizkp, l));
+            commitment.toByteTree().unsafeWriteTo(pcFile(fnizkp, l));
         }
     }
 
@@ -410,7 +410,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
             bullBoard.publish("KeepList", bt, tempLog);
 
             if (fnizkp != null) {
-                bt.unsafeWriteTo(KLfile(fnizkp, j));
+                bt.unsafeWriteTo(kLfile(fnizkp, j));
             }
 
             // Shrink private data.
@@ -452,7 +452,7 @@ public final class PermutationCommitment extends ProtocolElGamal {
 
         if (fnizkp != null) {
             final ByteTreeBasic bt = ByteTree.booleanArrayToByteTree(keepList);
-            bt.unsafeWriteTo(KLfile(fnizkp, l));
+            bt.unsafeWriteTo(kLfile(fnizkp, l));
         }
 
         // Use the keep list to extract a smaller permutation

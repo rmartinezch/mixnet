@@ -628,7 +628,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.print("Read permutation commitment... ");
 
-        final File file = PermutationCommitment.PCfile(proofs, l);
+        final File file = PermutationCommitment.pcFile(proofs, l);
         if (!file.exists()) {
             v.failStop("Can not find permutation commitment! ("
                        + file.toString() + ")");
@@ -717,7 +717,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
                                       final int newSize) {
         try {
 
-            final File file = PermutationCommitment.KLfile(proofs, l);
+            final File file = PermutationCommitment.kLfile(proofs, l);
 
             final ByteTreeReader btr = new ByteTreeReaderF(file);
             final boolean[] keepList = btr.readBooleans(permComm.size());
@@ -859,7 +859,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         poSBasicTW.setInstance(wideElGamalFullPKey, input, output);
 
         // Read and set the permutation commitment of the prover.
-        File file = PoSTW.PCfile(proofs, l);
+        File file = PoSTW.pcfile(proofs, l);
         final ByteTreeReader permutationCommitmentReader =
             new ByteTreeReaderF(file);
         poSBasicTW.setPermutationCommitment(permutationCommitmentReader);
@@ -958,7 +958,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      */
     public boolean getPoSCActive(final int l) {
 
-        final File file = PermutationCommitment.PCfile(proofs, l);
+        final File file = PermutationCommitment.pcFile(proofs, l);
         return file.exists();
     }
 
