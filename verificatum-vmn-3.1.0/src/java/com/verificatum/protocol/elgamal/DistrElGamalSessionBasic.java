@@ -111,12 +111,12 @@ public final class DistrElGamalSessionBasic {
     /**
      * Batched left components of the ciphertexts.
      */
-    PGroupElement A;
+    PGroupElement pgeA;
 
     /**
      * Batched decryption factors.
      */
-    PGroupElement[] B;
+    PGroupElement[] pgeB;
 
     /**
      * Batched combined decryption factors.
@@ -126,7 +126,7 @@ public final class DistrElGamalSessionBasic {
     /**
      * Proof commitment for batched decryption factors.
      */
-    PGroupElement[] Bp;
+    PGroupElement[] pgeBp;
 
     /**
      * Proof commitment for batched combined decryption factors.
@@ -146,12 +146,12 @@ public final class DistrElGamalSessionBasic {
     /**
      * Replies.
      */
-    PRingElement[] k_x;
+    PRingElement[] kx;
 
     /**
      * Combined reply.
      */
-    PRingElement combinedk_x;
+    PRingElement combinedkx;
 
     /**
      * Number of parties involved.
@@ -238,9 +238,9 @@ public final class DistrElGamalSessionBasic {
         this.prg = prg;
 
         this.yp = new PGroupElement[k + 1];
-        this.B = new PGroupElement[k + 1];
-        this.Bp = new PGroupElement[k + 1];
-        this.k_x = new PRingElement[k + 1];
+        this.pgeB = new PGroupElement[k + 1];
+        this.pgeBp = new PGroupElement[k + 1];
+        this.kx = new PRingElement[k + 1];
 
         this.verdicts = new boolean[k + 1];
         Arrays.fill(this.verdicts, true);
@@ -522,7 +522,7 @@ public final class DistrElGamalSessionBasic {
      * ciphertexts.
      */
     public void batchInput() {
-        this.A = u.expProd(e);
+        this.pgeA = u.expProd(e);
     }
 
     /**
@@ -534,9 +534,9 @@ public final class DistrElGamalSessionBasic {
     public ByteTreeBasic commit(final RandomSource randomSource) {
         r = g.getPGroup().getPRing().randomElement(randomSource, rbitlen);
         yp[j] = g.exp(r);
-        Bp[j] = A.exp(r);
+        pgeBp[j] = pgeA.exp(r);
 
-        return new ByteTreeContainer(yp[j].toByteTree(), Bp[j].toByteTree());
+        return new ByteTreeContainer(yp[j].toByteTree(), pgeBp[j].toByteTree());
     }
 
     /**
@@ -549,7 +549,7 @@ public final class DistrElGamalSessionBasic {
                               final ByteTreeReader commitmentReader) {
         try {
             yp[l] = g.getPGroup().toElement(commitmentReader.getNextChild());
-            Bp[l] = u.getPGroup().toElement(commitmentReader.getNextChild());
+            pgeBp[l] = u.getPGroup().toElement(commitmentReader.getNextChild());
         } catch (final EIOException eioe) {
             verdicts[l] = false;
         } catch (final ArithmFormatException afe) {
@@ -557,7 +557,7 @@ public final class DistrElGamalSessionBasic {
         }
         if (!verdicts[l]) {
             yp[l] = g.getPGroup().getONE();
-            Bp[l] = u.getPGroup().getONE();
+            pgeBp[l] = u.getPGroup().getONE();
         }
     }
 
@@ -568,7 +568,7 @@ public final class DistrElGamalSessionBasic {
      * @return Commitment of the given party.
      */
     public ByteTreeBasic getCommitment(final int l) {
-        return new ByteTreeContainer(yp[l].toByteTree(), Bp[l].toByteTree());
+        return new ByteTreeContainer(yp[l].toByteTree(), pgeBp[l].toByteTree());
     }
 
     /**
@@ -593,8 +593,8 @@ public final class DistrElGamalSessionBasic {
      * @return Reply.
      */
     public ByteTreeBasic reply(final LargeInteger v) {
-        k_x[j] = x.neg().mul(inverseFactor).mul(pField.toElement(v)).add(r);
-        return k_x[j].toByteTree();
+        kx[j] = x.neg().mul(inverseFactor).mul(pField.toElement(v)).add(r);
+        return kx[j].toByteTree();
     }
 
     /**
@@ -606,9 +606,9 @@ public final class DistrElGamalSessionBasic {
     public void setReply(final int l, final ByteTreeReader replyReader) {
         final PRing pRing = g.getPGroup().getPRing();
         try {
-            k_x[l] = pRing.toElement(replyReader);
+            kx[l] = pRing.toElement(replyReader);
         } catch (final ArithmFormatException afe) {
-            k_x[l] = pRing.getZERO();
+            kx[l] = pRing.getZERO();
             verdicts[l] = false;
         }
     }
@@ -620,7 +620,7 @@ public final class DistrElGamalSessionBasic {
      * @return Reply.
      */
     public ByteTreeBasic getReply(final int l) {
-        return k_x[l].toByteTree();
+        return kx[l].toByteTree();
     }
 
     /**
@@ -659,8 +659,8 @@ public final class DistrElGamalSessionBasic {
         }
 
         combinedyp = yp[1].getPGroup().getONE();
-        combinedBp = Bp[1].getPGroup().getONE();
-        combinedk_x = k_x[1].getPRing().getZERO();
+        combinedBp = pgeBp[1].getPGroup().getONE();
+        combinedkx = kx[1].getPRing().getZERO();
 
         t = 0;
 
@@ -669,8 +669,8 @@ public final class DistrElGamalSessionBasic {
             if (correct[l]) {
 
                 combinedyp = combinedyp.mul(yp[l].exp(exponents[t]));
-                combinedBp = combinedBp.mul(Bp[l].exp(exponents[t]));
-                combinedk_x = combinedk_x.add(k_x[l].mul(exponents[t]));
+                combinedBp = combinedBp.mul(pgeBp[l].exp(exponents[t]));
+                combinedkx = combinedkx.add(kx[l].mul(exponents[t]));
 
                 t++;
             }
@@ -694,9 +694,9 @@ public final class DistrElGamalSessionBasic {
 
         final PFieldElement pfev = pField.toElement(v);
         return combinedy.inv().exp(pfev).mul(combinedyp).
-            equals(g.exp(combinedk_x))
+            equals(g.exp(combinedkx))
             && combinedB.exp(pfev).mul(combinedBp).
-            equals(A.exp(combinedk_x));
+            equals(pgeA.exp(combinedkx));
     }
 
     /**
@@ -705,7 +705,7 @@ public final class DistrElGamalSessionBasic {
      * @param l Index of other party.
      */
     public void batch(final int l) {
-        B[l] = f[l].expProd(e);
+        pgeB[l] = f[l].expProd(e);
     }
 
     /**
@@ -722,8 +722,8 @@ public final class DistrElGamalSessionBasic {
 
         final PFieldElement pfev = pField.toElement(v);
         return y[l].inv().exp(inverseFactor.mul(pfev)).mul(yp[l]).
-            equals(g.exp(k_x[l]))
-            && B[l].exp(pfev).mul(Bp[l]).equals(A.exp(k_x[l]));
+            equals(g.exp(kx[l]))
+            && pgeB[l].exp(pfev).mul(pgeBp[l]).equals(pgeA.exp(kx[l]));
     }
 
     /**
