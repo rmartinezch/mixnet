@@ -80,8 +80,18 @@ public final class MixNetElGamalVerifyFiatShamirTool {
      * Names of test vectors to print.
      */
     static final ConcurrentMap<String, String> VALID_TEST_VECTOR_NAMES =
-        new ConcurrentHashMap<String, String>();
-
+        new ConcurrentHashMap<>();
+    static final String POS_COMMITMENT_MSG = "PoS. Commitment components.";
+    static final String POS_REPLY_MSG = "PoS. Reply components.";
+    static final String SHUFFLE_PARAMETER = "-shuffle";
+    static final String DECRYPT_PARAMETER = "-decrypt";
+    static final String AUXSID_PARAMETER = "-auxsid";
+    static final String VALUE_PARAMETER = "value";
+    static final String SLOPPY_PARAMETER = "-sloppy";
+    static final String WIDTH_PARAMETER = "-width";
+    static final String NOPOS_PARAMETER = "-nopos";
+    static final String NOPOSC_PARAMETER = "-noposc";
+    static final String NOCCPOS_PARAMETER = "-noccpos";
     static {
 
         VALID_TEST_VECTOR_NAMES.put("par",
@@ -154,11 +164,9 @@ public final class MixNetElGamalVerifyFiatShamirTool {
         VALID_TEST_VECTOR_NAMES.put("PoSC",
                                     "Proof of shuffle of commitments.");
         VALID_TEST_VECTOR_NAMES.put("PoSC.s",
-                                    "PoSC. Seed to derive batching vector "
-                                    + "in hexadecimal notation.");
+                                    "PoSC. Seed to derive batching vector in hexadecimal notation.");
         VALID_TEST_VECTOR_NAMES.put("PoSC.v",
-                                    "PoSC. Integer challenge in hexadecimal "
-                                    + "notation.");
+                                    "PoSC. Integer challenge in hexadecimal notation.");
 
 
         VALID_TEST_VECTOR_NAMES.put("CCPoS",
@@ -168,61 +176,56 @@ public final class MixNetElGamalVerifyFiatShamirTool {
                                     "CCPoS. Seed to derive batching "
                                     + "vector in hexadecimal notation.");
         VALID_TEST_VECTOR_NAMES.put("CCPoS.v",
-                                    "CCPoS. Integer challenge in hexadecimal "
-                                    + "notation.");
+                                    "CCPoS. Integer challenge in hexadecimal notation.");
 
 
         VALID_TEST_VECTOR_NAMES.put("PoS",
                                     "All test vectors for proofs of "
                                     + "shuffles.");
         VALID_TEST_VECTOR_NAMES.put("PoS.s",
-                                    "PoS. Seed to derive batching vector "
-                                    + "in hexadecimal notation.");
+                                    "PoS. Seed to derive batching vector in hexadecimal notation.");
         VALID_TEST_VECTOR_NAMES.put("PoS.v",
-                                    "PoS. Integer challenge in hexadecimal "
-                                    + "notation.");
+                                    "PoS. Integer challenge in hexadecimal notation.");
         VALID_TEST_VECTOR_NAMES.put("PoS.A",
                                     "PoS. Batched permutation commitment.");
         VALID_TEST_VECTOR_NAMES.put("PoS.F",
                                     "PoS. Batched input ciphertexts.");
         VALID_TEST_VECTOR_NAMES.put("PoS.B",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.C",
                                     "PoS. Derived intermediate values.");
         VALID_TEST_VECTOR_NAMES.put("PoS.D",
                                     "PoS. Derived intermediate values.");
         VALID_TEST_VECTOR_NAMES.put("PoS.Ap",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.Bp",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.Cp",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.Dp",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.Fp",
-                                    "PoS. Commitment components.");
+                POS_COMMITMENT_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_A",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_B",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_C",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_D",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_E",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
         VALID_TEST_VECTOR_NAMES.put("PoS.k_F",
-                                    "PoS. Reply components.");
+                POS_REPLY_MSG);
 
 
         VALID_TEST_VECTOR_NAMES.put("Dec",
                                     "Proof of correct decryption.");
         VALID_TEST_VECTOR_NAMES.put("Dec.s",
-                                    "Dec. Seed to derive batching vector "
-                                    + "in hexadecimal notation.");
+                                    "Dec. Seed to derive batching vector in hexadecimal notation.");
         VALID_TEST_VECTOR_NAMES.put("Dec.v",
-                                    "Dec. Integer challenge in hexadecimal "
-                                    + "notation.");
+                                    "Dec. Integer challenge in hexadecimal notation.");
     }
 
     /**
@@ -559,13 +562,13 @@ public final class MixNetElGamalVerifyFiatShamirTool {
         opt.addOption("-c", "", "Print compatibility usage information.");
         opt.addOption("-version", "", "Print the package version.");
 
-        if (keep(tf, "-mix") || keep(tf, "-shuffle") || keep(tf, "-decrypt")) {
+        if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER) || keep(tf, DECRYPT_PARAMETER)) {
             opt.addParameter("protInfo", "Protocol info file.");
             opt.addParameter("nizkp",
                              "Directory containing the non-interactive "
                              + "zero-knowledge proof of correctness using "
                              + "the Fiat-Shamir heuristic.");
-            opt.addOption("-auxsid", "value",
+            opt.addOption(AUXSID_PARAMETER, VALUE_PARAMETER,
                           "Verify that the given auxiliary session identifier "
                           + "matches that in the proof. This is required when "
                           + "the auxiliary session identifier in the proof is "
@@ -576,11 +579,11 @@ public final class MixNetElGamalVerifyFiatShamirTool {
 
         addOption(tf, opt, "-mix", "", "Check proof of mixing.");
 
-        addOption(tf, opt, "-shuffle", "", "Check proof of shuffle.");
+        addOption(tf, opt, SHUFFLE_PARAMETER, "", "Check proof of shuffle.");
 
-        addOption(tf, opt, "-decrypt", "", "Check proof of decryption.");
+        addOption(tf, opt, DECRYPT_PARAMETER, "", "Check proof of decryption.");
 
-        addOption(tf, opt, "-sloppy", "",
+        addOption(tf, opt, SLOPPY_PARAMETER, "",
                   "Check proof of mixing/shuffle/decryption depending "
                   + "on what is specified in the proof itself using "
                   + "the auxiliary session identifier and width "
@@ -588,8 +591,8 @@ public final class MixNetElGamalVerifyFiatShamirTool {
                   + "values are not verified using other means, then "
                   + "this does not constitute a complete verification.");
 
-        if (keep(tf, "-mix") || keep(tf, "-shuffle") || keep(tf, "-decrypt")) {
-            addOption(tf, opt, "-width", "value",
+        if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER) || keep(tf, DECRYPT_PARAMETER)) {
+            addOption(tf, opt, WIDTH_PARAMETER, VALUE_PARAMETER,
                       "Verify that the given width matches that in the "
                       + "proof. This is required when the width in the "
                       + "proof is different from the width in the "
@@ -597,7 +600,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
         }
 
         if (keep(tf, "-mix")) {
-            addOption(tf, opt, "-nopos", "",
+            addOption(tf, opt, NOPOS_PARAMETER, "",
                       "Turn off verification of proofs of shuffles. If "
                       + "pre-computation is used, this turns off "
                       + "verification of both proofs of shuffles of "
@@ -608,13 +611,13 @@ public final class MixNetElGamalVerifyFiatShamirTool {
                       "Turn off verification of proof of decryption.");
         }
 
-        if (keep(tf, "-mix") || keep(tf, "-shuffle")) {
-            addOption(tf, opt, "-noposc", "",
+        if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER)) {
+            addOption(tf, opt, NOPOSC_PARAMETER, "",
                       "Turn off verification of proofs of shuffles of "
                       + "commitments. This is only possible if "
                       + "pre-computation was used during execution.");
 
-            addOption(tf, opt, "-noccpos", "",
+            addOption(tf, opt, NOCCPOS_PARAMETER, "",
                       "Turn off verification of commitment-consistent "
                       + "proofs of shuffles. This is only possible if "
                       + "pre-computation was used during execution.");
@@ -625,7 +628,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
                   + "a unique subdirectory of /tmp/com.verificatum). "
                   + "This directory is deleted on exit.");
 
-        addOption(tf, opt, "-a", "value",
+        addOption(tf, opt, "-a", VALUE_PARAMETER,
                   "Determines if file based arrays are used or not. "
                   + "Legal values are \"file\" or \"ram\" and the "
                   + "default is \"file\".");
@@ -673,7 +676,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             usageIndex++;
         }
 
-        if (keep(tf, "-shuffle")) {
+        if (keep(tf, SHUFFLE_PARAMETER)) {
             opt.addUsageForm();
             opt.appendToUsageForm(usageIndex,
                                   "-shuffle#-auxsid,"
@@ -682,7 +685,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             usageIndex++;
         }
 
-        if (keep(tf, "-decrypt")) {
+        if (keep(tf, DECRYPT_PARAMETER)) {
             opt.addUsageForm();
             opt.appendToUsageForm(usageIndex,
                                   "-decrypt#-auxsid,"
@@ -691,7 +694,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             usageIndex++;
         }
 
-        if (keep(tf, "-sloppy")) {
+        if (keep(tf, SLOPPY_PARAMETER)) {
             opt.addUsageForm();
             opt.appendToUsageForm(usageIndex,
                                   "-sloppy#"
@@ -873,7 +876,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
 
         // Build string of all available test vector names.
         final TreeSet<String> keys =
-            new TreeSet<String>(VALID_TEST_VECTOR_NAMES.keySet());
+            new TreeSet<>(VALID_TEST_VECTOR_NAMES.keySet());
         final Iterator<String> it = keys.iterator();
 
         while (it.hasNext()) {
@@ -897,7 +900,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
     private static Set<String> getTestVectorNames(final Opt opt)
         throws ProtocolException {
 
-        final HashSet<String> testVectorNames = new HashSet<String>();
+        final HashSet<String> testVectorNames = new HashSet<>();
 
         if (opt.valueIsGiven("-t")) {
 
@@ -965,9 +968,9 @@ public final class MixNetElGamalVerifyFiatShamirTool {
                            final Opt opt)
         throws ProtocolException {
 
-        if (opt.valueIsGiven("-nopos")
-            && (opt.valueIsGiven("-noposc")
-                || opt.valueIsGiven("-noccpos"))) {
+        if (opt.valueIsGiven(NOPOS_PARAMETER)
+            && (opt.valueIsGiven(NOPOSC_PARAMETER)
+                || opt.valueIsGiven(NOCCPOS_PARAMETER))) {
             final String e =
                 "The option \"-nopos\" is incompatible with both "
                 + "\"-noposc\" and \"-noccpos\"";
@@ -975,8 +978,8 @@ public final class MixNetElGamalVerifyFiatShamirTool {
         }
 
         if (!session.precomp()
-            && (opt.valueIsGiven("-noposc")
-                || opt.valueIsGiven("-noccpos"))) {
+            && (opt.valueIsGiven(NOPOSC_PARAMETER)
+                || opt.valueIsGiven(NOCCPOS_PARAMETER))) {
             final String e =
                 "The options \"-noposc\" and \"-noccpos\" can not "
                 + "be used for proofs of executions where no "
@@ -997,7 +1000,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
         String expectedAuxsid;
         int expectedWidth;
 
-        if (opt.getBooleanValue("-sloppy")) {
+        if (opt.getBooleanValue(SLOPPY_PARAMETER)) {
 
             // Sloppy means that we extract the type of the proof, the
             // auxiliary session identifier, and the width from the
@@ -1014,22 +1017,22 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             // Determine expected type.
             if (opt.getBooleanValue("-mix")) {
                 expectedType = MixNetElGamalSession.MIX_TYPE;
-            } else if (opt.getBooleanValue("-shuffle")) {
+            } else if (opt.getBooleanValue(SHUFFLE_PARAMETER)) {
                 expectedType = MixNetElGamalSession.SHUFFLE_TYPE;
             } else { // -decrypt
                 expectedType = MixNetElGamalSession.DECRYPT_TYPE;
             }
 
             // Determine expected auxiliary session identifier.
-            if (opt.valueIsGiven("-auxsid")) {
-                expectedAuxsid = opt.getStringValue("-auxsid");
+            if (opt.valueIsGiven(AUXSID_PARAMETER)) {
+                expectedAuxsid = opt.getStringValue(AUXSID_PARAMETER);
             } else {
                 expectedAuxsid = "default";
             }
 
             // Determine expected width.
-            if (opt.valueIsGiven("-width")) {
-                expectedWidth = opt.getIntValue("-width");
+            if (opt.valueIsGiven(WIDTH_PARAMETER)) {
+                expectedWidth = opt.getIntValue(WIDTH_PARAMETER);
             } else {
                 expectedWidth = 0;
             }
@@ -1037,11 +1040,11 @@ public final class MixNetElGamalVerifyFiatShamirTool {
 
         final boolean expectedDec = !opt.getBooleanValue("-nodec");
 
-        final boolean expectedPos = !opt.getBooleanValue("-nopos");
+        final boolean expectedPos = !opt.getBooleanValue(NOPOS_PARAMETER);
         final boolean expectedPosc =
-            expectedPos && !opt.getBooleanValue("-noposc");
+            expectedPos && !opt.getBooleanValue(NOPOSC_PARAMETER);
         final boolean expectedCcpos =
-            expectedPos && !opt.getBooleanValue("-noccpos");
+            expectedPos && !opt.getBooleanValue(NOCCPOS_PARAMETER);
 
         return new SessionParams(expectedType,
                                  expectedAuxsid,
