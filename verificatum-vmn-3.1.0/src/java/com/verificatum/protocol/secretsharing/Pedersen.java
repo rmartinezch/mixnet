@@ -75,7 +75,7 @@ import com.verificatum.ui.Log;
  * @author Douglas Wikstrom
  */
 public final class Pedersen extends ProtocolBBT implements PGroupAssociated {
-
+    private static final String STATE_FILE = "State";
     /**
      * Underlying functionality.
      */
@@ -283,7 +283,7 @@ public final class Pedersen extends ProtocolBBT implements PGroupAssociated {
                                        secret.toByteTree());
         }
         log.info("Write state to file.");
-        bt.unsafeWriteTo(getFile("State"));
+        bt.unsafeWriteTo(getFile(STATE_FILE));
     }
 
     /**
@@ -294,7 +294,7 @@ public final class Pedersen extends ProtocolBBT implements PGroupAssociated {
      * its state on file or not.
      */
     public boolean stateOnFile() {
-        final File file = getFile("State");
+        final File file = getFile(STATE_FILE);
         return file.exists();
     }
 
@@ -309,7 +309,7 @@ public final class Pedersen extends ProtocolBBT implements PGroupAssociated {
      */
     protected boolean stateFromFile(final Log log) {
 
-        final File file = getFile("State");
+        final File file = getFile(STATE_FILE);
 
         if (file.exists()) {
 
