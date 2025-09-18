@@ -110,7 +110,7 @@ public final class IndependentGeneratorsBasicI {
     /**
      * Blinder elements used in zero-knowledge proof.
      */
-    PGroupElement[] Ap;
+    PGroupElement[] pgeAp;
 
     /**
      * Vector of random exponents.
@@ -125,7 +125,7 @@ public final class IndependentGeneratorsBasicI {
     /**
      * Replies for batched exponents.
      */
-    PRingElement[] k_a;
+    PRingElement[] ka;
 
     /**
      * Challenge as field element.
@@ -155,8 +155,8 @@ public final class IndependentGeneratorsBasicI {
         this.rbitlen = rbitlen;
         this.prg = prg;
 
-        this.Ap = new PGroupElement[threshold + 1];
-        this.k_a = new PRingElement[threshold + 1];
+        this.pgeAp = new PGroupElement[threshold + 1];
+        this.ka = new PRingElement[threshold + 1];
     }
 
     /**
@@ -204,9 +204,9 @@ public final class IndependentGeneratorsBasicI {
         a = s.innerProduct(e);
 
         r = a.getPRing().randomElement(randomSource, rbitlen);
-        Ap[j] = g.exp(r);
+        pgeAp[j] = g.exp(r);
 
-        return Ap[j].toByteTree();
+        return pgeAp[j].toByteTree();
     }
 
     /**
@@ -219,9 +219,9 @@ public final class IndependentGeneratorsBasicI {
     public void setCommitment(final int l,
                               final ByteTreeReader commitmentReader) {
         try {
-            Ap[l] = h[1].getPGroup().toElement(commitmentReader);
+            pgeAp[l] = h[1].getPGroup().toElement(commitmentReader);
         } catch (final ArithmFormatException afe) {
-            Ap[l] = h[1].getPGroup().getONE();
+            pgeAp[l] = h[1].getPGroup().getONE();
         }
     }
 
@@ -241,8 +241,8 @@ public final class IndependentGeneratorsBasicI {
      * @return Reply of this party.
      */
     public ByteTreeBasic reply() {
-        k_a[j] = a.mul(v).add(r);
-        return k_a[j].toByteTree();
+        ka[j] = a.mul(v).add(r);
+        return ka[j].toByteTree();
     }
 
     /**
@@ -256,9 +256,9 @@ public final class IndependentGeneratorsBasicI {
 
         final PRing pRing = h[1].getPGroup().getPRing();
         try {
-            k_a[l] = pRing.toElement(replyReader);
+            ka[l] = pRing.toElement(replyReader);
         } catch (final ArithmFormatException afe) {
-            k_a[l] = pRing.getZERO();
+            ka[l] = pRing.getZERO();
         }
     }
 
@@ -270,12 +270,12 @@ public final class IndependentGeneratorsBasicI {
     public boolean verify() {
 
         // Compute combined proof.
-        PRingElement combinedk_a = k_a[1].getPRing().getZERO();
-        PGroupElement combinedAp = Ap[1].getPGroup().getONE();
+        PRingElement combinedk_a = ka[1].getPRing().getZERO();
+        PGroupElement combinedAp = pgeAp[1].getPGroup().getONE();
 
         for (int l = 1; l <= threshold; l++) {
-            combinedk_a = combinedk_a.add(k_a[l]);
-            combinedAp = combinedAp.mul(Ap[l]);
+            combinedk_a = combinedk_a.add(ka[l]);
+            combinedAp = combinedAp.mul(pgeAp[l]);
         }
 
         // Batch independent generators.
@@ -291,6 +291,6 @@ public final class IndependentGeneratorsBasicI {
      * @return Verdict for the combined proof.
      */
     public boolean verify(final int l) {
-        return h[l].expProd(e).exp(v).mul(Ap[l]).equals(g.exp(k_a[l]));
+        return h[l].expProd(e).exp(v).mul(pgeAp[l]).equals(g.exp(ka[l]));
     }
 }
