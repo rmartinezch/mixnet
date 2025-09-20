@@ -61,16 +61,6 @@ public final class DemoPedersen extends DemoProtocolElGamalFactory {
         return new ExecPedersen(privateInfo, protocolInfo, ui);
     }
 
-    // public Opt generateOpt(Demo demo) {
-    // Opt opt = super.generateOpt(demo);
-
-    // opt.addOption("-pGroup", "pGroup",
-    // "Prime order group used in the protocol.");
-    // opt.appendToUsageForm(0, "#-pGroup##");
-
-    // return opt;
-    // }
-
     @Override
     public void verify(final DemoProtocol... servers) throws Exception {
 

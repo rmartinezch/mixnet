@@ -439,7 +439,6 @@ public final class PoSBasicTW {
         precompute(g, h);
         this.pi = pi;
 
-        // Prover computes a permutation commitment. u_i = g^{r_{\pi(i)}} * h_{\pi(i)}
         this.r = pRing.randomElementArray(size, randomSource, rbitlen);
         final PGroupElementArray tmp1 = g.exp(r);
         final PGroupElementArray tmp2 = h.mul(tmp1);
@@ -471,7 +470,6 @@ public final class PoSBasicTW {
         epsilon = pField.toElementArray(epsilonIntegers);
         epsilonIntegers.free();
 
-        // Next we compute the corresponding blinder. A' = g^{\alpha} * \prod h_i^{\epsilon_i}
         Ap = g.exp(alpha).mul(h.expProd(epsilon));
     }
 
@@ -564,24 +562,6 @@ public final class PoSBasicTW {
 
         pB = pRing.randomElementArray(size, randomSource, rbitlen);
 
-        // Thus, we form the committed product of the inverse permuted
-        // random exponents.
-        //
-        // To be able to use fixed-base exponentiation, this is,
-        // however, computed as: B_i = g^{x_i} * h0^{y_i}
-        // where x_i and y_i are computed as follows.
-
-        // x is computed using a method call that is equivalent to the recursive code in the following comment:
-        // PRingElement[] bs = b.elements();
-        // PRingElement[] ipes = ipe.elements();
-        // PRingElement[] xs = new PRingElement[size];
-        // xs[0] = bs[0];
-        // for (int i = 1; i < size; i++) {
-        // xs[i] = xs[i - 1].mul(ipes[i]).add(bs[i]);
-        // }
-        // PRingElementArray x = pRing.toElementArray(xs);
-        // d = xs[size-1];
-
         final Pair<PRingElementArray, PRingElement> p = pB.recLin(ipe);
         final PRingElementArray x = p.first;
         pD = p.second;
@@ -609,16 +589,6 @@ public final class PoSBasicTW {
 
         beta = pRing.randomElementArray(size, randomSource, rbitlen);
 
-        // and form corresponding blinders. B_0' = g^{\beta_0'} * h0^{\epsilon_0},  B_i' = g^{\beta_i'} * B_{i-1}^{\epsilon_i}
-        // PGroupElementArray B_shift = B.shiftPush(h0);
-        // PGroupElementArray g_exp_beta = g.exp(beta);
-        // PGroupElementArray B_shift_exp_epsilon =
-        // B_shift.exp(epsilon);
-        // Bp = g_exp_beta.mul(B_shift_exp_epsilon);
-        // B_shift.free();
-        // g_exp_beta.free();
-        // B_shift_exp_epsilon.free();
-
         final PRingElementArray xp = x.shiftPush(x.getPRing().getZERO());
         final PRingElementArray yp = y.shiftPush(y.getPRing().getONE());
         y.free();
@@ -640,11 +610,9 @@ public final class PoSBasicTW {
         yp.free();
         xp.free();
 
-        // The verifier also requires that the prover knows c=\sum r_i such that \prod u_i / \prod h_i = g^c so we generate a randomizer \gamma and blinder as follows. C' = g^{\gamma}
         gamma = pRing.randomElement(randomSource, rbitlen);
         Cp = g.exp(gamma);
 
-        // Finally, the verifier requires that B_{N-1} / g^{\prod e_i} = g^{d} so we generate a randomizer \delta and blinder as follows. D' = g^{\delta}
         delta = pRing.randomElement(randomSource, rbitlen);
         Dp = g.exp(delta);
 
@@ -978,11 +946,9 @@ public final class PoSBasicTW {
         C = u.prod().div(h.prod());
         D = B.get(size - 1).div(h0.exp(e.prod()));
 
-        // Verify that prover knows a=<r,e'> and e' such that: A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
         final boolean verdictA =
             A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)));
 
-        // Verify that prover knows b and e' such that: B_0 = g^{b_0} * h0^{e_0'}, B_i = g^{b_i} * B_{i-1}^{e_i'}
         final PGroupElementArray B_exp_v = B.exp(v);
         final PGroupElementArray leftSide = B_exp_v.mul(Bp);
         final PGroupElementArray g_exp_k_B = g.exp(k_B);
@@ -1007,7 +973,6 @@ public final class PoSBasicTW {
         final boolean verdictD = D.expMul(v, Dp).equals(g.exp(k_D));
 
 
-        // Verify that the prover knows f = <s,e> such that F = \prod w_i^{e_i} = Enc_pk(-f)\prod (w_i')^{e_i'}
         final boolean verdictF =
             F.expMul(v, Fp).equals(pkey.exp(k_F.neg()).mul(wp.expProd(k_E)));
 

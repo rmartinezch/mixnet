@@ -384,29 +384,6 @@ public final class PoSCBasicTW {
         // where we generate the b array as follows:
         pB = pRing.randomElementArray(size, randomSource, rbitlen);
 
-        // Thus, we form the committed product of the inverse permuted
-        // random exponents.
-        //
-        // To be able to use fixed-base exponentiation, this is,
-        // however, computed as:
-        //
-        // B_i = g^{x_i} * h0^{y_i}
-        //
-        // where x_i and y_i are computed as follows.
-
-        // x is computed using a method call that is equivalent to the
-        // recursive code in the following comment:
-        //
-        // PRingElement[] bs = b.elements();
-        // PRingElement[] ipes = ipe.elements();
-        // PRingElement[] xs = new PRingElement[size];
-        // xs[0] = bs[0];
-        // for (int i = 1; i < size; i++) {
-        // xs[i] = xs[i - 1].mul(ipes[i]).add(bs[i]);
-        // }
-        // PRingElementArray x = pRing.toElementArray(xs);
-        // d = xs[size-1];
-
         final Pair<PRingElementArray, PRingElement> p = pB.recLin(ipe);
         final PRingElementArray x = p.first;
         d = p.second;
@@ -449,10 +426,7 @@ public final class PoSCBasicTW {
         epsilon = pField.toElementArray(epsilonIntegers);
         epsilonIntegers.free();
 
-        // Next we compute the corresponding blinder.
-        //
-        // A' = g^{\alpha} * \prod h_i^{\epsilon_i}
-        //
+        // Next we compute the corresponding blinder. A' = g^{\alpha} * \prod h_i^{\epsilon_i}
         Ap = g.exp(alpha).mul(h.expProd(epsilon));
 
         // During verification, the verifier also requires that (1)
@@ -460,20 +434,7 @@ public final class PoSCBasicTW {
 
         beta = pRing.randomElementArray(size, randomSource, rbitlen);
 
-        // and form corresponding blinders.
-        //
-        // B_0' = g^{\beta_0'} * h0^{\epsilon_0}
-        // B_i' = g^{\beta_i'} * B_{i-1}^{\epsilon_i}
-        //
-        // PGroupElementArray B_shift = B.shiftPush(h0);
-        // PGroupElementArray g_exp_beta = g.exp(beta);
-        // PGroupElementArray B_shift_exp_epsilon =
-        // B_shift.exp(epsilon);
-        // Bp = g_exp_beta.mul(B_shift_exp_epsilon);
-        // B_shift.free();
-        // g_exp_beta.free();
-        // B_shift_exp_epsilon.free();
-
+        // and form corresponding blinders B_0' = g^{\beta_0'} * h0^{\epsilon_0},  B_i' = g^{\beta_i'} * B_{i-1}^{\epsilon_i}
         final PRingElementArray xp = x.shiftPush(x.getPRing().getZERO());
         final PRingElementArray yp = y.shiftPush(y.getPRing().getONE());
 
@@ -496,26 +457,11 @@ public final class PoSCBasicTW {
         yp.free();
         xp.free();
 
-        // The verifier also requires that the prover knows c=\sum r_i
-        // such that
-        //
-        // \prod u_i / \prod h_i = g^c
-        //
-        // so we generate a randomizer \gamma and blinder as follows.
-        //
-        // C' = g^{\gamma}
-        //
+        // The verifier also requires that the prover knows c=\sum r_i such that \prod u_i / \prod h_i = g^c so we generate a randomizer \gamma and blinder as follows. C' = g^{\gamma}
         gamma = pRing.randomElement(randomSource, rbitlen);
         Cp = g.exp(gamma);
 
-        // Finally, the verifier requires that
-        //
-        // B_{N-1} / g^{\prod e_i} = g^{d}
-        //
-        // so we generate a randomizer \delta and blinder as follows.
-        //
-        // D' = g^{\delta}
-        //
+        // Finally, the verifier requires that B_{N-1} / g^{\prod e_i} = g^{d} so we generate a randomizer \delta and blinder as follows. D' = g^{\delta}
         delta = pRing.randomElement(randomSource, rbitlen);
         Dp = g.exp(delta);
 
@@ -670,22 +616,14 @@ public final class PoSCBasicTW {
         // Assume prover makes us accept.
         boolean verdict = true;
 
-        // Verify that prover knows a=<r,e'> and e' such that:
-        //
-        // A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
-        //
-
+        // Verify that prover knows a=<r,e'> and e' such that: A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
         if (!A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)))) {
             verdict = false;
         }
 
         if (verdict) {
 
-            // Verify that prover knows b and e' such that:
-            //
-            // B_0 = g^{b_0} * h0^{e_0'}
-            // B_i = g^{b_i} * B_{i-1}^{e_i'}
-            //
+            // Verify that prover knows b and e' such that: B_0 = g^{b_0} * h0^{e_0'}, B_i = g^{b_i} * B_{i-1}^{e_i'}
             final PGroupElementArray B_exp_v = B.exp(v);
             final PGroupElementArray leftSide = B_exp_v.mul(Bp);
 
