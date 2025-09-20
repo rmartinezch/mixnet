@@ -29,6 +29,7 @@ package com.verificatum.protocol.demo;
 import java.io.File;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import com.verificatum.crypto.PRGHeuristic;
@@ -83,7 +84,7 @@ public class Demo {
     private static final String HTTPHOST_PARAMETER = "-httphost";
     private static final String HTTPHOSTL_PARAMETER = "-httphostl";
     private static final String HINTHOST_PARAMETER = "-hinthost";
-    private static final String HINTHOSTl_PARAMETER = "-hinthostl";
+    private static final String HINTHOSTL_PARAMETER = "-hinthostl";
     private static final String HTTPDIR_PARAMETER = "-httpdir";
     private static final String HTTPPORT_PARAMETER = "-httpport";
     /**
@@ -546,8 +547,8 @@ public class Demo {
                         + (httpportl + j - 1));
 
             String hinthostl = LOCALHOST;
-            if (opt.valueIsGiven(HINTHOSTl_PARAMETER)) {
-                hinthostl = opt.getStringValue(HINTHOSTl_PARAMETER);
+            if (opt.valueIsGiven(HINTHOSTL_PARAMETER)) {
+                hinthostl = opt.getStringValue(HINTHOSTL_PARAMETER);
             }
             final int hintportl = opt.getIntValue("-hintportl",
                                                   ProtocolDefaults.HINT_PORT);
@@ -602,7 +603,7 @@ public class Demo {
                       "Hostname of hint server (defaults to \"localhost\").");
         opt.addOption("-hintport", PORT,
                       "Offset port number of hint servers.");
-        opt.addOption(HINTHOSTl_PARAMETER, HOST,
+        opt.addOption(HINTHOSTL_PARAMETER, HOST,
                       "Listening hostname of hint server "
                       + "(defaults to \"localhost\").");
         opt.addOption("-hintportl", PORT,
@@ -648,7 +649,11 @@ public class Demo {
      */
     protected static DemoProtocolElGamalFactory
     demoFactory(final String factoryClassName)
-        throws Exception {
+        throws ClassNotFoundException,
+            NoSuchMethodException,
+            InstantiationException,
+            IllegalAccessException,
+            InvocationTargetException {
 
         // Instantiate the demo protocol factory.
         final Class<?> klass = Class.forName(factoryClassName);
@@ -711,7 +716,7 @@ public class Demo {
                 + "protocol, so it takes \na while to complete.\n";
             ps.println(s);
 
-            ps.println(String.format("Demo:  Classname:"));
+            ps.println("Demo:  Classname:");
             final String dashes =
                 "--------------------------------------------------------";
             ps.println(dashes);
