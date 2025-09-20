@@ -426,7 +426,6 @@ public final class PoSCBasicTW {
         epsilon = pField.toElementArray(epsilonIntegers);
         epsilonIntegers.free();
 
-        // Next we compute the corresponding blinder. A' = g^{\alpha} * \prod h_i^{\epsilon_i}
         Ap = g.exp(alpha).mul(h.expProd(epsilon));
 
         // During verification, the verifier also requires that (1)
@@ -434,7 +433,6 @@ public final class PoSCBasicTW {
 
         beta = pRing.randomElementArray(size, randomSource, rbitlen);
 
-        // and form corresponding blinders B_0' = g^{\beta_0'} * h0^{\epsilon_0},  B_i' = g^{\beta_i'} * B_{i-1}^{\epsilon_i}
         final PRingElementArray xp = x.shiftPush(x.getPRing().getZERO());
         final PRingElementArray yp = y.shiftPush(y.getPRing().getONE());
 
@@ -457,11 +455,9 @@ public final class PoSCBasicTW {
         yp.free();
         xp.free();
 
-        // The verifier also requires that the prover knows c=\sum r_i such that \prod u_i / \prod h_i = g^c so we generate a randomizer \gamma and blinder as follows. C' = g^{\gamma}
         gamma = pRing.randomElement(randomSource, rbitlen);
         Cp = g.exp(gamma);
 
-        // Finally, the verifier requires that B_{N-1} / g^{\prod e_i} = g^{d} so we generate a randomizer \delta and blinder as follows. D' = g^{\delta}
         delta = pRing.randomElement(randomSource, rbitlen);
         Dp = g.exp(delta);
 
@@ -616,14 +612,12 @@ public final class PoSCBasicTW {
         // Assume prover makes us accept.
         boolean verdict = true;
 
-        // Verify that prover knows a=<r,e'> and e' such that: A = \prod u_i^{e_i} = g^a * \prod h_i^{e_i'}
         if (!A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)))) {
             verdict = false;
         }
 
         if (verdict) {
 
-            // Verify that prover knows b and e' such that: B_0 = g^{b_0} * h0^{e_0'}, B_i = g^{b_i} * B_{i-1}^{e_i'}
             final PGroupElementArray B_exp_v = B.exp(v);
             final PGroupElementArray leftSide = B_exp_v.mul(Bp);
 
