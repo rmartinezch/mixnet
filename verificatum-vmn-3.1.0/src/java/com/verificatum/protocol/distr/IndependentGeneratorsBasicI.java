@@ -270,18 +270,18 @@ public final class IndependentGeneratorsBasicI {
     public boolean verify() {
 
         // Compute combined proof.
-        PRingElement combinedk_a = ka[1].getPRing().getZERO();
+        PRingElement combinedKa = ka[1].getPRing().getZERO();
         PGroupElement combinedAp = pgeAp[1].getPGroup().getONE();
 
         for (int l = 1; l <= threshold; l++) {
-            combinedk_a = combinedk_a.add(ka[l]);
+            combinedKa = combinedKa.add(ka[l]);
             combinedAp = combinedAp.mul(pgeAp[l]);
         }
 
         // Batch independent generators.
         final PGroupElement combinedA = combinedh.expProd(e);
 
-        return combinedA.exp(v).mul(combinedAp).equals(g.exp(combinedk_a));
+        return combinedA.exp(v).mul(combinedAp).equals(g.exp(combinedKa));
     }
 
     /**

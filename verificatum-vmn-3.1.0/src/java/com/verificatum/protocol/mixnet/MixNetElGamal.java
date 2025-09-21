@@ -273,7 +273,7 @@ public class MixNetElGamal extends ProtocolElGamal {
         // Store public key along with proof.
         if (shufflerElGamal.getPublicKey() != null) {
 
-            final File file = DistrElGamal.FPKfile(nizkp);
+            final File file = DistrElGamal.fpkFile(nizkp);
             shufflerElGamal.getPublicKey().toByteTree().unsafeWriteTo(file);
         }
     }

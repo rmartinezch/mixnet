@@ -221,7 +221,7 @@ public class DistrElGamal extends ProtocolElGamal {
     public void writeKeys(final File nizkp, final File subnizkp) {
 
         final PGroupElement pk = dkg.getFullPublicKey();
-        pk.toByteTree().unsafeWriteTo(FPKfile(nizkp));
+        pk.toByteTree().unsafeWriteTo(fpkFile(nizkp));
 
         try {
             ExtIO.mkdirs(subnizkp);
@@ -231,7 +231,7 @@ public class DistrElGamal extends ProtocolElGamal {
         }
 
         dkg.getPolynomialInExponent().toByteTree().
-            unsafeWriteTo(PIEfile(subnizkp));
+            unsafeWriteTo(pieFile(subnizkp));
     }
 
     /**
@@ -241,7 +241,7 @@ public class DistrElGamal extends ProtocolElGamal {
      * @param nizkp Destination directory of public key.
      * @return File where the polynomial in exponent is stored.
      */
-    public static File PIEfile(final File nizkp) { // NOPMD
+    public static File pieFile(final File nizkp) { // NOPMD
         return new File(nizkp, "PolynomialInExponent.bt");
     }
 
@@ -251,7 +251,7 @@ public class DistrElGamal extends ProtocolElGamal {
      * @param nizkp Destination directory of public key.
      * @return File where the public key is stored.
      */
-    public static File FPKfile(final File nizkp) { // NOPMD
+    public static File fpkFile(final File nizkp) { // NOPMD
         return new File(nizkp, "FullPublicKey.bt");
     }
 }

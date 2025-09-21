@@ -196,7 +196,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.print("Read joint public key... ");
 
-        final File file = DistrElGamal.FPKfile(nizkp);
+        final File file = DistrElGamal.fpkFile(nizkp);
 
         if (!file.exists()) {
             v.failStop("Joint public key file " + file.toString()
@@ -241,7 +241,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.print("Read polynomial in exponent... ");
 
-        final File file = DistrElGamal.PIEfile(proofs);
+        final File file = DistrElGamal.pieFile(proofs);
 
         final ByteTreeReaderF btr = new ByteTreeReaderF(file);
 
@@ -1105,7 +1105,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
         v.print("Read decryption factors... ");
         for (int l = 1; l <= v.k; l++) {
-            final File dffile = DistrElGamalSession.DFfile(proofs, l);
+            final File dffile = DistrElGamalSession.dfFile(proofs, l);
             decryptionFactors[l] = readArray(ciphertexts.size(),
                                              ciphPGroup.project(0),
                                              dffile);
@@ -1139,7 +1139,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      */
     boolean[] getIndicesOfCorrectDecryptionFactors() {
 
-        final File crfile = DistrElGamalSession.CRfile(proofs);
+        final File crfile = DistrElGamalSession.crFile(proofs);
         boolean[] correct = null;
         try {
             correct = ByteTree.byteTreeToBooleanArray(new ByteTree(crfile));
@@ -1183,7 +1183,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
     void readCommitments(final DistrElGamalSessionBasic basic) {
         for (int l = 1; l <= v.k; l++) {
 
-            final File file = DistrElGamalSession.DFCfile(proofs, l);
+            final File file = DistrElGamalSession.dfcFile(proofs, l);
             final ByteTreeReader btr = new ByteTreeReaderF(file);
             basic.setCommitment(l, btr);
             btr.close();
@@ -1199,7 +1199,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
     void readReplies(final DistrElGamalSessionBasic basic) {
         for (int l = 1; l <= v.k; l++) {
 
-            final File file = DistrElGamalSession.DFRfile(proofs, l);
+            final File file = DistrElGamalSession.dfrFile(proofs, l);
             final ByteTreeReader btr = new ByteTreeReaderF(file);
             basic.setReply(l, btr);
             btr.close();

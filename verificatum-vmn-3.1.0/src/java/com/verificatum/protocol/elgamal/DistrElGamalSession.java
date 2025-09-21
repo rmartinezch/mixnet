@@ -181,7 +181,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
             // decryption factors.
             if (nizkp != null) {
                 decryptionFactors[l].toByteTree().
-                    unsafeWriteTo(DFfile(nizkp, l));
+                    unsafeWriteTo(dfFile(nizkp, l));
             }
         }
     }
@@ -211,7 +211,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
 
                 // Export proof commitment.
                 if (nizkp != null) {
-                    commitment.unsafeWriteTo(DFCfile(nizkp, j));
+                    commitment.unsafeWriteTo(dfcFile(nizkp, j));
                 }
 
             } else {
@@ -231,7 +231,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
                     // Export proof commitment.
                     if (nizkp != null) {
                         basic.getCommitment(l).
-                            unsafeWriteTo(DFCfile(nizkp, l));
+                            unsafeWriteTo(dfcFile(nizkp, l));
                     }
 
                 } finally {
@@ -268,7 +268,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
 
                 // Export proof reply.
                 if (nizkp != null) {
-                    reply.unsafeWriteTo(DFRfile(nizkp, j));
+                    reply.unsafeWriteTo(dfrFile(nizkp, j));
                 }
 
             } else {
@@ -290,7 +290,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
 
                 // Export proof reply.
                 if (nizkp != null) {
-                    basic.getReply(l).unsafeWriteTo(DFRfile(nizkp, l));
+                    basic.getReply(l).unsafeWriteTo(dfrFile(nizkp, l));
                 }
             }
         }
@@ -386,7 +386,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
 
         // Export our own decryption factors.
         if (fnizkp != null) {
-            decryptionFactors[j].toByteTree().unsafeWriteTo(DFfile(fnizkp, j));
+            decryptionFactors[j].toByteTree().unsafeWriteTo(dfFile(fnizkp, j));
         }
 
         final PGroup leftPGroup = firstComponents.getPGroup();
@@ -539,7 +539,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
         combDecryptionFactors.free();
 
         // Store the array indicating the indices of correct shares.
-        ByteTree.booleanArrayToByteTree(correct).unsafeWriteTo(CRfile(fnizkp));
+        ByteTree.booleanArrayToByteTree(correct).unsafeWriteTo(crFile(fnizkp));
 
         return plaintexts;
     }
@@ -550,7 +550,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File name of file containing correct indices.
      */
-    public static File CRfile(final File nizkp) { // NOPMD
+    public static File crFile(final File nizkp) { // NOPMD
         return new File(nizkp, "CorrectIndices.bt");
     }
 
@@ -560,7 +560,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File name of file containing ciphertexts.
      */
-    public static File Cfile(final File nizkp) { // NOPMD
+    public static File cFile(final File nizkp) { // NOPMD
         return new File(nizkp, "Ciphertexts");
     }
 
@@ -571,7 +571,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File where decryption factors are stored.
      */
-    public static File DFfile(final File nizkp, final int index) { // NOPMD
+    public static File dfFile(final File nizkp, final int index) { // NOPMD
         return new File(nizkp,
                         String.format("DecryptionFactors%02d.bt", index));
     }
@@ -583,7 +583,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File where the secret key is stored.
      */
-    public static File DFCfile(final File nizkp, final int index) { // NOPMD
+    public static File dfcFile(final File nizkp, final int index) { // NOPMD
         return new File(nizkp,
                         String.format("DecrFactCommitment%02d.bt", index));
     }
@@ -595,7 +595,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File where the secret key is stored.
      */
-    public static File DFRfile(final File nizkp, final int index) { // NOPMD
+    public static File dfrFile(final File nizkp, final int index) { // NOPMD
         return new File(nizkp,
                         String.format("DecrFactReply%02d.bt", index));
     }
