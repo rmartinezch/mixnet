@@ -91,7 +91,7 @@ public final class ProtocolElGamalRearParser {
         throws ProtocolFormatException {
 
         final List<ProtocolElGamalRearInterval> res =
-            new ArrayList<ProtocolElGamalRearInterval>();
+            new ArrayList<>();
 
         final String[] intervalsStrings = intervalsString.split(":");
 
@@ -121,7 +121,7 @@ public final class ProtocolElGamalRearParser {
 
         final String e = "Malformed interval! (" + intervalString + ")";
 
-        final List<Integer> res = new ArrayList<Integer>();
+        final List<Integer> res = new ArrayList<>();
 
         final int middle = intervalString.indexOf("-");
 
@@ -198,7 +198,7 @@ public final class ProtocolElGamalRearParser {
         }
 
         final List<ProtocolElGamalRearPosition> res =
-            new ArrayList<ProtocolElGamalRearPosition>();
+            new ArrayList<>();
         for (final int row : rows) {
             for (final int column : columns) {
                 res.add(new ProtocolElGamalRearPosition(row, column));
@@ -225,7 +225,7 @@ public final class ProtocolElGamalRearParser {
         throws ProtocolFormatException {
 
         final List<ProtocolElGamalRearPosition> res =
-            new ArrayList<ProtocolElGamalRearPosition>();
+            new ArrayList<>();
 
         final String[] positions = sourceString.split("x");
         for (int i = 0; i < positions.length; i++) {
@@ -255,7 +255,7 @@ public final class ProtocolElGamalRearParser {
         final String[] sources = formatString.split(":");
 
         final List<List<ProtocolElGamalRearPosition>> res =
-            new ArrayList<List<ProtocolElGamalRearPosition>>();
+            new ArrayList<>();
 
         for (int i = 0; i < sources.length; i++) {
             res.add(parseSource(sources[i]));

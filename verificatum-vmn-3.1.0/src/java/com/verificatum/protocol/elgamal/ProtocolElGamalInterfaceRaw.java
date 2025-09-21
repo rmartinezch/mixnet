@@ -215,7 +215,7 @@ public class ProtocolElGamalInterfaceRaw extends ProtocolElGamalInterface
             throw new ProtocolFormatException("No filenames!");
         }
 
-        final List<PGroupElement> res = new ArrayList<PGroupElement>();
+        final List<PGroupElement> res = new ArrayList<>();
 
         for (int i = 0; i < filenames.length; i++) {
 
@@ -358,7 +358,7 @@ public class ProtocolElGamalInterfaceRaw extends ProtocolElGamalInterface
         throws ProtocolFormatException {
 
         final List<PGroupElementArray> res =
-            new ArrayList<PGroupElementArray>();
+            new ArrayList<>();
 
         for (int i = 0; i < filenames.length; i++) {
 

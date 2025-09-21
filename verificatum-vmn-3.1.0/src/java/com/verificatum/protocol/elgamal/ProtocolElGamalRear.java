@@ -172,7 +172,7 @@ public final class ProtocolElGamalRear {
                           final List<List<ProtocolElGamalRearPosition>> format)
         throws ProtocolFormatException {
 
-        final List<PGroupElement> res = new ArrayList<PGroupElement>();
+        final List<PGroupElement> res = new ArrayList<>();
 
         for (final List<ProtocolElGamalRearPosition> positions : format) {
             res.add(constructOutputElement(atomicPGroup,
@@ -203,7 +203,7 @@ public final class ProtocolElGamalRear {
         throws ProtocolFormatException {
 
         final List<PGroupElementArray> res =
-            new ArrayList<PGroupElementArray>();
+            new ArrayList<>();
 
         for (final List<ProtocolElGamalRearPosition> source : format) {
             res.add(constructOutputArray(atomicPGroup, inputArrays, source));
@@ -231,7 +231,7 @@ public final class ProtocolElGamalRear {
         } else {
 
             final List<PGroupElementArray> res =
-                new ArrayList<PGroupElementArray>();
+                new ArrayList<>();
 
             for (final PGroupElementArray inputArray : inputArrays) {
 
@@ -263,7 +263,7 @@ public final class ProtocolElGamalRear {
         } else {
 
             final List<PGroupElementArray> res =
-                new ArrayList<PGroupElementArray>();
+                new ArrayList<>();
 
             final int noOutputArrays = factorArrays.size() / width;
 
@@ -299,12 +299,12 @@ public final class ProtocolElGamalRear {
                         final List<ProtocolElGamalRearPosition> positions) {
 
         final List<List<ProtocolElGamalRearPosition>> res =
-            new ArrayList<List<ProtocolElGamalRearPosition>>();
+            new ArrayList<>();
 
         for (int i = 0; i < width; i++) {
 
             final List<ProtocolElGamalRearPosition> newPositions =
-                new ArrayList<ProtocolElGamalRearPosition>();
+                new ArrayList<>();
 
             for (final ProtocolElGamalRearPosition position : positions) {
 
@@ -333,7 +333,7 @@ public final class ProtocolElGamalRear {
                      final List<List<ProtocolElGamalRearPosition>> format) {
 
         final List<List<ProtocolElGamalRearPosition>> res =
-            new ArrayList<List<ProtocolElGamalRearPosition>>();
+            new ArrayList<>();
 
         for (final List<ProtocolElGamalRearPosition> row : format) {
             res.addAll(expandPositions(width, row));
@@ -405,7 +405,7 @@ public final class ProtocolElGamalRear {
 
         // Re-arrange each part separately.
         final List<List<PGroupElementArray>> res =
-            new ArrayList<List<PGroupElementArray>>();
+            new ArrayList<>();
 
         res.add(rearrangeArrays(atomicPGroup, uparts, format));
         res.add(rearrangeArrays(atomicPGroup, vparts, format));
@@ -435,7 +435,7 @@ public final class ProtocolElGamalRear {
         final int size = intervals.size();
 
         final List<PGroupElementArray> res =
-            new ArrayList<PGroupElementArray>();
+            new ArrayList<>();
 
         for (int i = 0; i < size; i++) {
 

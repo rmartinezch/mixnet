@@ -89,7 +89,7 @@ public final class TestProtocolElGamalRear extends TestClass {
             pGroup = new PPGroup(primeOrderPGroup, width);
         }
 
-        final List<PGroupElement> res = new ArrayList<PGroupElement>();
+        final List<PGroupElement> res = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             res.add(pGroup.randomElement(rs, 50));
         }
@@ -114,7 +114,7 @@ public final class TestProtocolElGamalRear extends TestClass {
             generateElements(rs, primeOrderPGroup, 1, length);
 
         final List<ProtocolElGamalRearPosition> positionsSingle =
-            new ArrayList<ProtocolElGamalRearPosition>();
+            new ArrayList<>();
         positionsSingle.add(new ProtocolElGamalRearPosition(1, 0));
 
         final PGroupElement outputElementWidthOneSingle =
@@ -132,7 +132,7 @@ public final class TestProtocolElGamalRear extends TestClass {
             generateElements(rs, primeOrderPGroup, 1, length);
 
         final List<ProtocolElGamalRearPosition> positionsMult =
-            new ArrayList<ProtocolElGamalRearPosition>();
+            new ArrayList<>();
         positionsMult.add(new ProtocolElGamalRearPosition(0, 0));
         positionsMult.add(new ProtocolElGamalRearPosition(2, 0));
 
@@ -158,7 +158,7 @@ public final class TestProtocolElGamalRear extends TestClass {
             generateElements(rs, primeOrderPGroup, width, length);
 
         final List<ProtocolElGamalRearPosition> positionsWidth =
-            new ArrayList<ProtocolElGamalRearPosition>();
+            new ArrayList<>();
         positionsWidth.add(new ProtocolElGamalRearPosition(0, 0));
         positionsWidth.add(new ProtocolElGamalRearPosition(2, 3));
 
