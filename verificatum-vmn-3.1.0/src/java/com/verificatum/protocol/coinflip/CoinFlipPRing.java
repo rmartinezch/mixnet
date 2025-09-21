@@ -110,7 +110,7 @@ public final class CoinFlipPRing extends ProtocolBBT {
              * After coin has been collected.
              */
             COIN_COLLECTED
-            };
+            }
 
     /**
      * Current state of this instance.

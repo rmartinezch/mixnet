@@ -105,7 +105,7 @@ public final class DKG extends ProtocolBBT {
              * State after generation of keys completed.
              */
             GENERATION_COMPLETED
-            };
+            }
 
     /**
      * Current state of this instance.
