@@ -299,7 +299,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.print("Read version from file... ");
         try {
 
-            version = ExtIO.readString(MixNetElGamalSession.Vfile(nizkp));
+            version = ExtIO.readString(MixNetElGamalSession.getVFile(nizkp));
 
             if (!VCR.version().equals(version)) {
                 v.failStop("Expected package version "
@@ -333,7 +333,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         // Read type from proof directory.
         try {
 
-            actualType = ExtIO.readString(MixNetElGamalSession.Tfile(nizkp));
+            actualType = ExtIO.readString(MixNetElGamalSession.getTFile(nizkp));
 
         } catch (final FileNotFoundException fnfe) {
             v.failStop("Can not find type file in proof directory!");
@@ -375,7 +375,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         // Read auxiliary session identifier from proof directory.
         try {
 
-            actualAuxsid = ExtIO.readString(MixNetElGamalSession.Afile(nizkp));
+            actualAuxsid = ExtIO.readString(MixNetElGamalSession.getAFile(nizkp));
             Protocol.validateSid(actualAuxsid);
 
         } catch (final FileNotFoundException fnfe) {
@@ -417,7 +417,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         try {
 
             final String widthString =
-                ExtIO.readString(MixNetElGamalSession.Wfile(nizkp));
+                ExtIO.readString(MixNetElGamalSession.getWFile(nizkp));
             actualWidth = Integer.parseInt(widthString);
 
         } catch (final FileNotFoundException fnfe) {
@@ -1024,7 +1024,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         if (sp.ccpos || DECRYPTION.equals(type)) {
 
             // Read the original ciphertexts.
-            final File file = MixNetElGamalSession.Lfile(nizkp);
+            final File file = MixNetElGamalSession.getLFile(nizkp);
             ciphertexts = readArray(0, ciphPGroup, file);
 
         } else {
@@ -1288,7 +1288,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         readPlaintexts(final PGroupElementArray computedPlaintextElements) {
 
         v.print("Read plaintexts... ");
-        final File file = MixNetElGamalSession.Pfile(nizkp);
+        final File file = MixNetElGamalSession.getPFile(nizkp);
         final PGroupElementArray plaintextElements =
             readArray(computedPlaintextElements.size(),
                       computedPlaintextElements.getPGroup(),
@@ -1446,7 +1446,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
                         File file = ShufflerElGamalSession.Lfile(proofs, l);
                         if (l == activeThreshold && !file.exists()) {
-                            file = MixNetElGamalSession.LSfile(nizkp);
+                            file = MixNetElGamalSession.getLSFile(nizkp);
                         }
 
                         output = readArray(input.size(), ciphPGroup, file);

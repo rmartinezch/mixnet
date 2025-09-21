@@ -96,12 +96,12 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
                                    final File nizkp) {
         super(sid, prot, sid, nizkp);
 
-        ExtIO.unsafeWriteString(Afile(nizkp), sid);
+        ExtIO.unsafeWriteString(getAFile(nizkp), sid);
 
         proofs = null;
         if (nizkp != null) {
 
-            final File versionFile = Vfile(nizkp);
+            final File versionFile = getVFile(nizkp);
             ExtIO.unsafeWriteString(versionFile, VCR.version());
 
             proofs = new File(nizkp, "proofs");
@@ -173,7 +173,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
 
         // Write width to proof directory to make it self-contained.
         if (fnizkp != null) {
-            final File widthFile = Wfile(fnizkp);
+            final File widthFile = getWFile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
         }
 
@@ -181,7 +181,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
 
         if (fnizkp != null) {
 
-            ExtIO.unsafeWriteString(Tfile(fnizkp), SHUFFLE_TYPE);
+            ExtIO.unsafeWriteString(getTFile(fnizkp), SHUFFLE_TYPE);
 
             getMixNet().writeKeys(fnizkp, proofs);
         }
@@ -219,10 +219,10 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         if (fnizkp != null) {
 
             // Write width to proof directory to make it self-contained.
-            final File widthFile = Wfile(fnizkp);
+            final File widthFile = getWFile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
 
-            ciphertexts.toByteTree().unsafeWriteTo(Lfile(fnizkp));
+            ciphertexts.toByteTree().unsafeWriteTo(getLFile(fnizkp));
         }
 
         PGroupElementArray shufCiphertexts;
@@ -238,9 +238,9 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
         // Write output shuffled list of ciphertexts.
         if (fnizkp != null) {
 
-            ExtIO.unsafeWriteString(Tfile(fnizkp), SHUFFLE_TYPE);
+            ExtIO.unsafeWriteString(getTFile(fnizkp), SHUFFLE_TYPE);
 
-            shufCiphertexts.toByteTree().unsafeWriteTo(LSfile(fnizkp));
+            shufCiphertexts.toByteTree().unsafeWriteTo(getLSFile(fnizkp));
             getMixNet().writeKeys(fnizkp, proofs);
         }
 
@@ -288,27 +288,27 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
 
         // Write width to proof directory to make it self-contained.
         if (fnizkp != null) {
-            final File widthFile = Wfile(fnizkp);
+            final File widthFile = getWFile(fnizkp);
             ExtIO.unsafeWriteInt(widthFile, width);
 
             // If we execute after shuffle, then we move its output
             // shuffled ciphertexts into the proofs directory.
-            if (LSfile(fnizkp).exists()) {
+            if (getLSFile(fnizkp).exists()) {
 
-                ExtIO.unsafeWriteString(Tfile(fnizkp), MIX_TYPE);
+                ExtIO.unsafeWriteString(getTFile(fnizkp), MIX_TYPE);
 
                 final File tmpFile =
                     ShufflerElGamalSession.Lfile(proofs, threshold);
 
-                if (!LSfile(fnizkp).renameTo(tmpFile)) {
+                if (!getLSFile(fnizkp).renameTo(tmpFile)) {
                     throw new ProtocolError("Unable to rename file!");
                 }
 
             } else {
 
-                ExtIO.unsafeWriteString(Tfile(fnizkp), DECRYPT_TYPE);
+                ExtIO.unsafeWriteString(getTFile(fnizkp), DECRYPT_TYPE);
 
-                ciphertexts.toByteTree().unsafeWriteTo(Lfile(fnizkp));
+                ciphertexts.toByteTree().unsafeWriteTo(getLFile(fnizkp));
             }
         }
 
@@ -317,7 +317,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
 
         // Write output.
         if (fnizkp != null) {
-            plaintexts.toByteTree().unsafeWriteTo(Pfile(fnizkp));
+            plaintexts.toByteTree().unsafeWriteTo(getPFile(fnizkp));
             getMixNet().writeKeys(fnizkp, proofs);
         }
 
@@ -380,7 +380,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory of list of ciphertexts.
      * @return File containing the auxiliary session identifier.
      */
-    public static File Afile(final File nizkp) {
+    public static File getAFile(final File nizkp) {
         return new File(nizkp, "auxsid");
     }
 
@@ -390,8 +390,8 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory of list of ciphertexts.
      * @return File containing input list of ciphertexts.
      */
-    public static File Lfile(final File nizkp) {
-        return new File(nizkp, String.format("Ciphertexts.bt"));
+    public static File getLFile(final File nizkp) {
+        return new File(nizkp, "Ciphertexts.bt");
     }
 
     /**
@@ -402,8 +402,8 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @return File containing output list of ciphertexts from the
      * shuffle.
      */
-    public static File LSfile(final File nizkp) {
-        return new File(nizkp, String.format("ShuffledCiphertexts.bt"));
+    public static File getLSFile(final File nizkp) {
+        return new File(nizkp, "ShuffledCiphertexts.bt");
     }
 
     /**
@@ -412,7 +412,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File where the output plaintext elements are stored.
      */
-    public static File Pfile(final File nizkp) {
+    public static File getPFile(final File nizkp) {
         return new File(nizkp, "Plaintexts.bt");
     }
 
@@ -422,7 +422,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File containing type of proof.
      */
-    public static File Tfile(final File nizkp) {
+    public static File getTFile(final File nizkp) {
         return new File(nizkp, "type");
     }
 
@@ -433,7 +433,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File containing width of ciphertexts.
      */
-    public static File Wfile(final File nizkp) {
+    public static File getWFile(final File nizkp) {
         return new File(nizkp, "width");
     }
 
@@ -443,7 +443,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File containing the version of this package.
      */
-    public static File Vfile(final File nizkp) {
+    public static File getVFile(final File nizkp) {
         return new File(nizkp, "version");
     }
 }
