@@ -55,7 +55,7 @@ public class ProtocolElGamalInterfaceFactory {
      * Map of short nick names to full class names of interfaces.
      */
     static ConcurrentMap<String, String> shortNames =
-        new ConcurrentHashMap<String, String>();
+        new ConcurrentHashMap<>();
 
     static {
         put("raw", "ProtocolElGamalInterfaceRaw");
@@ -99,7 +99,7 @@ public class ProtocolElGamalInterfaceFactory {
         try {
 
             final Class<?> klass = Class.forName(currentIN);
-            final Constructor<?> con = klass.getConstructor(new Class[0]);
+            final Constructor<?> con = klass.getConstructor();
             final Object obj = con.newInstance();
 
             if (obj instanceof ProtocolElGamalInterface) {
