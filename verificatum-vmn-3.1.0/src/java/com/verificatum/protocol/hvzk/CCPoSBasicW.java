@@ -124,17 +124,17 @@ public final class CCPoSBasicW {
     /**
      * Aggregate of permutation commitments.
      */
-    PGroupElement A;
+    PGroupElement pA;
 
     /**
      * Aggregate of input ciphertexts.
      */
-    PGroupElement B;
+    PGroupElement pB;
 
     /**
      * Aggregate of input ciphertexts and commitments.
      */
-    PGroupElement AB;
+    PGroupElement pAB;
 
     /**
      * Random exponents used to form the permutation commitment.
@@ -178,12 +178,12 @@ public final class CCPoSBasicW {
     /**
      * Proof commitment.
      */
-    PGroupElement Ap;
+    PGroupElement pAp;
 
     /**
      * Proof commitment.
      */
-    PGroupElement Bp;
+    PGroupElement pBp;
 
     // ########### Secret values for bridging commitment #######
 
@@ -222,17 +222,17 @@ public final class CCPoSBasicW {
     /**
      * Reply for inner product of r and e'.
      */
-    PRingElement k_A;
+    PRingElement kA;
 
     /**
      * Reply inner product of s and e.
      */
-    PRingElement k_B;
+    PRingElement kB;
 
     /**
      * Reply for the inverse permuted random vector.
      */
-    PFieldElementArray k_E;
+    PFieldElementArray kE;
 
     /**
      * BOTH: Constructor to instantiate the protocol.
@@ -377,17 +377,17 @@ public final class CCPoSBasicW {
 
         // Next we compute the corresponding blinder.
 
-        Ap = g.exp(alpha).mul(h.expProd(epsilon));
+        pAp = g.exp(alpha).mul(h.expProd(epsilon));
 
         // We must show that we can open B = \prod w_i^{e_i} as B = Enc_pk(-b)\prod (w_i')^{e_i'} where b=<s,e>.
         final PRing ciphPRing = pkey.project(0).getPGroup().getPRing();
         beta = ciphPRing.randomElement(randomSource, rbitlen);
 
-        Bp = pkey.exp(beta.neg()).mul(wp.expProd(epsilon));
+        pBp = pkey.exp(beta.neg()).mul(wp.expProd(epsilon));
 
         // ################### Byte tree ##########################
 
-        return new ByteTreeContainer(Ap.toByteTree(), Bp.toByteTree());
+        return new ByteTreeContainer(pAp.toByteTree(), pBp.toByteTree());
     }
 
     /**
@@ -403,8 +403,8 @@ public final class CCPoSBasicW {
         boolean malformed = false;
         try {
 
-            Ap = pGroup.toElement(btr.getNextChild());
-            Bp = ciphPGroup.toElement(btr.getNextChild());
+            pAp = pGroup.toElement(btr.getNextChild());
+            pBp = ciphPGroup.toElement(btr.getNextChild());
 
         } catch (final EIOException eioe) {
             malformed = true;
@@ -416,11 +416,11 @@ public final class CCPoSBasicW {
         // predetermined trivial value.
         if (malformed) {
 
-            Ap = pGroup.getONE();
-            Bp = ciphPGroup.getONE();
+            pAp = pGroup.getONE();
+            pBp = ciphPGroup.getONE();
         }
 
-        return new ByteTreeContainer(Ap.toByteTree(), Bp.toByteTree());
+        return new ByteTreeContainer(pAp.toByteTree(), pBp.toByteTree());
     }
 
     /**
@@ -468,14 +468,14 @@ public final class CCPoSBasicW {
         // k_B = vb + \beta
         // k_{E,i} = ve_i' + \epsilon_i
         //
-        k_A = a.mulAdd(v, alpha);
-        k_B = b.mulAdd(v, beta);
-        k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
+        kA = a.mulAdd(v, alpha);
+        kB = b.mulAdd(v, beta);
+        kE = (PFieldElementArray) ipe.mulAdd(v, epsilon);
 
         final ByteTreeContainer reply =
-            new ByteTreeContainer(k_A.toByteTree(),
-                                  k_B.toByteTree(),
-                                  k_E.toByteTree());
+            new ByteTreeContainer(kA.toByteTree(),
+                                  kB.toByteTree(),
+                                  kE.toByteTree());
         return reply;
     }
 
@@ -489,13 +489,13 @@ public final class CCPoSBasicW {
 
         if (raisedu == null) {
 
-            A = u.expProd(e);
-            B = w.expProd(e);
+            pA = u.expProd(e);
+            pB = w.expProd(e);
 
         } else {
 
             final PGroupElementArray tmp = w.mul(raisedu);
-            AB = tmp.expProd(e);
+            pAB = tmp.expProd(e);
             tmp.free();
         }
     }
@@ -521,9 +521,9 @@ public final class CCPoSBasicW {
         boolean malformed = false;
         try {
 
-            k_A = pRing.toElement(btr.getNextChild());
-            k_B = ciphPRing.toElement(btr.getNextChild());
-            k_E = pField.toElementArray(size, btr.getNextChild());
+            kA = pRing.toElement(btr.getNextChild());
+            kB = ciphPRing.toElement(btr.getNextChild());
+            kE = pField.toElementArray(size, btr.getNextChild());
 
         } catch (final EIOException eio) {
             malformed = true;
@@ -531,9 +531,9 @@ public final class CCPoSBasicW {
             malformed = true;
         }
         if (malformed) {
-            k_A = pRing.getZERO();
-            k_B = ciphPRing.getZERO();
-            k_E = (PFieldElementArray) pField.toElementArray(size,
+            kA = pRing.getZERO();
+            kB = ciphPRing.getZERO();
+            kE = (PFieldElementArray) pField.toElementArray(size,
                                                              pField.getZERO());
             return false;
         }
@@ -542,27 +542,27 @@ public final class CCPoSBasicW {
         boolean verdict = true;
 
         if (raisedExponent == null
-            && !A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)))) {
+            && !pA.expMul(v, pAp).equals(g.exp(kA).mul(h.expProd(kE)))) {
             verdict = false;
         }
 
         if (verdict) {
 
             if (raisedExponent == null) {
-                if (!B.expMul(v, Bp).
-                    equals(pkey.exp(k_B.neg()).mul(wp.expProd(k_E)))) {
+                if (!pB.expMul(v, pBp).
+                    equals(pkey.exp(kB.neg()).mul(wp.expProd(kE)))) {
 
                     verdict = false;
                 }
             } else {
-                final PGroupElementArray wp_mul_raisedh = wp.mul(raisedh);
+                final PGroupElementArray wpMulRaisedh = wp.mul(raisedh);
 
-                if (!AB.expMul(v, Bp.mul(Ap.exp(raisedExponent))).
-                    equals(pkey.exp(k_B.neg()).mul(wp_mul_raisedh.expProd(k_E))
-                           .mul(g.exp(k_A.mul(raisedExponent))))) {
+                if (!pAB.expMul(v, pBp.mul(pAp.exp(raisedExponent))).
+                    equals(pkey.exp(kB.neg()).mul(wpMulRaisedh.expProd(kE))
+                           .mul(g.exp(kA.mul(raisedExponent))))) {
                     verdict = false;
                 }
-                wp_mul_raisedh.free();
+                wpMulRaisedh.free();
             }
         }
 
@@ -576,8 +576,8 @@ public final class CCPoSBasicW {
      * @return Reply processed by the verifier.
      */
     public ByteTreeBasic getReply() {
-        return new ByteTreeContainer(k_A.toByteTree(), k_B.toByteTree(),
-                                     k_E.toByteTree());
+        return new ByteTreeContainer(kA.toByteTree(), kB.toByteTree(),
+                                     kE.toByteTree());
     }
 
     /**
@@ -594,8 +594,8 @@ public final class CCPoSBasicW {
         if (epsilon != null) {
             epsilon.free();
         }
-        if (k_E != null) {
-            k_E.free();
+        if (kE != null) {
+            kE.free();
         }
     }
 }
