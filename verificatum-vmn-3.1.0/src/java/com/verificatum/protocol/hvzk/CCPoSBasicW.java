@@ -406,9 +406,7 @@ public final class CCPoSBasicW {
             pAp = pGroup.toElement(btr.getNextChild());
             pBp = ciphPGroup.toElement(btr.getNextChild());
 
-        } catch (final EIOException eioe) {
-            malformed = true;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             malformed = true;
         }
 
@@ -472,11 +470,10 @@ public final class CCPoSBasicW {
         kB = b.mulAdd(v, beta);
         kE = (PFieldElementArray) ipe.mulAdd(v, epsilon);
 
-        final ByteTreeContainer reply =
+        return
             new ByteTreeContainer(kA.toByteTree(),
                                   kB.toByteTree(),
                                   kE.toByteTree());
-        return reply;
     }
 
     /**
@@ -525,9 +522,7 @@ public final class CCPoSBasicW {
             kB = ciphPRing.toElement(btr.getNextChild());
             kE = pField.toElementArray(size, btr.getNextChild());
 
-        } catch (final EIOException eio) {
-            malformed = true;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             malformed = true;
         }
         if (malformed) {
