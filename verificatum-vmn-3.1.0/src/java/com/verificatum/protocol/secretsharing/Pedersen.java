@@ -141,7 +141,7 @@ public final class Pedersen extends ProtocolBBT implements PGroupAssociated {
              * State after the secret has been recovered.
              */
             SECRET_RECOVERED
-            };
+            }
 
     /**
      * Current state of this instance.

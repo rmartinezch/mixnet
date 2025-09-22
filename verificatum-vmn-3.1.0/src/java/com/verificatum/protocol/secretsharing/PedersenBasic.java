@@ -133,7 +133,7 @@ public final class PedersenBasic implements PGroupAssociated {
              * verification of the share is possible.
              */
             VERIFICATION_POSSIBLE
-            };
+            }
 
     /**
      * Current state of this instance.
