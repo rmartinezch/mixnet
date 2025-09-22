@@ -1156,7 +1156,6 @@ public final class MixNetElGamalTool {
                                width,
                                inputCiphertexts,
                                plainFile);
-                return;
             }
 
         // PMD does not understand this.

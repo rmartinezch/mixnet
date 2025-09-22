@@ -471,7 +471,6 @@ public final class ProtocolElGamalInterfaceTool {
                         plaintexts.free();
                     }
                 }
-                return;
             }
 
         // PMD does not understand this.

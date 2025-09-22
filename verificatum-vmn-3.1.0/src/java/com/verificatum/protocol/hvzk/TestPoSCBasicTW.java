@@ -101,35 +101,35 @@ public final class TestPoSCBasicTW extends TestClass {
 
         // Execute the protocol
 
-        final PoSCBasicTW P = new PoSCBasicTW(vbitlen, ebitlen,
+        final PoSCBasicTW pscbtwP = new PoSCBasicTW(vbitlen, ebitlen,
                                               rbitlen, prg, rs);
 
-        final PoSCBasicTW V = new PoSCBasicTW(vbitlen, ebitlen,
+        final PoSCBasicTW pscbtwV = new PoSCBasicTW(vbitlen, ebitlen,
                                               rbitlen, prg, rs);
         if (!correct) {
             r = r.add(r);
         }
 
-        P.setInstance(g, h, u, r, pi);
-        V.setInstance(g, h, u);
+        pscbtwP.setInstance(g, h, u, r, pi);
+        pscbtwV.setInstance(g, h, u);
 
-        final ByteTreeBasic commitment = P.commit(prgSeed);
+        final ByteTreeBasic commitment = pscbtwP.commit(prgSeed);
 
-        V.setBatchVector(prgSeed);
+        pscbtwV.setBatchVector(prgSeed);
 
         final ByteTreeReader btrCommit = commitment.getByteTreeReader();
-        V.setCommitment(btrCommit);
+        pscbtwV.setCommitment(btrCommit);
         btrCommit.close();
 
         final LargeInteger integerChallenge =
-            new LargeInteger(P.getVbitlen(), rs);
+            new LargeInteger(pscbtwP.getVbitlen(), rs);
 
-        V.setChallenge(integerChallenge);
+        pscbtwV.setChallenge(integerChallenge);
 
-        final ByteTreeBasic reply = P.reply(integerChallenge);
+        final ByteTreeBasic reply = pscbtwP.reply(integerChallenge);
 
         final ByteTreeReader btrReply = reply.getByteTreeReader();
-        final boolean verdict = V.verify(btrReply);
+        final boolean verdict = pscbtwV.verify(btrReply);
         btrReply.close();
 
         if (verdict) {
