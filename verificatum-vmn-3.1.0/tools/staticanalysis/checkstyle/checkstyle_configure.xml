@@ -71,7 +71,6 @@
     <!-- Checks for Headers                                -->
     <!-- See http://checkstyle.sf.net/config_header.html   -->
     <module name="Header">
-      <!-- <property name="headerFile" value="none"/> -->
       <property name="fileExtensions" value="java"/>
     </module>
 
@@ -157,7 +156,6 @@
         <module name="AvoidInlineConditionals"/>
 
 <!-- Removed in checkstyle 5.6 -->
-<!--        <module name="DoubleCheckedLocking"/>-->
 
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
@@ -168,7 +166,6 @@
         <module name="MissingSwitchDefault"/>
 
 	<!-- Removed in checkstyle 6.2 -->
-	<!-- <module name="RedundantThrows"/> -->
 
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>

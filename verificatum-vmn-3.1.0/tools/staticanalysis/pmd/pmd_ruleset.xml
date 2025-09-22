@@ -248,7 +248,6 @@
 
 <!-- This is implemented correctly. It complains even when an explicit
      format string is given. -->
-  <!-- <rule ref="rulesets/java/design.xml/SimpleDateFormatNeedsLocale"/> -->
   <rule ref="rulesets/java/design.xml/ImmutableField"/>
   <rule ref="rulesets/java/design.xml/UseLocaleWithCaseConversions"/>
   <rule ref="rulesets/java/design.xml/AvoidProtectedFieldInFinalClass"/>
