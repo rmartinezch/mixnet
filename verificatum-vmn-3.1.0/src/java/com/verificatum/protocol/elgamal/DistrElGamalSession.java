@@ -345,7 +345,7 @@ public final class DistrElGamalSession extends ProtocolElGamal {
                                       final PGroupElementArray ciphertexts) {
 
         if (fnizkp != null) {
-            ExtIO.unsafeWriteInt(ShufflerElGamalSession.ATfile(fnizkp),
+            ExtIO.unsafeWriteInt(ShufflerElGamalSession.atFile(fnizkp),
                                  getActiveThreshold());
         }
 

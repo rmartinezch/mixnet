@@ -472,7 +472,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         try {
 
             final String activeThresholdString =
-                ExtIO.readString(ShufflerElGamalSession.ATfile(proofs));
+                ExtIO.readString(ShufflerElGamalSession.atFile(proofs));
             activeThreshold = Integer.parseInt(activeThresholdString);
 
         } catch (final FileNotFoundException fnfe) {
@@ -509,7 +509,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      */
     int readMaxciph() {
 
-        final File maxciphFile = ShufflerElGamalSession.MCfile(proofs);
+        final File maxciphFile = ShufflerElGamalSession.mcFile(proofs);
 
         try {
 
@@ -945,7 +945,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      * pre-computation.
      */
     public boolean precomp() {
-        return ShufflerElGamalSession.MCfile(proofs).exists();
+        return ShufflerElGamalSession.mcFile(proofs).exists();
     }
 
     /**
@@ -1033,7 +1033,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
             // but there was shuffling, then we need to start from the
             // end of the shuffling when verifying the decryption.
             final File file =
-                ShufflerElGamalSession.Lfile(proofs, activeThreshold);
+                ShufflerElGamalSession.lFile(proofs, activeThreshold);
 
             if (file.exists()) {
                 ciphertexts = readArray(0, ciphPGroup, file);
@@ -1442,7 +1442,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
                         v.print("Read output of Party " + l + "... ");
 
-                        File file = ShufflerElGamalSession.Lfile(proofs, l);
+                        File file = ShufflerElGamalSession.lFile(proofs, l);
                         if (l == activeThreshold && !file.exists()) {
                             file = MixNetElGamalSession.getLSFile(nizkp);
                         }

@@ -298,7 +298,7 @@ public final class MixNetElGamalSession extends ProtocolElGamal {
                 ExtIO.unsafeWriteString(getTFile(fnizkp), MIX_TYPE);
 
                 final File tmpFile =
-                    ShufflerElGamalSession.Lfile(proofs, threshold);
+                    ShufflerElGamalSession.lFile(proofs, threshold);
 
                 if (!getLSFile(fnizkp).renameTo(tmpFile)) {
                     throw new ProtocolError("Unable to rename file!");

@@ -234,14 +234,14 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         if (nizkp != null && l <= activeThreshold) {
 
             // Store our output for universal verifiability.
-            output.toByteTree().unsafeWriteTo(Lfile(nizkp, l));
+            output.toByteTree().unsafeWriteTo(lFile(nizkp, l));
         }
     }
 
     /**
      * Perform the shuffling.
      *
-     * @param P Prover.
+     * @param posP Prover.
      * @param ciphPPGroup Group containing ciphertexts.
      * @param ciphertexts Input ciphertexts.
      * @param widePublicKey Widened public key contained in group of
@@ -252,7 +252,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * @return Shuffled ciphertexts.
      */
     private PGroupElementArray
-        performShuffling(final PoS P,
+        performShuffling(final PoS posP,
                          final PPGroup ciphPPGroup,
                          final PGroupElementArray ciphertexts,
                          final PGroupElement widePublicKey,
@@ -290,7 +290,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                                   log);
 
                 // Prove shuffle.
-                P.prove(log,
+                posP.prove(log,
                         widePublicKey,
                         input,
                         output,
@@ -312,13 +312,13 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 // At this point we are guaranteed to have a correctly
                 // formed output list.
 
-                final PoS V =
+                final PoS posV =
                     posFactory.newPoS(Integer.toString(l), this, rosid, fnizkp);
-                V.precompute(log,
+                posV.precompute(log,
                              generators.getPGroup().getg(),
                              generators);
 
-                if (V.verify(log, l, widePublicKey, input, output)) {
+                if (posV.verify(log, l, widePublicKey, input, output)) {
 
                     validProofs++;
 
@@ -327,7 +327,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                     log.info("Replacing output with input.");
                     output.free();
                     output = input.copyOfRange(0, input.size());
-                    V.free();
+                    posV.free();
                 }
 
                 writeOutput(fnizkp, l, activeThreshold, output);
@@ -390,12 +390,12 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         // Generate random permutation and exponents and perform local
         // pre-computation.
         Permutation permutation = null;
-        PoS P = null;
+        PoS poS = null;
 
         final int activeThreshold = getActiveThreshold();
 
         if (fnizkp != null) {
-            ExtIO.unsafeWriteInt(ATfile(fnizkp), activeThreshold);
+            ExtIO.unsafeWriteInt(atFile(fnizkp), activeThreshold);
         }
 
         if (j <= activeThreshold) {
@@ -413,15 +413,15 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 Permutation.random(ciphertexts.size(), randomSource, rbitlen);
 
             tempLog.info("Perform local pre-computation.");
-            P = getShuffler().posFactory.newPoS(Integer.toString(j),
+            poS = getShuffler().posFactory.newPoS(Integer.toString(j),
                                                 this, rosid, fnizkp);
-            P.precompute(tempLog,
+            poS.precompute(tempLog,
                          generators.getPGroup().getg(),
                          generators,
                          permutation);
         }
 
-        final PGroupElementArray result = performShuffling(P,
+        final PGroupElementArray result = performShuffling(poS,
                                                            ciphPPGroup,
                                                            ciphertexts,
                                                            widePublicKey,
@@ -521,7 +521,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      */
     private void writeMaxciph(final int actualMaxciph) {
         if (fnizkp != null && actualMaxciph != 0) {
-            ExtIO.unsafeWriteInt(MCfile(fnizkp), actualMaxciph);
+            ExtIO.unsafeWriteInt(mcFile(fnizkp), actualMaxciph);
         }
     }
 
@@ -594,7 +594,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         final int activeThreshold = getActiveThreshold();
 
         if (fnizkp != null) {
-            ExtIO.unsafeWriteInt(ATfile(fnizkp), activeThreshold);
+            ExtIO.unsafeWriteInt(atFile(fnizkp), activeThreshold);
         }
 
         // Generate permutation commitments.
@@ -809,9 +809,9 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         bullBoard.publish(CIPHERTEXT_VAR, output.toByteTree(), log);
 
         // Prove correctness of our output.
-        final CCPoS P =
+        final CCPoS ccPoS =
             ccposFactory.newPoS(Integer.toString(j), this, rosid, nizkp);
-        P.prove(log,
+        ccPoS.prove(log,
                 generators.getPGroup().getg(),
                 generators,
                 permutationCommitments[j].getCommitment(),
@@ -825,7 +825,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         if (nizkp != null && l < activeThreshold) {
 
             // Store our output for universal verifiability.
-            output.toByteTree().unsafeWriteTo(Lfile(nizkp, j));
+            output.toByteTree().unsafeWriteTo(lFile(nizkp, j));
         }
 
         return output;
@@ -909,9 +909,9 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         boolean correct = true;
 
         // Verify proof of correctness of Party l
-        final CCPoS V =
+        final CCPoS ccposV =
             ccposFactory.newPoS(Integer.toString(l), this, rosid, nizkp);
-        if (!V.verify(log,
+        if (!ccposV.verify(log,
                       l,
                       generators.getPGroup().getg(),
                       generators,
@@ -957,7 +957,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         if (nizkp != null && l < activeThreshold) {
 
             // Store the output for universal verifiability.
-            output.toByteTree().unsafeWriteTo(Lfile(nizkp, l));
+            output.toByteTree().unsafeWriteTo(lFile(nizkp, l));
         }
         return output;
     }
@@ -1078,7 +1078,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * @param index Index of mix-server.
      * @return File where intermediate file is stored.
      */
-    public static File Lfile(final File nizkp, final int index) {
+    public static File lFile(final File nizkp, final int index) {
         return new File(nizkp, String.format("Ciphertexts%02d.bt", index));
     }
 
@@ -1090,7 +1090,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * @return File containing number of ciphertexts for which
      * pre-computation is performed.
      */
-    public static File MCfile(final File nizkp) {
+    public static File mcFile(final File nizkp) {
         return new File(nizkp, "maxciph");
     }
 
@@ -1100,7 +1100,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @return File containing threshold of active mix-servers.
      */
-    public static File ATfile(final File nizkp) {
+    public static File atFile(final File nizkp) {
         return new File(nizkp, "activethreshold");
     }
 }
