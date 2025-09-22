@@ -110,8 +110,6 @@ public final class ChallengerRO implements Challenger {
         d.update(globalPrefix);
         data.update(d);
 
-        final byte[] digest = d.digest();
-
-        return digest;
+        return d.digest();
     }
 }

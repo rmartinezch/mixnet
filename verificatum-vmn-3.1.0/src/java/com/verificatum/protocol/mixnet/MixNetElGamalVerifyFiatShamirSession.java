@@ -796,7 +796,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         ccPoSBasicW.computeAB(null);
 
         // Read commitment.
-        File file = CCPoSW.CCPoSCfile(proofs, l);
+        File file = CCPoSW.ccPoSCFile(proofs, l);
 
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
         final ByteTreeBasic commitment = ccPoSBasicW.setCommitment(commitmentReader);
@@ -820,7 +820,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
 
 
         // Read and verify reply.
-        file = CCPoSW.CCPoSRfile(proofs, l);
+        file = CCPoSW.ccPoSRFile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
         final boolean verdict = ccPoSBasicW.verify(replyReader, null, null);
         replyReader.close();
@@ -972,7 +972,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      */
     public boolean getCCPoSActive(final int l) {
 
-        return CCPoSW.CCPoSCfile(proofs, l).exists()
+        return CCPoSW.ccPoSCFile(proofs, l).exists()
             || PoSTW.PoSCfile(proofs, l).exists();
     }
 

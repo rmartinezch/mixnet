@@ -146,8 +146,8 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
                     ui.getLog().info("Publish data.");
                     bullBoard.publish("Data", bt, ui.getLog());
 
-                    final PoSCTW P = new PoSCTW("", this, "rosid", nizkp);
-                    P.prove(ui.getLog(), g, h, u, r, pi);
+                    final PoSCTW psctwP = new PoSCTW("", this, "rosid", nizkp);
+                    psctwP.prove(ui.getLog(), g, h, u, r, pi);
 
                     verdict = true;
 
@@ -163,8 +163,8 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
                         throw new DemoError("Failed to read data!", afe);
                     }
 
-                    final PoSCTW V = new PoSCTW("", this, "rosid", nizkp);
-                    verdict = V.verify(ui.getLog(), 1, g, h, u);
+                    final PoSCTW psctwV = new PoSCTW("", this, "rosid", nizkp);
+                    verdict = psctwV.verify(ui.getLog(), 1, g, h, u);
                 }
 
                 shutdown(ui.getLog());

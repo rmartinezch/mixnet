@@ -550,9 +550,7 @@ public final class DistrElGamalSessionBasic {
         try {
             yp[l] = g.getPGroup().toElement(commitmentReader.getNextChild());
             pgeBp[l] = u.getPGroup().toElement(commitmentReader.getNextChild());
-        } catch (final EIOException eioe) {
-            verdicts[l] = false;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             verdicts[l] = false;
         }
         if (!verdicts[l]) {

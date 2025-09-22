@@ -151,27 +151,27 @@ public final class PoSCBasicTW {
      * Bridging commitments used to build up a product in the
      * exponent.
      */
-    PGroupElementArray B;
+    PGroupElementArray pgeaB;
 
     /**
      * Proof commitment used for the bridging commitments.
      */
-    PGroupElement Ap;
+    PGroupElement pgeAp;
 
     /**
      * Proof commitments for the bridging commitments.
      */
-    PGroupElementArray Bp;
+    PGroupElementArray pgeaBp;
 
     /**
      * Proof commitment for proving sum of random components.
      */
-    PGroupElement Cp;
+    PGroupElement pgeCp;
 
     /**
      * Proof commitment for proving product of random components.
      */
-    PGroupElement Dp;
+    PGroupElement pgeDp;
 
     // ########### Secret values for bridging commitment #######
 
@@ -230,27 +230,27 @@ public final class PoSCBasicTW {
     /**
      * Reply for bridging commitment blinder.
      */
-    PRingElement k_A;
+    PRingElement kA;
 
     /**
      * Reply for bridging commitments blinders.
      */
-    PRingElementArray k_B;
+    PRingElementArray kB;
 
     /**
      * Reply for sum of random vector components blinder.
      */
-    PRingElement k_C;
+    PRingElement kC;
 
     /**
      * Reply for product of random vector components blinder.
      */
-    PRingElement k_D;
+    PRingElement kD;
 
     /**
      * Reply for the inverse permuted random vector.
      */
-    PFieldElementArray k_E;
+    PFieldElementArray kE;
 
     /**
      * BOTH: Constructor to instantiate the protocol.
@@ -275,11 +275,11 @@ public final class PoSCBasicTW {
 
         // This is not needed, but it make things more explicit.
         this.e = null;
-        this.B = null;
-        this.Ap = null;
-        this.Bp = null;
-        this.Cp = null;
-        this.Dp = null;
+        this.pgeaB = null;
+        this.pgeAp = null;
+        this.pgeaBp = null;
+        this.pgeCp = null;
+        this.pgeDp = null;
         this.ipe = null;
         this.pB = null;
         this.d = null;
@@ -288,11 +288,11 @@ public final class PoSCBasicTW {
         this.gamma = null;
         this.delta = null;
         this.epsilon = null;
-        this.k_A = null;
-        this.k_B = null;
-        this.k_C = null;
-        this.k_D = null;
-        this.k_E = null;
+        this.kA = null;
+        this.kB = null;
+        this.kC = null;
+        this.kD = null;
+        this.kE = null;
     }
 
     /**
@@ -393,13 +393,13 @@ public final class PoSCBasicTW {
         // e_0', e_0'*e_1', e_0'*e_1'*e_2', ...
         //
         final PRingElementArray y = ipe.prods();
-        final PGroupElementArray g_exp_x = g.exp(x);
-        final PGroupElementArray h0_exp_y = h0.exp(y);
-        B = g_exp_x.mul(h0_exp_y);
+        final PGroupElementArray gExpX = g.exp(x);
+        final PGroupElementArray h0ExpY = h0.exp(y);
+        pgeaB = gExpX.mul(h0ExpY);
 
         // Free temporary variables.
-        g_exp_x.free();
-        h0_exp_y.free();
+        gExpX.free();
+        h0ExpY.free();
 
         // ################# Proof Commitments ####################
 
@@ -426,7 +426,7 @@ public final class PoSCBasicTW {
         epsilon = pField.toElementArray(epsilonIntegers);
         epsilonIntegers.free();
 
-        Ap = g.exp(alpha).mul(h.expProd(epsilon));
+        pgeAp = g.exp(alpha).mul(h.expProd(epsilon));
 
         // During verification, the verifier also requires that (1)
         // and (2) holds. Thus, we choose new randomizers,
@@ -439,35 +439,35 @@ public final class PoSCBasicTW {
         y.free();
         x.free();
 
-        final PRingElementArray xp_mul_epsilon = xp.mul(epsilon);
-        final PRingElementArray beta_add_prod = beta.add(xp_mul_epsilon);
-        final PGroupElementArray g_exp_beta_add_prod = g.exp(beta_add_prod);
-        final PRingElementArray yp_mul_epsilon = yp.mul(epsilon);
-        final PGroupElementArray h0_exp_yp_mul_epsilon = h0.exp(yp_mul_epsilon);
+        final PRingElementArray xpMulEpsilon = xp.mul(epsilon);
+        final PRingElementArray betaAddProd = beta.add(xpMulEpsilon);
+        final PGroupElementArray gExpBetaAddProd = g.exp(betaAddProd);
+        final PRingElementArray ypMulEpsilon = yp.mul(epsilon);
+        final PGroupElementArray h0ExpYpMulEpsilon = h0.exp(ypMulEpsilon);
 
-        Bp = g_exp_beta_add_prod.mul(h0_exp_yp_mul_epsilon);
+        pgeaBp = gExpBetaAddProd.mul(h0ExpYpMulEpsilon);
 
-        h0_exp_yp_mul_epsilon.free();
-        yp_mul_epsilon.free();
-        g_exp_beta_add_prod.free();
-        beta_add_prod.free();
-        xp_mul_epsilon.free();
+        h0ExpYpMulEpsilon.free();
+        ypMulEpsilon.free();
+        gExpBetaAddProd.free();
+        betaAddProd.free();
+        xpMulEpsilon.free();
         yp.free();
         xp.free();
 
         gamma = pRing.randomElement(randomSource, rbitlen);
-        Cp = g.exp(gamma);
+        pgeCp = g.exp(gamma);
 
         delta = pRing.randomElement(randomSource, rbitlen);
-        Dp = g.exp(delta);
+        pgeDp = g.exp(delta);
 
         // ################### Byte tree ##########################
 
-        return new ByteTreeContainer(B.toByteTree(),
-                                     Ap.toByteTree(),
-                                     Bp.toByteTree(),
-                                     Cp.toByteTree(),
-                                     Dp.toByteTree());
+        return new ByteTreeContainer(pgeaB.toByteTree(),
+                                     pgeAp.toByteTree(),
+                                     pgeaBp.toByteTree(),
+                                     pgeCp.toByteTree(),
+                                     pgeDp.toByteTree());
     }
 
     /**
@@ -481,15 +481,13 @@ public final class PoSCBasicTW {
         boolean malformed = false;
         try {
 
-            B = pGroup.toElementArray(size, btr.getNextChild());
-            Ap = pGroup.toElement(btr.getNextChild());
-            Bp = pGroup.toElementArray(size, btr.getNextChild());
-            Cp = pGroup.toElement(btr.getNextChild());
-            Dp = pGroup.toElement(btr.getNextChild());
+            pgeaB = pGroup.toElementArray(size, btr.getNextChild());
+            pgeAp = pGroup.toElement(btr.getNextChild());
+            pgeaBp = pGroup.toElementArray(size, btr.getNextChild());
+            pgeCp = pGroup.toElement(btr.getNextChild());
+            pgeDp = pGroup.toElement(btr.getNextChild());
 
-        } catch (final EIOException eioe) {
-            malformed = true;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             malformed = true;
         }
 
@@ -497,23 +495,23 @@ public final class PoSCBasicTW {
         // predetermined trivial value.
         if (malformed) {
 
-            B.free();
-            B = pGroup.toElementArray(size, pGroup.getONE());
+            pgeaB.free();
+            pgeaB = pGroup.toElementArray(size, pGroup.getONE());
 
-            Ap = pGroup.getONE();
+            pgeAp = pGroup.getONE();
 
-            Bp.free();
-            Bp = pGroup.toElementArray(size, pGroup.getONE());
+            pgeaBp.free();
+            pgeaBp = pGroup.toElementArray(size, pGroup.getONE());
 
-            Cp = pGroup.getONE();
-            Dp = pGroup.getONE();
+            pgeCp = pGroup.getONE();
+            pgeDp = pGroup.getONE();
         }
 
-        return new ByteTreeContainer(B.toByteTree(),
-                                     Ap.toByteTree(),
-                                     Bp.toByteTree(),
-                                     Cp.toByteTree(),
-                                     Dp.toByteTree());
+        return new ByteTreeContainer(pgeaB.toByteTree(),
+                                     pgeAp.toByteTree(),
+                                     pgeaBp.toByteTree(),
+                                     pgeCp.toByteTree(),
+                                     pgeDp.toByteTree());
     }
 
     /**
@@ -562,19 +560,18 @@ public final class PoSCBasicTW {
         // k_D = vd + \delta
         // k_{E,i} = ve_i' + \epsilon_i
         //
-        k_A = a.mulAdd(v, alpha);
-        k_B = pB.mulAdd(v, beta);
-        k_C = c.mulAdd(v, gamma);
-        k_D = d.mulAdd(v, delta);
-        k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
+        kA = a.mulAdd(v, alpha);
+        kB = pB.mulAdd(v, beta);
+        kC = c.mulAdd(v, gamma);
+        kD = d.mulAdd(v, delta);
+        kE = (PFieldElementArray) ipe.mulAdd(v, epsilon);
 
-        final ByteTreeContainer reply =
-            new ByteTreeContainer(k_A.toByteTree(),
-                                  k_B.toByteTree(),
-                                  k_C.toByteTree(),
-                                  k_D.toByteTree(),
-                                  k_E.toByteTree());
-        return reply;
+        return
+            new ByteTreeContainer(kA.toByteTree(),
+                                  kB.toByteTree(),
+                                  kC.toByteTree(),
+                                  kD.toByteTree(),
+                                  kE.toByteTree());
     }
 
     /**
@@ -590,49 +587,47 @@ public final class PoSCBasicTW {
         // Read and parse the replies.
         try {
 
-            k_A = pRing.toElement(btr.getNextChild());
-            k_B = pRing.toElementArray(size, btr.getNextChild());
-            k_C = pRing.toElement(btr.getNextChild());
-            k_D = pRing.toElement(btr.getNextChild());
-            k_E = pField.toElementArray(size, btr.getNextChild());
+            kA = pRing.toElement(btr.getNextChild());
+            kB = pRing.toElementArray(size, btr.getNextChild());
+            kC = pRing.toElement(btr.getNextChild());
+            kD = pRing.toElement(btr.getNextChild());
+            kE = pField.toElementArray(size, btr.getNextChild());
 
-        } catch (final EIOException eio) {
-            return false;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             return false;
         }
 
         final PGroupElement h0 = h.get(0);
 
         // Compute A, C and D.
-        final PGroupElement A = u.expProd(e);
-        final PGroupElement C = u.prod().div(h.prod());
-        final PGroupElement D = B.get(size - 1).div(h0.exp(e.prod()));
+        final PGroupElement pgeA = u.expProd(e);
+        final PGroupElement pgeC = u.prod().div(h.prod());
+        final PGroupElement pgeD = pgeaB.get(size - 1).div(h0.exp(e.prod()));
 
         // Assume prover makes us accept.
         boolean verdict = true;
 
-        if (!A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)))) {
+        if (!pgeA.expMul(v, pgeAp).equals(g.exp(kA).mul(h.expProd(kE)))) {
             verdict = false;
         }
 
         if (verdict) {
 
-            final PGroupElementArray B_exp_v = B.exp(v);
-            final PGroupElementArray leftSide = B_exp_v.mul(Bp);
+            final PGroupElementArray BExpV = pgeaB.exp(v);
+            final PGroupElementArray leftSide = BExpV.mul(pgeaBp);
 
-            final PGroupElementArray g_exp_k_B = g.exp(k_B);
-            final PGroupElementArray B_shift = B.shiftPush(h0);
-            final PGroupElementArray B_shift_exp_k_E = B_shift.exp(k_E);
-            final PGroupElementArray rightSide = g_exp_k_B.mul(B_shift_exp_k_E);
+            final PGroupElementArray gExpkB = g.exp(kB);
+            final PGroupElementArray bShift = pgeaB.shiftPush(h0);
+            final PGroupElementArray bShiftExpkE = bShift.exp(kE);
+            final PGroupElementArray rightSide = gExpkB.mul(bShiftExpkE);
 
             final boolean B_res = leftSide.equals(rightSide);
 
-            B_exp_v.free();
+            BExpV.free();
             leftSide.free();
-            g_exp_k_B.free();
-            B_shift.free();
-            B_shift_exp_k_E.free();
+            gExpkB.free();
+            bShift.free();
+            bShiftExpkE.free();
             rightSide.free();
 
             if (!B_res) {
@@ -644,7 +639,7 @@ public final class PoSCBasicTW {
         //
         // C = \prod u_i / \prod h_i = g^c
         //
-        if (verdict && !C.expMul(v, Cp).equals(g.exp(k_C))) {
+        if (verdict && !pgeC.expMul(v, pgeCp).equals(g.exp(kC))) {
             verdict = false;
         }
 
@@ -652,7 +647,7 @@ public final class PoSCBasicTW {
         //
         // D = B_{N-1} / g^{\prod e_i} = g^d
         //
-        if (verdict && !D.expMul(v, Dp).equals(g.exp(k_D))) {
+        if (verdict && !pgeD.expMul(v, pgeDp).equals(g.exp(kD))) {
             verdict = false;
         }
         return verdict;
@@ -665,11 +660,11 @@ public final class PoSCBasicTW {
      * @return Reply processed by the verifier.
      */
     public ByteTreeBasic getReply() {
-        return new ByteTreeContainer(k_A.toByteTree(),
-                                     k_B.toByteTree(),
-                                     k_C.toByteTree(),
-                                     k_D.toByteTree(),
-                                     k_E.toByteTree());
+        return new ByteTreeContainer(kA.toByteTree(),
+                                     kB.toByteTree(),
+                                     kC.toByteTree(),
+                                     kD.toByteTree(),
+                                     kE.toByteTree());
     }
 
     /**
@@ -684,11 +679,11 @@ public final class PoSCBasicTW {
         if (pB != null) {
             pB.free();
         }
-        if (B != null) {
-            B.free();
+        if (pgeaB != null) {
+            pgeaB.free();
         }
-        if (Bp != null) {
-            Bp.free();
+        if (pgeaBp != null) {
+            pgeaBp.free();
         }
         if (ipe != null) {
             ipe.free();
@@ -699,11 +694,11 @@ public final class PoSCBasicTW {
         if (epsilon != null) {
             epsilon.free();
         }
-        if (k_B != null) {
-            k_B.free();
+        if (kB != null) {
+            kB.free();
         }
-        if (k_E != null) {
-            k_E.free();
+        if (kE != null) {
+            kE.free();
         }
     }
 }

@@ -86,10 +86,10 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         log.info("Prove correctness of shuffle.");
         final Log tempLog = log.newChildLog();
 
-        final CCPoSBasicW P =
+        final CCPoSBasicW ccpbwP =
             new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
 
-        P.setInstance(g, h, u, pkey, w, wp, r, pi, s);
+        ccpbwP.setInstance(g, h, u, pkey, w, wp, r, pi, s);
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
@@ -109,14 +109,14 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
 
         // Compute and publish commitment.
         tempLog.info("Compute commitment.");
-        final ByteTreeBasic commitment = P.commit(prgSeed, randomSource);
+        final ByteTreeBasic commitment = ccpbwP.commit(prgSeed, randomSource);
 
         Thread commitmentExportThread = null;
         if (fnizkp != null) {
             commitmentExportThread = new Thread() {
                     @Override
                     public void run() {
-                        commitment.unsafeWriteTo(CCPoSCfile(fnizkp, j));
+                        commitment.unsafeWriteTo(ccPoSCFile(fnizkp, j));
                     }
                 };
             commitmentExportThread.start();
@@ -137,16 +137,16 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
 
         // Compute and publish reply.
         tempLog.info("Compute reply.");
-        final ByteTreeBasic reply = P.reply(integerChallenge);
+        final ByteTreeBasic reply = ccpbwP.reply(integerChallenge);
 
         if (fnizkp != null) {
-            reply.unsafeWriteTo(CCPoSRfile(fnizkp, j));
+            reply.unsafeWriteTo(ccPoSRFile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
         bullBoard.publish("Reply", reply, tempLog);
 
-        P.free();
+        ccpbwP.free();
 
         if (commitmentExportThread != null) {
             try {
@@ -174,9 +174,9 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
                  + ".");
         final Log tempLog = log.newChildLog();
 
-        final CCPoSBasicW V =
+        final CCPoSBasicW ccpbwV =
             new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
-        V.setInstance(g, h, u, pkey, w, wp);
+        ccpbwV.setInstance(g, h, u, pkey, w, wp);
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
@@ -193,19 +193,19 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
                                                     challengeData,
                                                     8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
-        V.setBatchVector(prgSeed);
+        ccpbwV.setBatchVector(prgSeed);
 
         tempLog.info("Batch.");
 
         // Compute A and B.
-        V.computeAB(raisedu);
+        ccpbwV.computeAB(raisedu);
 
         // Read and set the commitment of the prover.
         tempLog.info("Read the commitment.");
 
         final ByteTreeReader commitmentReader =
             bullBoard.waitFor(l, "Commitment", tempLog);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = ccpbwV.setCommitment(commitmentReader);
         commitmentReader.close();
 
         Thread commitmentExportThread = null;
@@ -213,7 +213,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
             commitmentExportThread = new Thread() {
                     @Override
                     public void run() {
-                        commitment.unsafeWriteTo(CCPoSCfile(fnizkp, l));
+                        commitment.unsafeWriteTo(ccPoSCFile(fnizkp, l));
                     }
                 };
             commitmentExportThread.start();
@@ -230,7 +230,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
             LargeInteger.toPositive(challengeBytes);
 
         // Set the commitment and challenge.
-        V.setChallenge(integerChallenge);
+        ccpbwV.setChallenge(integerChallenge);
 
         // Read and verify reply.
         tempLog.info("Read the reply.");
@@ -238,11 +238,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
             bullBoard.waitFor(l, "Reply", tempLog);
 
         tempLog.info("Perform verification.");
-        final boolean verdict = V.verify(replyReader, raisedh, raisedExponent);
+        final boolean verdict = ccpbwV.verify(replyReader, raisedh, raisedExponent);
         replyReader.close();
 
         if (fnizkp != null) {
-            V.getReply().unsafeWriteTo(CCPoSRfile(fnizkp, l));
+            ccpbwV.getReply().unsafeWriteTo(ccPoSRFile(fnizkp, l));
         }
 
         if (verdict) {
@@ -251,7 +251,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
             tempLog.info("Rejected proof.");
         }
 
-        V.free();
+        ccpbwV.free();
 
         if (commitmentExportThread != null) {
             try {
@@ -271,7 +271,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File CCPoSCfile(final File nizkp, final int index) {
+    public static File ccPoSCFile(final File nizkp, final int index) {
         return new File(nizkp,
                         String.format("CCPoSCommitment%02d.bt", index));
     }
@@ -283,7 +283,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File CCPoSRfile(final File nizkp, final int index) {
+    public static File ccPoSRFile(final File nizkp, final int index) {
         return new File(nizkp, String.format("CCPoSReply%02d.bt", index));
     }
 }
