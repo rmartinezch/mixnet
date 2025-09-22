@@ -60,7 +60,7 @@ public abstract class DemoProtocolBBTKP extends ProtocolBBT {
      * @param ui User interface.
      * @throws Exception If the info instances are malformed.
      */
-    public DemoProtocolBBTKP(final PrivateInfo privateInfo,
+    protected DemoProtocolBBTKP(final PrivateInfo privateInfo,
                              final ProtocolInfo protocolInfo,
                              final UI ui)
         throws Exception {

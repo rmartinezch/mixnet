@@ -53,7 +53,7 @@ public abstract class DemoProtocolElGamalFactory {
     /**
      * Creates a root protocol.
      */
-    public DemoProtocolElGamalFactory() {
+    protected DemoProtocolElGamalFactory() {
         gen = new ProtocolElGamalGen();
     }
 

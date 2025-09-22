@@ -104,7 +104,7 @@ public class DemoDKG extends DemoProtocolElGamalFactory {
                 dkg.generate(ui.getLog(), bi, bi.getPGroupDomain().getg());
                 dkg.generate(ui.getLog(), bi, bi.getPGroupDomain().getg());
 
-                final StringBuffer sb = new StringBuffer();
+                final StringBuilder sb = new StringBuilder();
                 sb.append(dkg.getPublicKey(1));
                 for (int i = 2; i <= threshold; i++) {
                     sb.append(',');
