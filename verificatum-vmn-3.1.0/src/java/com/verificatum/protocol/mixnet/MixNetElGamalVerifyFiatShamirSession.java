@@ -889,7 +889,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.checkPrintTestVector("PoS.F", poSBasicTW.getF().toString());
 
         // Read and set the commitment of the prover.
-        file = PoSTW.PoSCfile(proofs, l);
+        file = PoSTW.poSCFile(proofs, l);
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
         final ByteTreeBasic commitment = poSBasicTW.setCommitment(commitmentReader);
         commitmentReader.close();
@@ -917,7 +917,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         poSBasicTW.setChallenge(integerChallenge);
 
         // Read and verify reply.
-        file = PoSTW.PoSRfile(proofs, l);
+        file = PoSTW.poSRFile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
 
         final boolean verdict = poSBasicTW.verify(replyReader);
@@ -973,7 +973,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
     public boolean getCCPoSActive(final int l) {
 
         return CCPoSW.ccPoSCFile(proofs, l).exists()
-            || PoSTW.PoSCfile(proofs, l).exists();
+            || PoSTW.poSCFile(proofs, l).exists();
     }
 
     /**

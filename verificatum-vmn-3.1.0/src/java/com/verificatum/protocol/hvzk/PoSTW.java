@@ -54,12 +54,12 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
     /**
      * Basic proof instance.
      */
-    PoSBasicTW P;
+    PoSBasicTW pbtwP;
 
     /**
      * Basic proof instance.
      */
-    PoSBasicTW V;
+    PoSBasicTW pbtwV;
 
     /**
      * Creates an instance of the protocol.
@@ -86,9 +86,9 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                            final PGroupElementArray h,
                            final Permutation pi) {
 
-        P = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
+        pbtwP = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
         log.info("Compute permutation commitment.");
-        P.precompute(g, h, pi);
+        pbtwP.precompute(g, h, pi);
     }
 
     @Override
@@ -101,14 +101,14 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         log.info("Prove correctness of shuffle.");
         final Log tempLog = log.newChildLog();
 
-        P.setInstance(pkey, w, wp, s);
+        pbtwP.setInstance(pkey, w, wp, s);
 
         // Publish our commitment of a permutation.
         tempLog.info("Publish our permutation commitment.");
-        bullBoard.publish("PermutationCommitment", P.u.toByteTree(), tempLog);
+        bullBoard.publish("PermutationCommitment", pbtwP.u.toByteTree(), tempLog);
 
         if (fnizkp != null) {
-            P.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, j));
+            pbtwP.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, j));
         }
 
         // Generate a seed to the PRG for batching.
@@ -116,9 +116,9 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         Log tempLog2 = tempLog.newChildLog();
 
         ByteTreeContainer challengeData =
-            new ByteTreeContainer(P.g.toByteTree(),
-                                  P.h.toByteTree(),
-                                  P.u.toByteTree(),
+            new ByteTreeContainer(pbtwP.g.toByteTree(),
+                                  pbtwP.h.toByteTree(),
+                                  pbtwP.u.toByteTree(),
                                   pkey.toByteTree(),
                                   w.toByteTree(),
                                   wp.toByteTree());
@@ -131,10 +131,10 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
 
         // Compute and publish commitment.
         tempLog.info("Compute commitment.");
-        final ByteTreeBasic commitment = P.commit(prgSeed);
+        final ByteTreeBasic commitment = pbtwP.commit(prgSeed);
 
         if (fnizkp != null) {
-            commitment.unsafeWriteTo(PoSCfile(fnizkp, j));
+            commitment.unsafeWriteTo(poSCFile(fnizkp, j));
         }
 
         tempLog.info("Publish our commitment.");
@@ -152,16 +152,16 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
 
         // Compute and publish reply.
         tempLog.info("Compute reply.");
-        final ByteTreeBasic reply = P.reply(integerChallenge);
+        final ByteTreeBasic reply = pbtwP.reply(integerChallenge);
 
         if (fnizkp != null) {
-            reply.unsafeWriteTo(PoSRfile(fnizkp, j));
+            reply.unsafeWriteTo(poSRFile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
         bullBoard.publish("Reply", reply, tempLog);
 
-        P.free();
+        pbtwP.free();
     }
 
     @Override
@@ -169,8 +169,8 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                            final PGroupElement g,
                            final PGroupElementArray h) {
 
-        V = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
-        V.precompute(g, h);
+        pbtwV = new PoSBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg, randomSource);
+        pbtwV.precompute(g, h);
     }
 
     @Override
@@ -184,17 +184,17 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                  + ".");
         final Log tempLog = log.newChildLog();
 
-        V.setInstance(pkey, w, wp);
+        pbtwV.setInstance(pkey, w, wp);
 
         // Read and set the permutation commitment of the prover.
         tempLog.info("Read the permutation commitment.");
         final ByteTreeReader permutationCommitmentReader =
             bullBoard.waitFor(l, "PermutationCommitment", tempLog);
-        V.setPermutationCommitment(permutationCommitmentReader);
+        pbtwV.setPermutationCommitment(permutationCommitmentReader);
         permutationCommitmentReader.close();
 
         if (fnizkp != null) {
-            V.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, l));
+            pbtwV.u.toByteTree().unsafeWriteTo(pcfile(fnizkp, l));
         }
 
         // Generate a seed to the PRG for batching.
@@ -202,9 +202,9 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
         Log tempLog2 = tempLog.newChildLog();
 
         ByteTreeContainer challengeData =
-            new ByteTreeContainer(V.g.toByteTree(),
-                                  V.h.toByteTree(),
-                                  V.u.toByteTree(),
+            new ByteTreeContainer(pbtwV.g.toByteTree(),
+                                  pbtwV.h.toByteTree(),
+                                  pbtwV.u.toByteTree(),
                                   pkey.toByteTree(),
                                   w.toByteTree(),
                                   wp.toByteTree());
@@ -214,24 +214,24 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
                                                     8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
-        V.setBatchVector(prgSeed);
+        pbtwV.setBatchVector(prgSeed);
 
         tempLog.info("Batch.");
 
         // We can compute A and F in parallel with the prover
         // computing the rest of the proof.
-        V.computeAF();
+        pbtwV.computeAF();
 
         // Read and set the commitment of the prover.
         tempLog.info("Read the commitment.");
 
         final ByteTreeReader commitmentReader =
             bullBoard.waitFor(l, "Commitment", tempLog);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = pbtwV.setCommitment(commitmentReader);
         commitmentReader.close();
 
         if (fnizkp != null) {
-            commitment.unsafeWriteTo(PoSCfile(fnizkp, l));
+            commitment.unsafeWriteTo(poSCFile(fnizkp, l));
         }
 
         // Generate a challenge
@@ -245,7 +245,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
             LargeInteger.toPositive(challengeBytes);
 
         // Set the commitment and challenge.
-        V.setChallenge(integerChallenge);
+        pbtwV.setChallenge(integerChallenge);
 
         // Read and verify reply.
         tempLog.info("Read the reply.");
@@ -253,11 +253,11 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
             bullBoard.waitFor(l, "Reply", tempLog);
 
         tempLog.info("Perform verification.");
-        final boolean verdict = V.verify(replyReader);
+        final boolean verdict = pbtwV.verify(replyReader);
         replyReader.close();
 
         if (verdict && fnizkp != null) {
-            V.getReply().unsafeWriteTo(PoSRfile(fnizkp, l));
+            pbtwV.getReply().unsafeWriteTo(poSRFile(fnizkp, l));
         }
 
         if (verdict) {
@@ -266,7 +266,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
             tempLog.info("Rejected proof.");
         }
 
-        V.free();
+        pbtwV.free();
 
         return verdict;
     }
@@ -290,7 +290,7 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File PoSCfile(final File nizkp, final int index) {
+    public static File poSCFile(final File nizkp, final int index) {
         return new File(nizkp,
                         String.format("PoSCommitment%02d.bt", index));
     }
@@ -302,17 +302,17 @@ public final class PoSTW extends ProtocolElGamal implements PoS {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File PoSRfile(final File nizkp, final int index) {
+    public static File poSRFile(final File nizkp, final int index) {
         return new File(nizkp, String.format("PoSReply%02d.bt", index));
     }
 
     @Override
     public void free() {
-        if (P != null) {
-            P.free();
+        if (pbtwP != null) {
+            pbtwP.free();
         }
-        if (V != null) {
-            V.free();
+        if (pbtwV != null) {
+            pbtwV.free();
         }
     }
 }
