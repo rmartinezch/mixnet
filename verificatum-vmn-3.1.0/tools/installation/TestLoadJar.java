@@ -38,7 +38,7 @@ public class TestLoadJar {
     public static void main(String[] args) {
 
         String className = args[0];
-	Class klass = null;
+	Class<?> klass = null;
 
 	try {
 	    klass = Class.forName(className);
