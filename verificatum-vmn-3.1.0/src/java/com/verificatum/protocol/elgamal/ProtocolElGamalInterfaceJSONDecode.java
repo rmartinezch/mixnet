@@ -29,6 +29,7 @@ package com.verificatum.protocol.elgamal;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -297,11 +298,9 @@ public class ProtocolElGamalInterfaceJSONDecode
                 betas[i] = modPGroup.toElement(betali);
             }
 
-            final PGroupElement el =
+            return
                 pCiphPGroup.product(pelPGroup.product(alphas),
                                     pelPGroup.product(betas));
-
-            return el;
 
         } else {
 
@@ -331,11 +330,7 @@ public class ProtocolElGamalInterfaceJSONDecode
 
     @Override
     public String decodePlaintext(final PGroupElement plaintext) {
-        try {
-            final String s = new String(plaintext.decode(), "UTF-8");
+            final String s = new String(plaintext.decode(), StandardCharsets.UTF_8);
             return s.replace("\n", "").replace("\r", "");
-        } catch (final UnsupportedEncodingException uee) {
-            throw new ProtocolError("Unable to decode plaintext!", uee);
-        }
     }
 }
