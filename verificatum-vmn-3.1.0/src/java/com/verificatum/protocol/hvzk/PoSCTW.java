@@ -80,11 +80,11 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
         log.info("Prove correctness of permutation commitment.");
         final Log tempLog = log.newChildLog();
 
-        final PoSCBasicTW P =
+        final PoSCBasicTW pscbtwP =
             new PoSCBasicTW(vbitlen(), ebitlen(), rbitlen, pPrg,
                             randomSource);
 
-        P.setInstance(g, h, u, r, pi);
+        pscbtwP.setInstance(g, h, u, r, pi);
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
@@ -100,10 +100,10 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
 
         // Compute and publish commitment.
         tempLog.info("Compute commitment.");
-        final ByteTreeBasic commitment = P.commit(prgSeed);
+        final ByteTreeBasic commitment = pscbtwP.commit(prgSeed);
 
         if (fnizkp != null) {
-            commitment.unsafeWriteTo(PoSCCfile(fnizkp, j));
+            commitment.unsafeWriteTo(poSCCFile(fnizkp, j));
         }
 
         tempLog.info("Publish our commitment.");
@@ -121,16 +121,16 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
 
         // Compute and publish reply.
         tempLog.info("Compute reply.");
-        final ByteTreeBasic reply = P.reply(integerChallenge);
+        final ByteTreeBasic reply = pscbtwP.reply(integerChallenge);
 
         if (fnizkp != null) {
-            reply.unsafeWriteTo(PoSCRfile(fnizkp, j));
+            reply.unsafeWriteTo(poSCRFile(fnizkp, j));
         }
 
         tempLog.info("Publish reply.");
         bullBoard.publish("Reply", reply, tempLog);
 
-        P.free();
+        pscbtwP.free();
     }
 
     @Override
@@ -144,9 +144,9 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
                  + ui.getDescrString(l) + ".");
         final Log tempLog = log.newChildLog();
 
-        final PoSCBasicTW V = new PoSCBasicTW(vbitlen(), ebitlen(),
+        final PoSCBasicTW pscbtwV = new PoSCBasicTW(vbitlen(), ebitlen(),
                                               rbitlen, pPrg, randomSource);
-        V.setInstance(g, h, u);
+        pscbtwV.setInstance(g, h, u);
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
@@ -160,18 +160,18 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
                                                     8 * pPrg.minNoSeedBytes(),
                                                     rbitlen);
 
-        V.setBatchVector(prgSeed);
+        pscbtwV.setBatchVector(prgSeed);
 
         // Read and set the commitment of the prover.
         tempLog.info("Read the commitment.");
 
         final ByteTreeReader commitmentReader =
             bullBoard.waitFor(l, "Commitment", tempLog);
-        final ByteTreeBasic commitment = V.setCommitment(commitmentReader);
+        final ByteTreeBasic commitment = pscbtwV.setCommitment(commitmentReader);
         commitmentReader.close();
 
         if (fnizkp != null) {
-            commitment.unsafeWriteTo(PoSCCfile(fnizkp, l));
+            commitment.unsafeWriteTo(poSCCFile(fnizkp, l));
         }
 
         // Generate a challenge
@@ -185,7 +185,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
             LargeInteger.toPositive(challengeBytes);
 
         // Set the challenge.
-        V.setChallenge(integerChallenge);
+        pscbtwV.setChallenge(integerChallenge);
 
         // Read and verify reply.
         tempLog.info("Read the reply.");
@@ -193,11 +193,11 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
             bullBoard.waitFor(l, "Reply", tempLog);
 
         tempLog.info("Perform verification.");
-        final boolean verdict = V.verify(replyReader);
+        final boolean verdict = pscbtwV.verify(replyReader);
         replyReader.close();
 
         if (verdict && fnizkp != null) {
-            V.getReply().unsafeWriteTo(PoSCRfile(fnizkp, l));
+            pscbtwV.getReply().unsafeWriteTo(poSCRFile(fnizkp, l));
         }
 
         if (verdict) {
@@ -206,7 +206,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
             tempLog.info("Rejected proof.");
         }
 
-        V.free();
+        pscbtwV.free();
 
         return verdict;
     }
@@ -218,7 +218,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File PoSCCfile(final File nizkp, final int index) {
+    public static File poSCCFile(final File nizkp, final int index) {
         return new File(nizkp,
                         String.format("PoSCCommitment%02d.bt", index));
     }
@@ -230,7 +230,7 @@ public final class PoSCTW extends ProtocolElGamal implements PoSC {
      * @param index index of mix-server.
      * @return File where permutation commitments are stored.
      */
-    public static File PoSCRfile(final File nizkp, final int index) {
+    public static File poSCRFile(final File nizkp, final int index) {
         return new File(nizkp, String.format("PoSCReply%02d.bt", index));
     }
 }

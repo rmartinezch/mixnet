@@ -674,7 +674,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         poSCBasicTW.setBatchVector(prgSeed);
 
         // Read commitment.
-        File file = PoSCTW.PoSCCfile(proofs, l);
+        File file = PoSCTW.poSCCFile(proofs, l);
         final ByteTreeReader commitmentReader = new ByteTreeReaderF(file);
         final ByteTreeBasic commitment = poSCBasicTW.setCommitment(commitmentReader);
         commitmentReader.close();
@@ -693,7 +693,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         poSCBasicTW.setChallenge(integerChallenge);
 
         // Read and verify reply.
-        file = PoSCTW.PoSCRfile(proofs, l);
+        file = PoSCTW.poSCRFile(proofs, l);
         final ByteTreeReader replyReader = new ByteTreeReaderF(file);
         final boolean verdict = poSCBasicTW.verify(replyReader);
         replyReader.close();
