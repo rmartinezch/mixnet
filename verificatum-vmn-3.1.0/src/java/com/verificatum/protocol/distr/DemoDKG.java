@@ -58,6 +58,7 @@ public class DemoDKG extends DemoProtocolElGamalFactory {
 
     @Override
     public void verify(final DemoProtocol... servers) throws Exception {
+        // Intentionally left blank: subclasses may override if verification is needed
     }
 
     /**
