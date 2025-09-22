@@ -80,7 +80,7 @@ public class DemoPlainKeys extends DemoProtocolElGamalFactory {
         /**
          * Keys generated and used for testing.
          */
-        public CryptoPKey[] eppkeys;
+        private CryptoPKey[] eppkeys;
 
         /**
          * Creates a runnable wrapper for the protocol.
