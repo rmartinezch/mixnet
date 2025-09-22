@@ -66,22 +66,22 @@ public final class MixNetElGamalVerifyFiatShamir {
     /**
      * Stream to which info and errors are written.
      */
-    public PrintStream ps;
+    private PrintStream ps;
 
     /**
      * Amount of information printed during verification.
      */
-    public boolean verbose;
+    private boolean verbose;
 
     /**
      * Names of test vectors to print.
      */
-    public Set<String> testVectorNames;
+    private Set<String> testVectorNames;
 
     /**
      * Decides if stack traces are printed or not.
      */
-    public boolean stackTrace;
+    private boolean stackTrace;
 
     /**
      * Session identifier of mix-net.
