@@ -173,55 +173,55 @@ public final class PoSBasicTW {
     /**
      * Batched permutation commitments.
      */
-    PGroupElement A;
+    PGroupElement pA;
 
     /**
      * Bridging commitments used to build up a product in the
      * exponent.
      */
-    PGroupElementArray B;
+    PGroupElementArray pgeaB;
 
     /**
      * Product of components of permutation commitment and independent
      * generators.
      */
-    PGroupElement C;
+    PGroupElement pC;
 
     /**
      * Last bridging commitment with product of batching elements
      * eliminated in the exponent.
      */
-    PGroupElement D;
+    PGroupElement pgeD;
 
     /**
      * Batched input ciphertexts computed in pre-computation phase.
      */
-    PGroupElement F;
+    PGroupElement pgeF;
 
     /**
      * Proof commitment used for the bridging commitments.
      */
-    PGroupElement Ap;
+    PGroupElement pgeAp;
 
     /**
      * Proof commitments for the bridging commitments.
      */
-    PGroupElementArray Bp;
+    PGroupElementArray pgeBp;
 
     /**
      * Proof commitment for proving sum of random components.
      */
-    PGroupElement Cp;
+    PGroupElement pgeCp;
 
     /**
      * Proof commitment for proving product of random components.
      */
-    PGroupElement Dp;
+    PGroupElement pgeDp;
 
     /**
      * Proof commitment.
      */
-    PGroupElement Fp;
+    PGroupElement pgeFp;
 
     // ########### Secret values for bridging commitment #######
 
@@ -285,32 +285,32 @@ public final class PoSBasicTW {
     /**
      * Reply for bridging commitment blinder.
      */
-    PRingElement k_A;
+    PRingElement kA;
 
     /**
      * Reply for bridging commitments blinders.
      */
-    PRingElementArray k_B;
+    PRingElementArray kB;
 
     /**
      * Reply for sum of random vector components blinder.
      */
-    PRingElement k_C;
+    PRingElement kC;
 
     /**
      * Reply for product of random vector components blinder.
      */
-    PRingElement k_D;
+    PRingElement kD;
 
     /**
      * Reply for the inverse permuted random vector.
      */
-    PFieldElementArray k_E;
+    PFieldElementArray kE;
 
     /**
      * Reply inner product of s and e.
      */
-    PRingElement k_F;
+    PRingElement kF;
 
     /**
      * BOTH: Constructor to instantiate the protocol.
@@ -337,11 +337,11 @@ public final class PoSBasicTW {
 
         // This is not needed, but it make things more explicit.
         this.e = null;
-        this.B = null;
-        this.Ap = null;
-        this.Bp = null;
-        this.Cp = null;
-        this.Dp = null;
+        this.pgeaB = null;
+        this.pgeAp = null;
+        this.pgeBp = null;
+        this.pgeCp = null;
+        this.pgeDp = null;
         this.ipe = null;
         this.pB = null;
         this.pD = null;
@@ -350,11 +350,11 @@ public final class PoSBasicTW {
         this.gamma = null;
         this.delta = null;
         this.epsilon = null;
-        this.k_A = null;
-        this.k_B = null;
-        this.k_C = null;
-        this.k_D = null;
-        this.k_E = null;
+        this.kA = null;
+        this.kB = null;
+        this.kC = null;
+        this.kD = null;
+        this.kE = null;
     }
 
     /**
@@ -405,8 +405,8 @@ public final class PoSBasicTW {
      * VERIFIER: Compute A and F in parallel with prover.
      */
     public void computeAF() {
-        A = u.expProd(e);
-        F = w.expProd(e);
+        pA = u.expProd(e);
+        pgeF = w.expProd(e);
     }
 
     /**
@@ -470,7 +470,7 @@ public final class PoSBasicTW {
         epsilon = pField.toElementArray(epsilonIntegers);
         epsilonIntegers.free();
 
-        Ap = g.exp(alpha).mul(h.expProd(epsilon));
+        pgeAp = g.exp(alpha).mul(h.expProd(epsilon));
     }
 
     /**
@@ -572,15 +572,15 @@ public final class PoSBasicTW {
         //
         final PRingElementArray y = ipe.prods();
 
-        final PGroupElementArray g_exp_x = g.exp(x);
+        final PGroupElementArray gExpX = g.exp(x);
 
-        final PGroupElementArray h0_exp_y = h0.exp(y);
+        final PGroupElementArray h0ExpY = h0.exp(y);
 
-        B = g_exp_x.mul(h0_exp_y);
+        pgeaB = gExpX.mul(h0ExpY);
 
         // Free temporary variables.
-        g_exp_x.free();
-        h0_exp_y.free();
+        gExpX.free();
+        h0ExpY.free();
 
         // ################# Proof Commitments ####################
 
@@ -594,42 +594,42 @@ public final class PoSBasicTW {
         y.free();
         x.free();
 
-        final PRingElementArray xp_mul_epsilon = xp.mul(epsilon);
-        final PRingElementArray beta_add_prod = beta.add(xp_mul_epsilon);
-        final PGroupElementArray g_exp_beta_add_prod = g.exp(beta_add_prod);
-        final PRingElementArray yp_mul_epsilon = yp.mul(epsilon);
-        final PGroupElementArray h0_exp_yp_mul_epsilon = h0.exp(yp_mul_epsilon);
+        final PRingElementArray xpMulEpsilon = xp.mul(epsilon);
+        final PRingElementArray betaAddProd = beta.add(xpMulEpsilon);
+        final PGroupElementArray gExpBetaAddProd = g.exp(betaAddProd);
+        final PRingElementArray ypMulEpsilon = yp.mul(epsilon);
+        final PGroupElementArray h0ExpYpMulEpsilon = h0.exp(ypMulEpsilon);
 
-        Bp = g_exp_beta_add_prod.mul(h0_exp_yp_mul_epsilon);
+        pgeBp = gExpBetaAddProd.mul(h0ExpYpMulEpsilon);
 
-        h0_exp_yp_mul_epsilon.free();
-        yp_mul_epsilon.free();
-        g_exp_beta_add_prod.free();
-        beta_add_prod.free();
-        xp_mul_epsilon.free();
+        h0ExpYpMulEpsilon.free();
+        ypMulEpsilon.free();
+        gExpBetaAddProd.free();
+        betaAddProd.free();
+        xpMulEpsilon.free();
         yp.free();
         xp.free();
 
         gamma = pRing.randomElement(randomSource, rbitlen);
-        Cp = g.exp(gamma);
+        pgeCp = g.exp(gamma);
 
         delta = pRing.randomElement(randomSource, rbitlen);
-        Dp = g.exp(delta);
+        pgeDp = g.exp(delta);
 
         // We must show that we can open F = \prod w_i^{e_i} as F = Enc_pk(1,-f)\prod (w_i')^{e_i'} where f=<s,e>.
         final PRing ciphPRing = pkey.project(0).getPGroup().getPRing();
         phi = ciphPRing.randomElement(randomSource, rbitlen);
 
-        Fp = pkey.exp(phi.neg()).mul(wp.expProd(epsilon));
+        pgeFp = pkey.exp(phi.neg()).mul(wp.expProd(epsilon));
 
         // ################### Byte tree ##########################
 
-        return new ByteTreeContainer(B.toByteTree(),
-                                     Ap.toByteTree(),
-                                     Bp.toByteTree(),
-                                     Cp.toByteTree(),
-                                     Dp.toByteTree(),
-                                     Fp.toByteTree());
+        return new ByteTreeContainer(pgeaB.toByteTree(),
+                                     pgeAp.toByteTree(),
+                                     pgeBp.toByteTree(),
+                                     pgeCp.toByteTree(),
+                                     pgeDp.toByteTree(),
+                                     pgeFp.toByteTree());
     }
 
     /**
@@ -638,7 +638,7 @@ public final class PoSBasicTW {
      * @return Value of B in the protocol.
      */
     public PGroupElementArray getB() {
-        return B;
+        return pgeaB;
     }
 
     /**
@@ -647,7 +647,7 @@ public final class PoSBasicTW {
      * @return Value of A in the protocol.
      */
     public PGroupElement getA() {
-        return A;
+        return pA;
     }
 
     /**
@@ -656,7 +656,7 @@ public final class PoSBasicTW {
      * @return Value of A' in the protocol.
      */
     public PGroupElement getAp() {
-        return Ap;
+        return pgeAp;
     }
 
     /**
@@ -665,7 +665,7 @@ public final class PoSBasicTW {
      * @return Value of B' in the protocol.
      */
     public PGroupElementArray getBp() {
-        return Bp;
+        return pgeBp;
     }
 
     /**
@@ -674,7 +674,7 @@ public final class PoSBasicTW {
      * @return Value of C' in the protocol.
      */
     public PGroupElement getCp() {
-        return Cp;
+        return pgeCp;
     }
 
     /**
@@ -683,7 +683,7 @@ public final class PoSBasicTW {
      * @return Value of D' in the protocol.
      */
     public PGroupElement getDp() {
-        return Dp;
+        return pgeDp;
     }
 
     /**
@@ -692,7 +692,7 @@ public final class PoSBasicTW {
      * @return Value of F in the protocol.
      */
     public PGroupElement getF() {
-        return F;
+        return pgeF;
     }
 
     /**
@@ -701,7 +701,7 @@ public final class PoSBasicTW {
      * @return Value of F' in the protocol.
      */
     public PGroupElement getFp() {
-        return Fp;
+        return pgeFp;
     }
 
     /**
@@ -717,16 +717,14 @@ public final class PoSBasicTW {
         boolean malformed = false;
         try {
 
-            B = pGroup.toElementArray(size, btr.getNextChild());
-            Ap = pGroup.toElement(btr.getNextChild());
-            Bp = pGroup.toElementArray(size, btr.getNextChild());
-            Cp = pGroup.toElement(btr.getNextChild());
-            Dp = pGroup.toElement(btr.getNextChild());
-            Fp = ciphPGroup.toElement(btr.getNextChild());
+            pgeaB = pGroup.toElementArray(size, btr.getNextChild());
+            pgeAp = pGroup.toElement(btr.getNextChild());
+            pgeBp = pGroup.toElementArray(size, btr.getNextChild());
+            pgeCp = pGroup.toElement(btr.getNextChild());
+            pgeDp = pGroup.toElement(btr.getNextChild());
+            pgeFp = ciphPGroup.toElement(btr.getNextChild());
 
-        } catch (final EIOException eioe) {
-            malformed = true;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eioe) {
             malformed = true;
         }
 
@@ -734,25 +732,25 @@ public final class PoSBasicTW {
         // predetermined trivial value.
         if (malformed) {
 
-            B.free();
-            B = pGroup.toElementArray(size, pGroup.getONE());
+            pgeaB.free();
+            pgeaB = pGroup.toElementArray(size, pGroup.getONE());
 
-            Ap = pGroup.getONE();
+            pgeAp = pGroup.getONE();
 
-            Bp.free();
-            Bp = pGroup.toElementArray(size, pGroup.getONE());
+            pgeBp.free();
+            pgeBp = pGroup.toElementArray(size, pGroup.getONE());
 
-            Cp = pGroup.getONE();
-            Dp = pGroup.getONE();
-            Fp = ciphPGroup.getONE();
+            pgeCp = pGroup.getONE();
+            pgeDp = pGroup.getONE();
+            pgeFp = ciphPGroup.getONE();
         }
 
-        return new ByteTreeContainer(B.toByteTree(),
-                                     Ap.toByteTree(),
-                                     Bp.toByteTree(),
-                                     Cp.toByteTree(),
-                                     Dp.toByteTree(),
-                                     Fp.toByteTree());
+        return new ByteTreeContainer(pgeaB.toByteTree(),
+                                     pgeAp.toByteTree(),
+                                     pgeBp.toByteTree(),
+                                     pgeCp.toByteTree(),
+                                     pgeDp.toByteTree(),
+                                     pgeFp.toByteTree());
     }
 
     /**
@@ -803,21 +801,20 @@ public final class PoSBasicTW {
         // k_D = vd + \delta
         // k_{E,i} = ve_i' + \epsilon_i
         //
-        k_A = a.mulAdd(v, alpha);
-        k_B = pB.mulAdd(v, beta);
-        k_C = c.mulAdd(v, gamma);
-        k_D = pD.mulAdd(v, delta);
-        k_E = (PFieldElementArray) ipe.mulAdd(v, epsilon);
-        k_F = f.mulAdd(v, phi);
+        kA = a.mulAdd(v, alpha);
+        kB = pB.mulAdd(v, beta);
+        kC = c.mulAdd(v, gamma);
+        kD = pD.mulAdd(v, delta);
+        kE = (PFieldElementArray) ipe.mulAdd(v, epsilon);
+        kF = f.mulAdd(v, phi);
 
-        final ByteTreeContainer reply =
-            new ByteTreeContainer(k_A.toByteTree(),
-                                  k_B.toByteTree(),
-                                  k_C.toByteTree(),
-                                  k_D.toByteTree(),
-                                  k_E.toByteTree(),
-                                  k_F.toByteTree());
-        return reply;
+        return
+            new ByteTreeContainer(kA.toByteTree(),
+                                  kB.toByteTree(),
+                                  kC.toByteTree(),
+                                  kD.toByteTree(),
+                                  kE.toByteTree(),
+                                  kF.toByteTree());
     }
 
     /**
@@ -825,8 +822,8 @@ public final class PoSBasicTW {
      *
      * @return A component of reply.
      */
-    public PRingElement getk_A() {
-        return k_A;
+    public PRingElement getkA() {
+        return kA;
     }
 
     /**
@@ -834,8 +831,8 @@ public final class PoSBasicTW {
      *
      * @return B component of reply.
      */
-    public PRingElementArray getk_B() {
-        return k_B;
+    public PRingElementArray getkB() {
+        return kB;
     }
 
     /**
@@ -843,8 +840,8 @@ public final class PoSBasicTW {
      *
      * @return C component of reply.
      */
-    public PRingElement getk_C() {
-        return k_C;
+    public PRingElement getkC() {
+        return kC;
     }
 
     /**
@@ -852,8 +849,8 @@ public final class PoSBasicTW {
      *
      * @return D component of reply.
      */
-    public PRingElement getk_D() {
-        return k_D;
+    public PRingElement getkD() {
+        return kD;
     }
 
     /**
@@ -861,8 +858,8 @@ public final class PoSBasicTW {
      *
      * @return E component of reply.
      */
-    public PRingElementArray getk_E() {
-        return k_E;
+    public PRingElementArray getkE() {
+        return kE;
     }
 
     /**
@@ -870,8 +867,8 @@ public final class PoSBasicTW {
      *
      * @return F component of reply.
      */
-    public PRingElement getk_F() {
-        return k_F;
+    public PRingElement getkF() {
+        return kF;
     }
 
     /**
@@ -880,7 +877,7 @@ public final class PoSBasicTW {
      * @return C component of reply.
      */
     public PGroupElement getC() {
-        return C;
+        return pC;
     }
 
     /**
@@ -889,7 +886,7 @@ public final class PoSBasicTW {
      * @return D component of reply.
      */
     public PGroupElement getD() {
-        return D;
+        return pgeD;
     }
 
     /**
@@ -906,18 +903,16 @@ public final class PoSBasicTW {
         // Read and parse the replies.
         try {
 
-            k_A = pRing.toElement(btr.getNextChild());
-            k_B = pRing.toElementArray(size, btr.getNextChild());
-            k_C = pRing.toElement(btr.getNextChild());
-            k_D = pRing.toElement(btr.getNextChild());
-            k_E = pField.toElementArray(size, btr.getNextChild());
-            k_F = ciphPRing.toElement(btr.getNextChild());
+            kA = pRing.toElement(btr.getNextChild());
+            kB = pRing.toElementArray(size, btr.getNextChild());
+            kC = pRing.toElement(btr.getNextChild());
+            kD = pRing.toElement(btr.getNextChild());
+            kE = pField.toElementArray(size, btr.getNextChild());
+            kF = ciphPRing.toElement(btr.getNextChild());
 
             return true;
 
-        } catch (final EIOException eio) {
-            return false;
-        } catch (final ArithmFormatException afe) {
+        } catch (final EIOException | ArithmFormatException eio) {
             return false;
         }
     }
@@ -943,38 +938,38 @@ public final class PoSBasicTW {
         final PGroupElement h0 = h.get(0);
 
         // Compute C and D.
-        C = u.prod().div(h.prod());
-        D = B.get(size - 1).div(h0.exp(e.prod()));
+        pC = u.prod().div(h.prod());
+        pgeD = pgeaB.get(size - 1).div(h0.exp(e.prod()));
 
         final boolean verdictA =
-            A.expMul(v, Ap).equals(g.exp(k_A).mul(h.expProd(k_E)));
+            pA.expMul(v, pgeAp).equals(g.exp(kA).mul(h.expProd(kE)));
 
-        final PGroupElementArray B_exp_v = B.exp(v);
-        final PGroupElementArray leftSide = B_exp_v.mul(Bp);
-        final PGroupElementArray g_exp_k_B = g.exp(k_B);
-        final PGroupElementArray B_shift = B.shiftPush(h0);
-        final PGroupElementArray B_shift_exp_k_E = B_shift.exp(k_E);
-        final PGroupElementArray rightSide = g_exp_k_B.mul(B_shift_exp_k_E);
+        final PGroupElementArray BExpV = pgeaB.exp(v);
+        final PGroupElementArray leftSide = BExpV.mul(pgeBp);
+        final PGroupElementArray gExpkB = g.exp(kB);
+        final PGroupElementArray bShift = pgeaB.shiftPush(h0);
+        final PGroupElementArray bShiftExpkE = bShift.exp(kE);
+        final PGroupElementArray rightSide = gExpkB.mul(bShiftExpkE);
 
         final boolean verdictB = leftSide.equals(rightSide);
 
-        B_exp_v.free();
+        BExpV.free();
         leftSide.free();
-        g_exp_k_B.free();
-        B_shift.free();
-        B_shift_exp_k_E.free();
+        gExpkB.free();
+        bShift.free();
+        bShiftExpkE.free();
         rightSide.free();
 
         // Verify that prover knows c=\sum r_i such that: C = \prod u_i / \prod h_i = g^c
-        final boolean verdictC = C.expMul(v, Cp).equals(g.exp(k_C));
+        final boolean verdictC = pC.expMul(v, pgeCp).equals(g.exp(kC));
 
 
         // Verify that prover knows d such that: D = B_{N-1} / g^{\prod e_i} = g^d
-        final boolean verdictD = D.expMul(v, Dp).equals(g.exp(k_D));
+        final boolean verdictD = pgeD.expMul(v, pgeDp).equals(g.exp(kD));
 
 
         final boolean verdictF =
-            F.expMul(v, Fp).equals(pkey.exp(k_F.neg()).mul(wp.expProd(k_E)));
+            pgeF.expMul(v, pgeFp).equals(pkey.exp(kF.neg()).mul(wp.expProd(kE)));
 
         return verdictA && verdictB && verdictC && verdictD && verdictF;
     }
@@ -986,12 +981,12 @@ public final class PoSBasicTW {
      * @return Reply processed by the verifier.
      */
     public ByteTreeBasic getReply() {
-        return new ByteTreeContainer(k_A.toByteTree(),
-                                     k_B.toByteTree(),
-                                     k_C.toByteTree(),
-                                     k_D.toByteTree(),
-                                     k_E.toByteTree(),
-                                     k_F.toByteTree());
+        return new ByteTreeContainer(kA.toByteTree(),
+                                     kB.toByteTree(),
+                                     kC.toByteTree(),
+                                     kD.toByteTree(),
+                                     kE.toByteTree(),
+                                     kF.toByteTree());
     }
 
     /**
@@ -1005,12 +1000,12 @@ public final class PoSBasicTW {
         PGroupElementArray.free(u);
         PRingElementArray.free(e);
         PRingElementArray.free(pB);
-        PGroupElementArray.free(B);
-        PGroupElementArray.free(Bp);
+        PGroupElementArray.free(pgeaB);
+        PGroupElementArray.free(pgeBp);
         PRingElementArray.free(ipe);
         PRingElementArray.free(beta);
         PRingElementArray.free(epsilon);
-        PRingElementArray.free(k_B);
-        PRingElementArray.free(k_E);
+        PRingElementArray.free(kB);
+        PRingElementArray.free(kE);
     }
 }

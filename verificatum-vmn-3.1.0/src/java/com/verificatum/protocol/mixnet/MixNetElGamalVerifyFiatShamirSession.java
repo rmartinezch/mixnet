@@ -926,11 +926,11 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         v.checkPrintTestVector("PoS.C", poSBasicTW.getC().toString());
         v.checkPrintTestVector("PoS.D", poSBasicTW.getD().toString());
 
-        v.checkPrintTestVector("PoS.k_A", poSBasicTW.getk_A().toString());
-        v.checkPrintTestVector("PoS.k_B", poSBasicTW.getk_B());
-        v.checkPrintTestVector("PoS.k_C", poSBasicTW.getk_C().toString());
-        v.checkPrintTestVector("PoS.k_D", poSBasicTW.getk_D().toString());
-        v.checkPrintTestVector("PoS.k_F", poSBasicTW.getk_F().toString());
+        v.checkPrintTestVector("PoS.k_A", poSBasicTW.getkA().toString());
+        v.checkPrintTestVector("PoS.k_B", poSBasicTW.getkB());
+        v.checkPrintTestVector("PoS.k_C", poSBasicTW.getkC().toString());
+        v.checkPrintTestVector("PoS.k_D", poSBasicTW.getkD().toString());
+        v.checkPrintTestVector("PoS.k_F", poSBasicTW.getkF().toString());
 
         poSBasicTW.free();
 
