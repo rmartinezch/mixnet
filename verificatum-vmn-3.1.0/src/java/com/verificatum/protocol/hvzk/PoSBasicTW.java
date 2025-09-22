@@ -944,8 +944,8 @@ public final class PoSBasicTW {
         final boolean verdictA =
             pA.expMul(v, pgeAp).equals(g.exp(kA).mul(h.expProd(kE)));
 
-        final PGroupElementArray BExpV = pgeaB.exp(v);
-        final PGroupElementArray leftSide = BExpV.mul(pgeBp);
+        final PGroupElementArray bExpV = pgeaB.exp(v);
+        final PGroupElementArray leftSide = bExpV.mul(pgeBp);
         final PGroupElementArray gExpkB = g.exp(kB);
         final PGroupElementArray bShift = pgeaB.shiftPush(h0);
         final PGroupElementArray bShiftExpkE = bShift.exp(kE);
@@ -953,7 +953,7 @@ public final class PoSBasicTW {
 
         final boolean verdictB = leftSide.equals(rightSide);
 
-        BExpV.free();
+        bExpV.free();
         leftSide.free();
         gExpkB.free();
         bShift.free();

@@ -613,8 +613,8 @@ public final class PoSCBasicTW {
 
         if (verdict) {
 
-            final PGroupElementArray BExpV = pgeaB.exp(v);
-            final PGroupElementArray leftSide = BExpV.mul(pgeaBp);
+            final PGroupElementArray bExpV = pgeaB.exp(v);
+            final PGroupElementArray leftSide = bExpV.mul(pgeaBp);
 
             final PGroupElementArray gExpkB = g.exp(kB);
             final PGroupElementArray bShift = pgeaB.shiftPush(h0);
@@ -623,7 +623,7 @@ public final class PoSCBasicTW {
 
             final boolean B_res = leftSide.equals(rightSide);
 
-            BExpV.free();
+            bExpV.free();
             leftSide.free();
             gExpkB.free();
             bShift.free();
