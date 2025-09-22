@@ -1143,9 +1143,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
         boolean[] correct = null;
         try {
             correct = ByteTree.byteTreeToBooleanArray(new ByteTree(crfile));
-        } catch (final IOException ioe) {
-            v.failStop("Failed to read indices of correct decryption factors!");
-        } catch (final EIOException eioe) {
+        } catch (final IOException | EIOException ioe) {
             v.failStop("Failed to read indices of correct decryption factors!");
         }
         v.println(DONE_MSG);
