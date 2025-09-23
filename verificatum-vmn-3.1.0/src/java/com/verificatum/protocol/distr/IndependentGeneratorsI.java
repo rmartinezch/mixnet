@@ -203,7 +203,6 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
     }
 
     // Documented in IndependentGenerators.java
-
     @Override
     public PGroupElementArray generate(final Log log,
                                        final PGroup pGroup,
@@ -217,133 +216,146 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
             return readIndependentGenerators(pGroup, igFile, size, tempLog);
         }
 
-        // Make room for generator parts.
-        final PGroupElementArray[] generatorsParts =
-            new PGroupElementArray[threshold + 1];
+        final PGroupElementArray[] generatorsParts = new PGroupElementArray[threshold + 1];
 
-        // Generate our generator parts.
-        PRingElementArray exponents = null;
-        if (j <= threshold) {
+        // 1. Generamos exponentes si corresponde
+        final PRingElementArray exponents = generateExponentsIfNeeded(pGroup, size, tempLog, generatorsParts);
 
-            tempLog.info("Generate random exponents.");
-            exponents = pGroup.getPRing().randomElementArray(size,
-                                                             randomSource,
-                                                             rbitlen);
-
-            // Compute generators part.
-            tempLog.info("Compute generators parts.");
-            generatorsParts[j] = pGroup.getg().exp(exponents);
-
-        }
-
-        // Collect generators parts.
-        tempLog.info("Collect generators parts.");
-
-        // Publish our parts and read the other's.
+        // 2. Publicamos y leemos partes
         publishAndReadParts(pGroup, generatorsParts, size, threshold, log);
 
+        // 3. Inicializamos el generador básico
         final IndependentGeneratorsBasicI basic =
-            new IndependentGeneratorsBasicI(j,
-                                            threshold,
-                    iebitlen,
-                                            rbitlen,
-                    pPrg);
+                initIndependentGenerators(pGroup, generatorsParts, exponents, size, tempLog);
 
-        // Combine parts.
-        PGroupElementArray generators =
-            mulGeneratorsParts(size, generatorsParts, tempLog);
+        // 4. Generamos la semilla
+        setupBatchVector(basic, tempLog);
 
-        // Initialize the instance.
-        basic.setInstance(pGroup.getg(),
-                          generatorsParts,
-                          exponents,
-                          generators);
-
-        // Generate seed for batching.
-        tempLog.info("Generate seed for batching.");
-        Log tempLog2 = tempLog.newChildLog();
-
-        final byte[] prgSeed =
-            coins.getCoinBytes(tempLog2, 8 * pPrg.minNoSeedBytes(), rbitlen);
-        basic.setBatchVector(prgSeed);
-
-        // Collect commitments.
-        tempLog.info("Collect commitments.");
-
-        // Publish our parts and read the other's.
+        // 5. Compromisos
         publishAndSetCommitments(basic, threshold, log);
 
-        // Generate challenge.
-        tempLog.info("Generate challenge.");
-        tempLog2 = tempLog.newChildLog();
-        final byte[] challengeBytes =
-            coins.getCoinBytes(tempLog2, ivbitlen, rbitlen);
-        final LargeInteger integerChallenge =
-            LargeInteger.toPositive(challengeBytes);
-        basic.setChallenge(integerChallenge);
+        // 6. Reto (challenge)
+        generateChallenge(basic, tempLog);
 
-        // Collect replies parts.
-        tempLog.info("Collect replies.");
-        tempLog2 = tempLog.newChildLog();
+        // 7. Recolección de respuestas
+        collectReplies(basic, generatorsParts, pGroup, size, log, tempLog);
 
-        // Publish our parts and read the other's.
-        for (int l = 1; l <= threshold; l++) {
+        // 8. Verificación
+        PGroupElementArray generators =
+                verifyGenerators(basic, generatorsParts, pGroup, size, tempLog);
 
-            if (l == j) {
-
-                tempLog2.info("Publish reply.");
-                bullBoard.publish("Reply", basic.reply(), tempLog);
-
-            } else {
-
-                // Try to read and parse
-                tempLog2.info("Read replies of " + ui.getDescrString(l) + ".");
-
-                final ByteTreeReader btr =
-                    bullBoard.waitFor(l, "Reply", tempLog);
-                basic.setReply(l, btr);
-                btr.close();
-
-            }
-        }
-
-        // Verify combined commitment.
-        tempLog.info("Verify combined statement.");
-
-        if (basic.verify()) {
-
-            tempLog.info("Accepted proof.");
-
-        } else {
-
-            tempLog.info("Rejected proof.");
-            tempLog.info("Verifying proofs separately.");
-            tempLog2 = tempLog.newChildLog();
-
-            for (int l = 1; l <= threshold; l++) {
-
-                if (l != j) {
-
-                    tempLog2.info("Verify proof of " + ui.getDescrString(l)
-                                  + ".");
-                    final boolean verd = basic.verify(l);
-                    if (verd) {
-                        tempLog2.info("Accepted proof.");
-                    } else {
-                        tempLog2.info("Rejected proof.");
-                        tempLog2.info("Replacing generators parts by ones.");
-                        generatorsParts[l] =
-                            pGroup.toElementArray(size, pGroup.getONE());
-                    }
-                }
-            }
-
-            generators.free();
-            generators = mulGeneratorsParts(size, generatorsParts, tempLog);
-        }
-
+        // 9. Guardamos en archivo
         generators.toByteTree().unsafeWriteTo(igFile);
 
         return generators;
     }
+
+    private PRingElementArray generateExponentsIfNeeded(final PGroup pGroup,
+                                                        final int size,
+                                                        final Log tempLog,
+                                                        final PGroupElementArray[] generatorsParts) {
+        if (j > threshold) {
+            return null;
+        }
+
+        tempLog.info("Generate random exponents.");
+        final PRingElementArray exponents =
+                pGroup.getPRing().randomElementArray(size, randomSource, rbitlen);
+
+        tempLog.info("Compute generators parts.");
+        generatorsParts[j] = pGroup.getg().exp(exponents);
+
+        return exponents;
+    }
+
+    private IndependentGeneratorsBasicI initIndependentGenerators(final PGroup pGroup,
+                                                                  final PGroupElementArray[] generatorsParts,
+                                                                  final PRingElementArray exponents,
+                                                                  final int size,
+                                                                  final Log tempLog) {
+        final IndependentGeneratorsBasicI basic =
+                new IndependentGeneratorsBasicI(j, threshold, iebitlen, rbitlen, pPrg);
+
+        final PGroupElementArray generators = mulGeneratorsParts(size, generatorsParts, tempLog);
+
+        basic.setInstance(pGroup.getg(), generatorsParts, exponents, generators);
+
+        return basic;
+    }
+
+    private void setupBatchVector(final IndependentGeneratorsBasicI basic,
+                                  final Log tempLog) {
+        tempLog.info("Generate seed for batching.");
+        final Log tempLog2 = tempLog.newChildLog();
+        final byte[] prgSeed =
+                coins.getCoinBytes(tempLog2, 8 * pPrg.minNoSeedBytes(), rbitlen);
+        basic.setBatchVector(prgSeed);
+    }
+
+    private void generateChallenge(final IndependentGeneratorsBasicI basic,
+                                   final Log tempLog) {
+        tempLog.info("Generate challenge.");
+        final Log tempLog2 = tempLog.newChildLog();
+        final byte[] challengeBytes =
+                coins.getCoinBytes(tempLog2, ivbitlen, rbitlen);
+        final LargeInteger integerChallenge = LargeInteger.toPositive(challengeBytes);
+        basic.setChallenge(integerChallenge);
+    }
+
+    private void collectReplies(final IndependentGeneratorsBasicI basic,
+                                final PGroupElementArray[] generatorsParts,
+                                final PGroup pGroup,
+                                final int size,
+                                final Log log,
+                                final Log tempLog) {
+        tempLog.info("Collect replies.");
+        final Log tempLog2 = tempLog.newChildLog();
+
+        for (int l = 1; l <= threshold; l++) {
+            if (l == j) {
+                tempLog2.info("Publish reply.");
+                bullBoard.publish("Reply", basic.reply(), log);
+            } else {
+                tempLog2.info("Read replies of " + ui.getDescrString(l) + ".");
+                final ByteTreeReader btr = bullBoard.waitFor(l, "Reply", log);
+                basic.setReply(l, btr);
+                btr.close();
+            }
+        }
+    }
+
+    private PGroupElementArray verifyGenerators(final IndependentGeneratorsBasicI basic,
+                                                final PGroupElementArray[] generatorsParts,
+                                                final PGroup pGroup,
+                                                final int size,
+                                                final Log tempLog) {
+
+        tempLog.info("Verify combined statement.");
+
+        if (basic.verify()) {
+            tempLog.info("Accepted proof.");
+            return mulGeneratorsParts(size, generatorsParts, tempLog);
+        }
+
+        tempLog.info("Rejected proof.");
+        tempLog.info("Verifying proofs separately.");
+        final Log tempLog2 = tempLog.newChildLog();
+
+        for (int l = 1; l <= threshold; l++) {
+            if (l != j) {
+                tempLog2.info("Verify proof of " + ui.getDescrString(l) + ".");
+                final boolean verd = basic.verify(l);
+                if (verd) {
+                    tempLog2.info("Accepted proof.");
+                } else {
+                    tempLog2.info("Rejected proof.");
+                    tempLog2.info("Replacing generators parts by ones.");
+                    generatorsParts[l] = pGroup.toElementArray(size, pGroup.getONE());
+                }
+            }
+        }
+
+        return mulGeneratorsParts(size, generatorsParts, tempLog);
+    }
+
 }
