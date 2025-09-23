@@ -109,80 +109,71 @@ public final class DistrElGamalSession extends ProtocolElGamal {
      * @param nizkp Destination directory.
      * @param log Logging context.
      */
-    private void
-        exchangeDecryptionFactors(final PGroup leftPGroup,
-                                  final PGroupElementArray[] decryptionFactors,
-                                  final boolean[] correct,
-                                  final File nizkp,
-                                  final Log log) {
+    private void exchangeDecryptionFactors(final PGroup leftPGroup,
+                                           final PGroupElementArray[] decryptionFactors,
+                                           final boolean[] correct,
+                                           final File nizkp,
+                                           final Log log) {
 
-        // Publish our decryption factors and collect decryption
-        // factors of everybody else.
         log.info("Collect decryption factors.");
         final Log tempLog = log.newChildLog();
-
         final int size = decryptionFactors[j].size();
 
         for (int l = 1; l <= k; l++) {
-
             if (l == j) {
-
-                // Publish our decryption factors.
-                tempLog.info("Publish decryption factors.");
-                bullBoard.publish("DecryptionFactors",
-                                  decryptionFactors[j].toByteTree(),
-                                  tempLog);
+                publishOwnFactors(decryptionFactors[j], tempLog);
             } else {
-
-                if (getActive(l)) {
-
-                    // Read and set the commitment of other party.
-                    tempLog.info("Read decryption factors of "
-                                 + ui.getDescrString(l) + ".");
-                    final ByteTreeReader factorsReader =
-                        bullBoard.waitFor(l, "DecryptionFactors", tempLog);
-
-                    try {
-
-                        decryptionFactors[l] =
-                            leftPGroup.toElementArray(size, factorsReader);
-
-                    } catch (final ArithmFormatException afe) {
-
-                        tempLog.info("Reading failed, setting to all-one "
-                                     + "array.");
-
-                        // We know already now that these decryption
-                        // factors are not correct.
-                        correct[l] = false;
-
-                    } finally {
-                        factorsReader.close();
-                    }
-
-                } else {
-
-                    tempLog.info("Not active, setting to all-one array.");
-                    correct[l] = false;
-
-                }
-
+                processOtherFactors(l, leftPGroup, size, decryptionFactors, correct, tempLog);
             }
+
             if (!correct[l]) {
-
-                // If the decryption factors could not be parsed we
-                // set them all to one.
-                decryptionFactors[l] =
-                    leftPGroup.toElementArray(size, leftPGroup.getONE());
+                setAllOnes(leftPGroup, size, decryptionFactors, l);
             }
 
-            // Export decryption factors. Note that we export the
-            // all-one array if somebody publishes malformed
-            // decryption factors.
-            if (nizkp != null) {
-                decryptionFactors[l].toByteTree().
-                    unsafeWriteTo(dfFile(nizkp, l));
-            }
+            exportFactorsIfNeeded(decryptionFactors[l], nizkp, l);
+        }
+    }
+
+    private void publishOwnFactors(PGroupElementArray factors, Log log) {
+        log.info("Publish decryption factors.");
+        bullBoard.publish("DecryptionFactors", factors.toByteTree(), log);
+    }
+
+    private void processOtherFactors(int l,
+                                     PGroup leftPGroup,
+                                     int size,
+                                     PGroupElementArray[] decryptionFactors,
+                                     boolean[] correct,
+                                     Log log) {
+        if (!getActive(l)) {
+            log.info("Not active, setting to all-one array.");
+            correct[l] = false;
+            return;
+        }
+
+        log.info("Read decryption factors of " + ui.getDescrString(l) + ".");
+        final ByteTreeReader factorsReader = bullBoard.waitFor(l, "DecryptionFactors", log);
+
+        try {
+            decryptionFactors[l] = leftPGroup.toElementArray(size, factorsReader);
+        } catch (final ArithmFormatException afe) {
+            log.info("Reading failed, setting to all-one array.");
+            correct[l] = false;
+        } finally {
+            factorsReader.close();
+        }
+    }
+
+    private void setAllOnes(PGroup leftPGroup,
+                            int size,
+                            PGroupElementArray[] decryptionFactors,
+                            int l) {
+        decryptionFactors[l] = leftPGroup.toElementArray(size, leftPGroup.getONE());
+    }
+
+    private void exportFactorsIfNeeded(PGroupElementArray factors, File nizkp, int l) {
+        if (nizkp != null) {
+            factors.toByteTree().unsafeWriteTo(dfFile(nizkp, l));
         }
     }
 
