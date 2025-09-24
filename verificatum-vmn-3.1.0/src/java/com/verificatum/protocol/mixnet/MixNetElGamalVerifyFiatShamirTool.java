@@ -775,56 +775,95 @@ public final class MixNetElGamalVerifyFiatShamirTool {
      */
     @SuppressWarnings("PMD.CyclomaticComplexity")
     private static Opt parseCommandLine(final String[] args)
-        throws ProtocolException {
+            throws ProtocolException {
         try {
             String commandName = args[0];
             String[] newArgs = Arrays.copyOfRange(args, 3, args.length);
 
-            // We must catch the taboo flags before we create the
-            // Opt. This is the best way to do this.
+            // 1. Extraer información de flags especiales
+            FlagResult flagResult = processSpecialFlags(commandName, newArgs);
+            commandName = flagResult.commandName;
+            newArgs = flagResult.newArgs;
 
-            String icommandName = null;
-            String tabooFlags = null;
-
-            final int len = newArgs.length;
-
-            if (0 < len && len < 4) {
-                if (len == 1 && newArgs[0].equals("-c")) {
-
-                    tabooFlags = "";
-                    newArgs = new String[1];
-                    newArgs[0] = "-h";
-
-                } else if (newArgs[0].equals("-mc")) {
-
-                    int i = 1;
-                    if (i < len) {
-                        icommandName = newArgs[i];
-                        if (icommandName.indexOf("-") == -1) {
-                            i++;
-                            if (i < len) {
-                                tabooFlags = newArgs[i];
-                            } else {
-                                tabooFlags = "";
-                            }
-                        }
-                    }
-
-                    if (tabooFlags != null) {
-                        commandName = icommandName;
-                        newArgs = new String[1];
-                        newArgs[0] = "-h";
-                    }
-                }
-            }
-
-            final Opt opt = opt(commandName, tabooFlags);
+            // 2. Construir y parsear Opt
+            final Opt opt = opt(commandName, flagResult.tabooFlags);
             opt.parse(newArgs);
             return opt;
 
         } catch (final OptException oe) {
             throw new ProtocolException(oe.getMessage(), oe);
         }
+    }
+
+    // Métodos auxiliares
+
+    private static class FlagResult {
+        String commandName;
+        String[] newArgs;
+        String tabooFlags;
+
+        FlagResult(String commandName, String[] newArgs, String tabooFlags) {
+            this.commandName = commandName;
+            this.newArgs = newArgs;
+            this.tabooFlags = tabooFlags;
+        }
+    }
+
+    private static FlagResult processSpecialFlags(String commandName, String[] newArgs) {
+        String icommandName = null;
+        String tabooFlags = null;
+        final int len = newArgs.length;
+
+        if (0 < len && len < 4) {
+            if (isCFlag(newArgs)) {
+                tabooFlags = "";
+                newArgs = new String[]{"-h"};
+
+            } else if (isMCFlag(newArgs)) {
+                MCFlagResult mcResult = processMCFlag(newArgs, len);
+                icommandName = mcResult.icommandName;
+                tabooFlags = mcResult.tabooFlags;
+
+                if (tabooFlags != null) {
+                    commandName = icommandName;
+                    newArgs = new String[]{"-h"};
+                }
+            }
+        }
+        return new FlagResult(commandName, newArgs, tabooFlags);
+    }
+
+    private static boolean isCFlag(String[] newArgs) {
+        return newArgs.length == 1 && "-c".equals(newArgs[0]);
+    }
+
+    private static boolean isMCFlag(String[] newArgs) {
+        return newArgs.length > 0 && "-mc".equals(newArgs[0]);
+    }
+
+    private static class MCFlagResult {
+        String icommandName;
+        String tabooFlags;
+
+        MCFlagResult(String icommandName, String tabooFlags) {
+            this.icommandName = icommandName;
+            this.tabooFlags = tabooFlags;
+        }
+    }
+
+    private static MCFlagResult processMCFlag(String[] newArgs, int len) {
+        String icommandName = null;
+        String tabooFlags = null;
+        int i = 1;
+
+        if (i < len) {
+            icommandName = newArgs[i];
+            if (!icommandName.contains("-")) {
+                i++;
+                tabooFlags = (i < len) ? newArgs[i] : "";
+            }
+        }
+        return new MCFlagResult(icommandName, tabooFlags);
     }
 
     /**
