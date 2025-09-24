@@ -417,73 +417,80 @@ public final class ProtocolElGamalRearTool {
      * @throws ProtocolFormatException If the input parameters are
      * found to be invalid.
      */
-    public static void
-        sanityCheckWidthsDeep(final int width,
-                              final List<PGroup> atomicPGroups,
-                              final List<PGroupElementArray> inputArrays)
-        throws ProtocolFormatException {
+    public static void sanityCheckWidthsDeep(final int width,
+                                             final List<PGroup> atomicPGroups,
+                                             final List<PGroupElementArray> inputArrays)
+            throws ProtocolFormatException {
 
-        // Check that we have as many groups as arrays.
-        if (atomicPGroups.size() != inputArrays.size()) {
-            final String fm =
-                "Mismatching number of groups and group element arrays! "
-                + "(%d != %d)";
-            final String em =
-                String.format(fm, atomicPGroups.size(), inputArrays.size());
-            throw new ProtocolFormatException(em);
-        }
+        validateSizes(atomicPGroups, inputArrays);
 
         for (int i = 0; i < atomicPGroups.size(); i++) {
-
             final PGroup inputArrayPGroup = inputArrays.get(i).getPGroup();
             final PGroup atomicPGroup = atomicPGroups.get(i);
 
-            final String fa =
-                "The %dth group and group element array do not match!";
-            final String ea = String.format(fa, i);
-
             if (width == 1) {
-
-                // Check that if the width is one, then there is no
-                // intermediate product group.
-                if (!inputArrayPGroup.equals(atomicPGroup)) {
-                    throw new ProtocolFormatException(ea);
-                }
+                validateWidthOne(inputArrayPGroup, atomicPGroup, i);
             } else {
+                validateProductGroup(inputArrayPGroup, atomicPGroup, width, i);
+            }
+        }
+    }
 
-                // Check that the array is defined over a product
-                // group.
-                if (!(inputArrayPGroup instanceof PPGroup)) {
-                    final String epp =
-                        "Group element array is not defined over a product "
-                        + "group!";
-                    throw new ProtocolFormatException(epp);
-                }
+    private static void validateSizes(final List<PGroup> atomicPGroups,
+                                      final List<PGroupElementArray> inputArrays)
+            throws ProtocolFormatException {
+        if (atomicPGroups.size() != inputArrays.size()) {
+            final String fm = "Mismatching number of groups and group element arrays! (%d != %d)";
+            final String em = String.format(fm, atomicPGroups.size(), inputArrays.size());
+            throw new ProtocolFormatException(em);
+        }
+    }
 
-                final PPGroup pInputArrayPGroup = (PPGroup) inputArrayPGroup;
-                final int inputArrayWidth = pInputArrayPGroup.getWidth();
+    private static void validateWidthOne(final PGroup inputArrayPGroup,
+                                         final PGroup atomicPGroup,
+                                         final int index)
+            throws ProtocolFormatException {
+        if (!inputArrayPGroup.equals(atomicPGroup)) {
+            final String msg = String.format("The %dth group and group element array do not match!", index);
+            throw new ProtocolFormatException(msg);
+        }
+    }
 
-                // Check that the width of the ith group is the given
-                // width.
-                if (inputArrayWidth != width) {
-                    final String fw =
-                        "The group of the %dth group element array does not "
-                        + "have width %d!";
-                    final String ew = String.format(fw, i, width);
-                    throw new ProtocolFormatException(ew);
-                }
+    private static void validateProductGroup(final PGroup inputArrayPGroup,
+                                             final PGroup atomicPGroup,
+                                             final int width,
+                                             final int index)
+            throws ProtocolFormatException {
+        if (!(inputArrayPGroup instanceof PPGroup)) {
+            throw new ProtocolFormatException("Group element array is not defined over a product group!");
+        }
 
-                // Check that the ith atomic group is the same as the
-                // atomic group of the ith array.
-                for (int j = 0; j < width; j++) {
-                    if (!pInputArrayPGroup.project(j).equals(atomicPGroup)) {
-                        final String faa =
-                            "The %dth atomic group does not match the %dth "
-                            + "atomic group over which the array is defined!";
-                        final String eaa = String.format(faa, i, i);
-                        throw new ProtocolFormatException(eaa);
-                    }
-                }
+        final PPGroup pInputArrayPGroup = (PPGroup) inputArrayPGroup;
+        final int inputArrayWidth = pInputArrayPGroup.getWidth();
+
+        if (inputArrayWidth != width) {
+            final String msg = String.format(
+                    "The group of the %dth group element array does not have width %d!",
+                    index, width
+            );
+            throw new ProtocolFormatException(msg);
+        }
+
+        validateAtomicGroups(pInputArrayPGroup, atomicPGroup, width, index);
+    }
+
+    private static void validateAtomicGroups(final PPGroup pInputArrayPGroup,
+                                             final PGroup atomicPGroup,
+                                             final int width,
+                                             final int index)
+            throws ProtocolFormatException {
+        for (int j = 0; j < width; j++) {
+            if (!pInputArrayPGroup.project(j).equals(atomicPGroup)) {
+                final String msg = String.format(
+                        "The %dth atomic group does not match the %dth atomic group over which the array is defined!",
+                        index, index
+                );
+                throw new ProtocolFormatException(msg);
             }
         }
     }
