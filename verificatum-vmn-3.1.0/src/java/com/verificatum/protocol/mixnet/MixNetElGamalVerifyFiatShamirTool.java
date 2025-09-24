@@ -79,19 +79,25 @@ public final class MixNetElGamalVerifyFiatShamirTool {
     /**
      * Names of test vectors to print.
      */
-    static final ConcurrentMap<String, String> VALID_TEST_VECTOR_NAMES =
-        new ConcurrentHashMap<>();
-    static final String POS_COMMITMENT_MSG = "PoS. Commitment components.";
-    static final String POS_REPLY_MSG = "PoS. Reply components.";
-    static final String SHUFFLE_PARAMETER = "-shuffle";
-    static final String DECRYPT_PARAMETER = "-decrypt";
-    static final String AUXSID_PARAMETER = "-auxsid";
-    static final String VALUE_PARAMETER = "value";
-    static final String SLOPPY_PARAMETER = "-sloppy";
-    static final String WIDTH_PARAMETER = "-width";
-    static final String NOPOS_PARAMETER = "-nopos";
-    static final String NOPOSC_PARAMETER = "-noposc";
-    static final String NOCCPOS_PARAMETER = "-noccpos";
+    private static final ConcurrentMap<String, String> VALID_TEST_VECTOR_NAMES = new ConcurrentHashMap<>();
+    private static final String POS_COMMITMENT_MSG = "PoS. Commitment components.";
+    private static final String POS_REPLY_MSG = "PoS. Reply components.";
+    private static final String SHUFFLE_PARAMETER = "-shuffle";
+    private static final String DECRYPT_PARAMETER = "-decrypt";
+    private static final String AUXSID_PARAMETER = "-auxsid";
+    private static final String VALUE_PARAMETER = "value";
+    private static final String SLOPPY_PARAMETER = "-sloppy";
+    private static final String WIDTH_PARAMETER = "-width";
+    private static final String NOPOS_PARAMETER = "-nopos";
+    private static final String NOPOSC_PARAMETER = "-noposc";
+    private static final String NOCCPOS_PARAMETER = "-noccpos";
+    private static final String IDF = "-wd,-a,-e,-t,-v";
+    private static final String MIX_FLAGS = "-noposc,-noccpos,-nopos,-nodec,-width," + IDF;
+    private static final String SHUFFLE_FLAGS = "-noposc,-noccpos,-width," + IDF;
+    private static final String DECRYPT_FLAGS = "-width," + IDF;
+    private static final String SLOPPY_FLAGS = IDF;
+    private static final String DF = IDF + ",-sloppy,-h";
+
     static {
 
         VALID_TEST_VECTOR_NAMES.put("par",
@@ -493,264 +499,248 @@ public final class MixNetElGamalVerifyFiatShamirTool {
     @SuppressWarnings("PMD.CyclomaticComplexity")
     static Opt opt(final String commandName, final String tabooFlags) {
 
-        // Implementation specifict options.
-        final String idf = "-wd,-a,-e,-t,-v";
+        // 1. Preparar flags prohibidos
+        final StringBuilder tf = buildTabooFlags(tabooFlags);
 
-        // Options for individual usage forms.
-        final String mixFlags = "-noposc,-noccpos,-nopos,-nodec,-width," + idf;
-        final String shuffleFlags = "-noposc,-noccpos,-width," + idf;
-        final String decryptFlags = "-width," + idf;
-        final String sloppyFlags = idf;
+        // 2. Construcción del objeto Opt
+        final String defaultErrorString =
+                "Invalid invocation. Please use \"" + commandName
+                        + " -h\" for usage information!";
 
-        // Things that should always be removed before printing
-        // compatibility usage information.
-        final String df = idf + ",-sloppy,-h";
+        final Opt opt = new Opt(commandName, defaultErrorString);
 
-        // Check if -mc flag was used.
+        // 3. Opciones
+        addBaseOptions(opt, tf);
+        addVerificationOptions(opt, tf);
+        addAdvancedOptions(opt, tf);
+
+        // 4. Usage forms
+        addUsageForms(opt, tf);
+
+        // 5. Descripción
+        opt.appendDescription(buildDescription(tf));
+
+        return opt;
+    }
+
+    /* ---------------- Métodos auxiliares ---------------- */
+
+    private static StringBuilder buildTabooFlags(final String tabooFlags) {
         final StringBuilder tf = new StringBuilder();
         if (tabooFlags != null) {
             if ("".equals(tabooFlags)) {
-                tf.append(df);
+                tf.append(DF);
             } else {
-                tf.append(tabooFlags).append(',').append(df);
+                tf.append(tabooFlags).append(',').append(DF);
             }
         }
-
-        // Printing help for printing test vectors and printing test
-        // vectors stiick together.
         if (!keep(tf, "-t")) {
             tf.append(",-th");
         }
         if (!keep(tf, "-th")) {
             tf.append(",-t");
         }
+        return tf;
+    }
 
-        final String defaultErrorString =
-            "Invalid invocation. Please use \"" + commandName
-            + " -h\" for usage information!";
-
-        final Opt opt = new Opt(commandName, defaultErrorString);
-
-
-        // We only show the possibility of using taboo flags if the -c
-        // option was not used.
+    private static void addBaseOptions(final Opt opt, final StringBuilder tf) {
         if (tf.length() == 0) {
-
-            // Sorted union of options.
             final String usageFlags = "-nopre -mix -shuffle -decrypt -width";
             final String functionalFlags = "-nopos -nodec -noposc -noccpos";
 
             opt.addOption("-mc", "",
-                          "Print modified compatibility usage information. "
-                          + "This can be used by others to print the usage "
-                          + "information that their own verifiers must "
-                          + "provide. Partial implementations can remove "
-                          + "certain functionality using flags.");
+                    "Print modified compatibility usage information. "
+                            + "This can be used by others to print the usage "
+                            + "information that their own verifiers must "
+                            + "provide. Partial implementations can remove "
+                            + "certain functionality using flags.");
             opt.addParameter("command",
-                             "Command name of independent verifier. The name "
-                             + "may not contain any \"-\" characters.");
+                    "Command name of independent verifier. The name "
+                            + "may not contain any \"-\" characters.");
             opt.addParameter("flags",
-                             "A comma-separated list of option flags to be "
-                             + "removed from the compatibility usage "
-                             + "information. The following flags are "
-                             + "available: \n"
-                             + usageFlags + "\n"
-                             + functionalFlags);
+                    "A comma-separated list of option flags to be "
+                            + "removed from the compatibility usage "
+                            + "information. The following flags are "
+                            + "available: \n"
+                            + usageFlags + "\n"
+                            + functionalFlags);
         }
 
         opt.addOption("-h", "", "Print usage information.");
         opt.addOption("-c", "", "Print compatibility usage information.");
         opt.addOption("-version", "", "Print the package version.");
+    }
 
+    private static void addVerificationOptions(final Opt opt, final StringBuilder tf) {
         if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER) || keep(tf, DECRYPT_PARAMETER)) {
             opt.addParameter("protInfo", "Protocol info file.");
             opt.addParameter("nizkp",
-                             "Directory containing the non-interactive "
-                             + "zero-knowledge proof of correctness using "
-                             + "the Fiat-Shamir heuristic.");
+                    "Directory containing the non-interactive "
+                            + "zero-knowledge proof of correctness using "
+                            + "the Fiat-Shamir heuristic.");
             opt.addOption(AUXSID_PARAMETER, VALUE_PARAMETER,
-                          "Verify that the given auxiliary session identifier "
-                          + "matches that in the proof. This is required when "
-                          + "the auxiliary session identifier in the proof is "
-                          + "not \"default\".");
+                    "Verify that the given auxiliary session identifier "
+                            + "matches that in the proof. This is required when "
+                            + "the auxiliary session identifier in the proof is "
+                            + "not \"default\".");
         }
 
         addOption(tf, opt, "-v", "", "Verbose output, i.e., turn on output.");
-
         addOption(tf, opt, "-mix", "", "Check proof of mixing.");
-
         addOption(tf, opt, SHUFFLE_PARAMETER, "", "Check proof of shuffle.");
-
         addOption(tf, opt, DECRYPT_PARAMETER, "", "Check proof of decryption.");
-
         addOption(tf, opt, SLOPPY_PARAMETER, "",
-                  "Check proof of mixing/shuffle/decryption depending "
-                  + "on what is specified in the proof itself using "
-                  + "the auxiliary session identifier and width "
-                  + "specified in the proof itself. WARNING! If these "
-                  + "values are not verified using other means, then "
-                  + "this does not constitute a complete verification.");
+                "Check proof of mixing/shuffle/decryption depending "
+                        + "on what is specified in the proof itself using "
+                        + "the auxiliary session identifier and width "
+                        + "specified in the proof itself. WARNING! If these "
+                        + "values are not verified using other means, then "
+                        + "this does not constitute a complete verification.");
 
         if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER) || keep(tf, DECRYPT_PARAMETER)) {
             addOption(tf, opt, WIDTH_PARAMETER, VALUE_PARAMETER,
-                      "Verify that the given width matches that in the "
-                      + "proof. This is required when the width in the "
-                      + "proof is different from the width in the "
-                      + "protocol info file.");
+                    "Verify that the given width matches that in the "
+                            + "proof. This is required when the width in the "
+                            + "proof is different from the width in the "
+                            + "protocol info file.");
         }
 
         if (keep(tf, "-mix")) {
             addOption(tf, opt, NOPOS_PARAMETER, "",
-                      "Turn off verification of proofs of shuffles. If "
-                      + "pre-computation is used, this turns off "
-                      + "verification of both proofs of shuffles of "
-                      + "commitments and commitment-consistent proofs "
-                      + "of shuffles.");
+                    "Turn off verification of proofs of shuffles. If "
+                            + "pre-computation is used, this turns off "
+                            + "verification of both proofs of shuffles of "
+                            + "commitments and commitment-consistent proofs "
+                            + "of shuffles.");
 
             addOption(tf, opt, "-nodec", "",
-                      "Turn off verification of proof of decryption.");
+                    "Turn off verification of proof of decryption.");
         }
 
         if (keep(tf, "-mix") || keep(tf, SHUFFLE_PARAMETER)) {
             addOption(tf, opt, NOPOSC_PARAMETER, "",
-                      "Turn off verification of proofs of shuffles of "
-                      + "commitments. This is only possible if "
-                      + "pre-computation was used during execution.");
+                    "Turn off verification of proofs of shuffles of "
+                            + "commitments. This is only possible if "
+                            + "pre-computation was used during execution.");
 
             addOption(tf, opt, NOCCPOS_PARAMETER, "",
-                      "Turn off verification of commitment-consistent "
-                      + "proofs of shuffles. This is only possible if "
-                      + "pre-computation was used during execution.");
+                    "Turn off verification of commitment-consistent "
+                            + "proofs of shuffles. This is only possible if "
+                            + "pre-computation was used during execution.");
         }
+    }
 
+    private static void addAdvancedOptions(final Opt opt, final StringBuilder tf) {
         addOption(tf, opt, "-wd", "dir",
-                  "Directory for temporary files (default is "
-                  + "a unique subdirectory of /tmp/com.verificatum). "
-                  + "This directory is deleted on exit.");
+                "Directory for temporary files (default is "
+                        + "a unique subdirectory of /tmp/com.verificatum). "
+                        + "This directory is deleted on exit.");
 
         addOption(tf, opt, "-a", VALUE_PARAMETER,
-                  "Determines if file based arrays are used or not. "
-                  + "Legal values are \"file\" or \"ram\" and the "
-                  + "default is \"file\".");
+                "Determines if file based arrays are used or not. "
+                        + "Legal values are \"file\" or \"ram\" and the "
+                        + "default is \"file\".");
 
         addOption(tf, opt, "-e", "",
-                  "Show stack trace of an exception.");
+                "Show stack trace of an exception.");
 
         addOption(tf, opt, "-t", "names",
-                  "Print the given comma-separated test vectors. The "
-                  + "\"-th\" option can be used to list the available "
-                  + "test vectors.");
+                "Print the given comma-separated test vectors. The "
+                        + "\"-th\" option can be used to list the available "
+                        + "test vectors.");
 
         addOption(tf, opt, "-th", "",
-                  "List the available test vectors. The names are "
-                  + "chosen to be easily related to the notation "
-                  + "used in the document that describes the "
-                  + "non-interactive zero-knowledge proof of "
-                  + "correctness. In particular for programmers "
-                  + "that are familiar with LaTeX.");
+                "List the available test vectors. The names are "
+                        + "chosen to be easily related to the notation "
+                        + "used in the document that describes the "
+                        + "non-interactive zero-knowledge proof of "
+                        + "correctness.");
+    }
 
+    private static void addUsageForms(final Opt opt, final StringBuilder tf) {
         int usageIndex = 0;
 
         opt.addUsageForm();
-        opt.appendToUsageForm(usageIndex, "-h###");
-        usageIndex++;
+        opt.appendToUsageForm(usageIndex++, "-h###");
 
         opt.addUsageForm();
-        opt.appendToUsageForm(usageIndex, "-c###");
-        usageIndex++;
+        opt.appendToUsageForm(usageIndex++, "-c###");
 
         if (keep(tf, "-th")) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex, "-th###");
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++, "-th###");
         }
 
         final String pnString = "#protInfo,nizkp#";
 
         if (keep(tf, "-mix")) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex,
-                                  "-mix#-auxsid,"
-                                  + keepFlags(mixFlags, tf)
-                                  + pnString);
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++,
+                    "-mix#-auxsid," + keepFlags(MIX_FLAGS, tf) + pnString);
         }
 
         if (keep(tf, SHUFFLE_PARAMETER)) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex,
-                                  "-shuffle#-auxsid,"
-                                  + keepFlags(shuffleFlags, tf)
-                                  + pnString);
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++,
+                    "-shuffle#-auxsid," + keepFlags(SHUFFLE_FLAGS, tf) + pnString);
         }
 
         if (keep(tf, DECRYPT_PARAMETER)) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex,
-                                  "-decrypt#-auxsid,"
-                                  + keepFlags(decryptFlags, tf)
-                                  + pnString);
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++,
+                    "-decrypt#-auxsid," + keepFlags(DECRYPT_FLAGS, tf) + pnString);
         }
 
         if (keep(tf, SLOPPY_PARAMETER)) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex,
-                                  "-sloppy#"
-                                  + keepFlags(sloppyFlags, tf)
-                                  + pnString);
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++,
+                    "-sloppy#" + keepFlags(SLOPPY_FLAGS, tf) + pnString);
         }
 
         if (tf.length() == 0) {
             opt.addUsageForm();
-            opt.appendToUsageForm(usageIndex, "-mc##command#flags");
-            usageIndex++;
+            opt.appendToUsageForm(usageIndex++, "-mc##command#flags");
         }
 
         opt.addUsageForm();
         opt.appendToUsageForm(usageIndex, "-version###");
+    }
 
+    private static String buildDescription(final StringBuilder tf) {
         final StringBuilder sb = new StringBuilder();
         sb.append(
-"Verifies the overall correctness of an execution using the intermediate "
-+ "results and the zero-knowledge proofs of correctness using the "
-+ "Fiat-Shamir heuristic in the given proof directory. The verification of "
-+ "certain parts can be turned off to simplify a limited form of online "
-+ "verification and simplify debugging of other verifiers.");
+                "Verifies the overall correctness of an execution using the intermediate "
+                        + "results and the zero-knowledge proofs of correctness using the "
+                        + "Fiat-Shamir heuristic in the given proof directory. The verification of "
+                        + "certain parts can be turned off to simplify a limited form of online "
+                        + "verification and simplify debugging of other verifiers.");
 
         if (tf.length() == 0) {
             sb.append(
-"\n\n"
-+ "WARNING!\n"
-+ "Using this in a real election gives SOME assurance, but it does "
-+ "NOT eliminate the need for an independently implemented verifier "
-+ "according to the human-readable description of the universally verifiable "
-+ "proof resulting from an execution of the mix-net. This document is "
-+ "available at https://www.verificatum.org."
-+ "\n\n"
-+ "The main motivations of this tool are to:\n"
-+ "(a) debug the description of the universally verifiable proof,\n"
-+ "(b) benchmark the running time of verifiers,\n"
-+ "(c) serve as a reference implementation to implementors of\n"
-+ "    their own verifiers, and\n"
-+ "(d) check the compatibility of independent verifiers with\n"
-+ "    the requirements of the description of the universally\n"
-+ "    verifiable proof."
-+ "\n\n"
-+ "For this purpose it provides a feature-rich way to print test "
-+ "vectors of intermediate results and express compatibility.");
+                    "\n\nWARNING!\n"
+                            + "Using this in a real election gives SOME assurance, but it does "
+                            + "NOT eliminate the need for an independently implemented verifier "
+                            + "according to the human-readable description of the universally verifiable "
+                            + "proof resulting from an execution of the mix-net. This document is "
+                            + "available at https://www.verificatum.org."
+                            + "\n\nThe main motivations of this tool are to:\n"
+                            + "(a) debug the description of the universally verifiable proof,\n"
+                            + "(b) benchmark the running time of verifiers,\n"
+                            + "(c) serve as a reference implementation to implementors of\n"
+                            + "    their own verifiers, and\n"
+                            + "(d) check the compatibility of independent verifiers with\n"
+                            + "    the requirements of the description of the universally\n"
+                            + "    verifiable proof."
+                            + "\n\nFor this purpose it provides a feature-rich way to print test "
+                            + "vectors of intermediate results and express compatibility.");
         }
 
         if (!keep(tf, "-nopre")) {
             sb.append("\n\nProofs with pre-computing can not be verified using "
-                      + "this verifier.");
+                    + "this verifier.");
         }
 
-        opt.appendDescription(sb.toString());
-
-        return opt;
+        return sb.toString();
     }
 
     /**
