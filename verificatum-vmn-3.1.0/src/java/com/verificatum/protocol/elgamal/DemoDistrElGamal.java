@@ -166,16 +166,7 @@ public class DemoDistrElGamal extends DemoProtocolElGamalFactory {
                                       ciphertexts.toByteTree(), ui.getLog());
 
                 } else {
-
-                    final ByteTreeReader ciphertextsReader =
-                        bullBoard.waitFor(1, "Ciphertexts", ui.getLog());
-
-                    try {
-                        ciphertexts = jointPublicKey.getPGroup().
-                            toElementArray(0, ciphertextsReader);
-                    } catch (final ArithmFormatException afe) {
-                        throw new DemoError("Failed to read ciphertexts!", afe);
-                    }
+                    ciphertexts = readCiphertexts(jointPublicKey);
                 }
 
                 final File nizkp = getFile("nizkp");
@@ -190,5 +181,19 @@ public class DemoDistrElGamal extends DemoProtocolElGamalFactory {
                 throw new DemoError("Unable to run demonstration!", e);
             }
         }
+
+        private PGroupElementArray readCiphertexts(final PGroupElement jointPublicKey) {
+            final ByteTreeReader ciphertextsReader =
+                    bullBoard.waitFor(1, "Ciphertexts", ui.getLog());
+
+            try {
+                return jointPublicKey.getPGroup().toElementArray(0, ciphertextsReader);
+            } catch (final ArithmFormatException afe) {
+                throw new DemoError("Failed to read ciphertexts!", afe);
+            } finally {
+                ciphertextsReader.close();
+            }
+        }
+
     }
 }
