@@ -256,76 +256,94 @@ public class ProtocolElGamalInterfaceJSONDecode
     @Override
     protected PGroupElement stringToCiphertext(final PGroup ciphPGroup,
                                                final String elementString)
-        throws ProtocolFormatException {
-
-        LargeInteger alphali = null;
-        LargeInteger betali = null;
+            throws ProtocolFormatException {
 
         final PPGroup pCiphPGroup = (PPGroup) ciphPGroup;
         final PGroup elPGroup = pCiphPGroup.project(0);
 
         if (elPGroup instanceof PPGroup) {
-
-            List<Map<String, String>> maps = null;
-            try {
-                maps = SimpleJSON.readMaps(elementString);
-            } catch (final SimpleJSONException sje) {
-                throw new ProtocolFormatException("Could not parse!", sje);
-            }
-
-            final PGroupElement[] alphas = new PGroupElement[maps.size()];
-            final PGroupElement[] betas = new PGroupElement[maps.size()];
-
-            final PPGroup pelPGroup = (PPGroup) elPGroup;
-            final ModPGroup modPGroup = (ModPGroup) pelPGroup.project(0);
-
-            for (int i = 0; i < alphas.length; i++) {
-
-                final Map<String, String> map = maps.get(i);
-
-                if (map.containsKey(ALPHA_TAG)) {
-                    alphali = new LargeInteger(map.get(ALPHA_TAG), 10);
-                } else {
-                    throw newMissingException(ALPHA_TAG);
-                }
-                if (map.containsKey(BETA_TAG)) {
-                    betali = new LargeInteger(map.get(BETA_TAG), 10);
-                } else {
-                    throw newMissingException(BETA_TAG);
-                }
-
-                alphas[i] = modPGroup.toElement(alphali);
-                betas[i] = modPGroup.toElement(betali);
-            }
-
-            return
-                pCiphPGroup.product(pelPGroup.product(alphas),
-                                    pelPGroup.product(betas));
-
+            return parseMultipleCiphertexts(pCiphPGroup, (PPGroup) elPGroup, elementString);
         } else {
-
-            Map<String, String> map = null;
-            try {
-                map = SimpleJSON.readMap(elementString);
-            } catch (final SimpleJSONException sje) {
-                throw new ProtocolFormatException("Could not parse!", sje);
-            }
-
-            if (map.containsKey(ALPHA_TAG)) {
-                alphali = new LargeInteger(map.get(ALPHA_TAG), 10);
-            } else {
-                throw newMissingException(ALPHA_TAG);
-            }
-            if (map.containsKey(BETA_TAG)) {
-                betali = new LargeInteger(map.get(BETA_TAG), 10);
-            } else {
-                throw newMissingException(BETA_TAG);
-            }
-
-            final ModPGroup modPGroup = (ModPGroup) elPGroup;
-            return pCiphPGroup.product(modPGroup.toElement(alphali),
-                                       modPGroup.toElement(betali));
+            return parseSingleCiphertext(pCiphPGroup, (ModPGroup) elPGroup, elementString);
         }
+    }
+
+// ------------------- MÉTODOS AUXILIARES -------------------
+
+    /**
+     * Procesa el caso en el que tenemos múltiples pares (alpha, beta).
+     */
+    private PGroupElement parseMultipleCiphertexts(final PPGroup pCiphPGroup,
+                                                   final PPGroup elPGroup,
+                                                   final String elementString)
+            throws ProtocolFormatException {
+
+        final List<Map<String, String>> maps = parseJsonArray(elementString);
+        final PGroupElement[] alphas = new PGroupElement[maps.size()];
+        final PGroupElement[] betas = new PGroupElement[maps.size()];
+
+        final ModPGroup modPGroup = (ModPGroup) elPGroup.project(0);
+
+        for (int i = 0; i < maps.size(); i++) {
+            Map<String, String> map = maps.get(i);
+            alphas[i] = modPGroup.toElement(extractAlpha(map));
+            betas[i]  = modPGroup.toElement(extractBeta(map));
+        }
+
+        return pCiphPGroup.product(elPGroup.product(alphas), elPGroup.product(betas));
+    }
+
+    /**
+     * Procesa el caso en el que tenemos un único par (alpha, beta).
+     */
+    private PGroupElement parseSingleCiphertext(final PPGroup pCiphPGroup,
+                                                final ModPGroup modPGroup,
+                                                final String elementString)
+            throws ProtocolFormatException {
+
+        final Map<String, String> map = parseJsonObject(elementString);
+
+        final LargeInteger alpha = extractAlpha(map);
+        final LargeInteger beta  = extractBeta(map);
+
+        return pCiphPGroup.product(modPGroup.toElement(alpha),
+                modPGroup.toElement(beta));
+    }
+
+// ------------------- UTILIDADES -------------------
+
+    private List<Map<String, String>> parseJsonArray(final String json)
+            throws ProtocolFormatException {
+        try {
+            return SimpleJSON.readMaps(json);
+        } catch (final SimpleJSONException sje) {
+            throw new ProtocolFormatException("Could not parse JSON array!", sje);
+        }
+    }
+
+    private Map<String, String> parseJsonObject(final String json)
+            throws ProtocolFormatException {
+        try {
+            return SimpleJSON.readMap(json);
+        } catch (final SimpleJSONException sje) {
+            throw new ProtocolFormatException("Could not parse JSON object!", sje);
+        }
+    }
+
+    private LargeInteger extractAlpha(final Map<String, String> map)
+            throws ProtocolFormatException {
+        if (!map.containsKey(ALPHA_TAG)) {
+            throw newMissingException(ALPHA_TAG);
+        }
+        return new LargeInteger(map.get(ALPHA_TAG), 10);
+    }
+
+    private LargeInteger extractBeta(final Map<String, String> map)
+            throws ProtocolFormatException {
+        if (!map.containsKey(BETA_TAG)) {
+            throw newMissingException(BETA_TAG);
+        }
+        return new LargeInteger(map.get(BETA_TAG), 10);
     }
 
     @Override
