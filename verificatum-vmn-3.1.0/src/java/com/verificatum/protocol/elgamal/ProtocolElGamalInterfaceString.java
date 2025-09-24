@@ -82,13 +82,10 @@ public abstract class ProtocolElGamalInterfaceString
     public void writeCiphertexts(final PGroupElementArray ciphertexts,
                                  final File file) {
 
-        BufferedWriter bw = null;
-        try {
-
-            final FileOutputStream fos = new FileOutputStream(file);
-            final OutputStreamWriter osr =
-                new OutputStreamWriter(fos, ExtIO.CHARACTER_ENCODING);
-            bw = new BufferedWriter(osr);
+        try (BufferedWriter bw = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(file),
+                        ExtIO.CHARACTER_ENCODING))) {
 
             final PGroupElementIterator pgei = ciphertexts.getIterator();
 
@@ -101,10 +98,6 @@ public abstract class ProtocolElGamalInterfaceString
 
         } catch (final IOException ioe) {
             throw new ProtocolError("Unable to write ciphertexts!", ioe);
-        } finally {
-            if (bw != null) {
-                ExtIO.strictClose(bw);
-            }
         }
     }
 
