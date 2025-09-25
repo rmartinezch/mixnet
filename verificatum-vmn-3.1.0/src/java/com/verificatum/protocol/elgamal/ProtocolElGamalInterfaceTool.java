@@ -334,16 +334,7 @@ public final class ProtocolElGamalInterfaceTool {
         try {
 
             // Set up random source.
-            RandomSource randomSource = null;
-            try {
-                final File rsFile = new File(args[2]);
-                final File seedFile = new File(args[3]);
-                final File tmpSeedFile = new File(args[3] + "_TMP");
-                randomSource =
-                    RandomSource.randomSource(rsFile, seedFile, tmpSeedFile);
-            } catch (CryptoException ce) {
-                throw new ProtocolError(ce.getMessage(), ce);
-            }
+            RandomSource randomSource = initRandomSource(args);
 
             // Remove parameters to wrapper.
             final String[] newargs = Arrays.copyOfRange(args, 4, args.length);
@@ -352,11 +343,11 @@ public final class ProtocolElGamalInterfaceTool {
 
             OptUtil.processHelpAndVersion(opt);
 
-            try {
+            /*try {
                 TempFile.init(opt.getStringValue("-wd", ""), randomSource);
             } catch (EIOException eioe) {
                 throw new ProtocolFormatException(eioe.getMessage(), eioe);
-            }
+            }*/initTempFile(opt, randomSource);
 
             // Configuration of protocol.
             final File protocolInfoFile =
@@ -377,14 +368,14 @@ public final class ProtocolElGamalInterfaceTool {
             // Extract group over which to execute the protocol.
             final String pGroupString =
                 protocolInfo.getStringValue(ProtocolElGamal.PGROUP);
-            PGroup pGroup = null;
-            try {
+            PGroup pGroup = parseGroup(pGroupString, randomSource, certainty);//null;
+            /*try {
                 pGroup = Marshalizer.unmarshalHexAux_PGroup(pGroupString,
                                                             randomSource,
                                                             certainty);
             } catch (final EIOException eioe) {
                 throw new ProtocolFormatException("Invalid group!", eioe);
-            }
+            }*/
 
             // Initialize the handlers of the input format and the
             // output format.
@@ -407,12 +398,12 @@ public final class ProtocolElGamalInterfaceTool {
             // If input and output interfaces are identical, then we
             // simply copy the contents blindly in sloppy mode.
             if (ini == outi && opt.getBooleanValue("-sloppy")) {
-                try {
+                /*try {
                     ExtIO.copyFile(inf, outf);
                 } catch (IOException ioe) {
                     final String e = "Unable to blindly copy input to output!";
                     throw new ProtocolFormatException(e, ioe);
-                }
+                }*/copySloppy(inf, outf);
                 return;
             }
 
@@ -455,8 +446,8 @@ public final class ProtocolElGamalInterfaceTool {
 
                 plainPGroup =
                     ProtocolElGamal.getPlainPGroup(plainPGroup, width);
-
-                PGroupElementArray plaintexts = null;
+                processPlaintexts(plainPGroup, inf, outi, outf);
+                /*PGroupElementArray plaintexts = null;
                 try {
 
                     final ByteTreeReader plainReader = new ByteTreeReaderF(inf);
@@ -470,7 +461,7 @@ public final class ProtocolElGamalInterfaceTool {
                     if (plaintexts != null) {
                         plaintexts.free();
                     }
-                }
+                }*/
             }
 
         // PMD does not understand this.
@@ -485,6 +476,58 @@ public final class ProtocolElGamalInterfaceTool {
         } finally {
 
             TempFile.free();
+        }
+    }
+
+    private static RandomSource initRandomSource(String[] args) {
+        try {
+            final File rsFile = new File(args[2]);
+            final File seedFile = new File(args[3]);
+            final File tmpSeedFile = new File(args[3] + "_TMP");
+            return RandomSource.randomSource(rsFile, seedFile, tmpSeedFile);
+        } catch (CryptoException ce) {
+            throw new ProtocolError(ce.getMessage(), ce);
+        }
+    }
+
+    private static void initTempFile(Opt opt, RandomSource randomSource) throws ProtocolFormatException {
+        try {
+            TempFile.init(opt.getStringValue("-wd", ""), randomSource);
+        } catch (EIOException eioe) {
+            throw new ProtocolFormatException(eioe.getMessage(), eioe);
+        }
+    }
+
+    private static PGroup parseGroup(String pGroupString, RandomSource randomSource, int certainty) throws ProtocolFormatException {
+        try {
+            return Marshalizer.unmarshalHexAux_PGroup(pGroupString, randomSource, certainty);
+        } catch (final EIOException eioe) {
+            throw new ProtocolFormatException("Invalid group!", eioe);
+        }
+    }
+
+    private static void copySloppy(File inf, File outf) throws ProtocolFormatException {
+        try {
+            ExtIO.copyFile(inf, outf);
+        } catch (IOException ioe) {
+            final String e = "Unable to blindly copy input to output!";
+            throw new ProtocolFormatException(e, ioe);
+        }
+    }
+
+    private static void processPlaintexts(PGroup plainPGroup, File inf,
+                                          ProtocolElGamalInterface outi, File outf) throws ProtocolFormatException {
+        PGroupElementArray plaintexts = null;
+        try {
+            final ByteTreeReader plainReader = new ByteTreeReaderF(inf);
+            plaintexts = plainPGroup.toElementArray(0, plainReader);
+            outi.decodePlaintexts(plaintexts, outf);
+        } catch (final ArithmFormatException afe) {
+            throw new ProtocolFormatException(afe.getMessage(), afe);
+        } finally {
+            if (plaintexts != null) {
+                plaintexts.free();
+            }
         }
     }
 }
