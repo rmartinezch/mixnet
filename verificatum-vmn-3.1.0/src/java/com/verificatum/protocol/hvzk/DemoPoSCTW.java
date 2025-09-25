@@ -35,6 +35,7 @@ import com.verificatum.arithm.PRingElementArray;
 import com.verificatum.arithm.Permutation;
 import com.verificatum.eio.ByteTreeContainer;
 import com.verificatum.eio.ByteTreeReader;
+import com.verificatum.eio.EIOException;
 import com.verificatum.protocol.demo.DemoError;
 import com.verificatum.protocol.demo.DemoException;
 import com.verificatum.protocol.demo.DemoProtocol;
@@ -156,12 +157,9 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
                     final ByteTreeReader dataReader =
                         bullBoard.waitFor(1, "Data", ui.getLog());
 
-                    try {
-                        h = pgPGroup.toElementArray(0, dataReader.getNextChild());
-                        u = pgPGroup.toElementArray(0, dataReader.getNextChild());
-                    } catch (final ArithmFormatException afe) {
-                        throw new DemoError("Failed to read data!", afe);
-                    }
+                    PGroupElementArray[] elements = parseGroupElements(dataReader);
+                    h = elements[0];
+                    u = elements[1];
 
                     final PoSCTW psctwV = new PoSCTW("", this, "rosid", nizkp);
                     verdict = psctwV.verify(ui.getLog(), 1, g, h, u);
@@ -171,6 +169,23 @@ public class DemoPoSCTW extends DemoProtocolElGamalFactory {
 
             } catch (final Throwable e) {
                 throw new DemoError("Unable to run demonstration!", e);
+            }
+        }
+
+        /**
+         * Método auxiliar que extrae h y u desde un ByteTreeReader.
+         *
+         * @param dataReader Fuente de los elementos en ByteTree.
+         * @return Un arreglo de dos PGroupElementArray: [h, u].
+         * @throws DemoError Si ocurre un error de formato aritmético.
+         */
+        private PGroupElementArray[] parseGroupElements(final ByteTreeReader dataReader) {
+            try {
+                PGroupElementArray h = pgPGroup.toElementArray(0, dataReader.getNextChild());
+                PGroupElementArray u = pgPGroup.toElementArray(0, dataReader.getNextChild());
+                return new PGroupElementArray[] { h, u };
+            } catch (final ArithmFormatException | EIOException e) {
+                throw new DemoError("Failed to read data!", e);
             }
         }
     }

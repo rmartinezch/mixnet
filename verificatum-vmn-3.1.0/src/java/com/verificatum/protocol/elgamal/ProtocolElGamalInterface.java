@@ -137,15 +137,7 @@ public abstract class ProtocolElGamalInterface {
             // If the random source is a PRG, then there must
             // exist an associated seed file of sufficient length.
             if (randomSource instanceof PRG) {
-                try {
-                    ((PRG) randomSource).setSeedReplaceStored(seedFile,
-                                                              tmpSeedFile);
-                } catch (final CryptoException ce) {
-                    final String e = "Unable to read/write PRG seed file! "
-                        + "(" + seedFile + ")."
-                        + " " + ce.getMessage();
-                    throw new ProtocolError(e, ce);
-                }
+                handlePRGSeed((PRG) randomSource, seedFile, tmpSeedFile);
             }
             return randomSource;
         } catch (final IOException ioe) {
@@ -155,6 +147,20 @@ public abstract class ProtocolElGamalInterface {
                 "Unable to create random source! " + "Make sure that "
                 + rsFile + " is valid!";
             throw new ProtocolError(e, eioe);
+        }
+    }
+
+    private static void handlePRGSeed(final PRG prg,
+                                      final File seedFile,
+                                      final File tmpSeedFile)
+            throws ProtocolError {
+        try {
+            prg.setSeedReplaceStored(seedFile, tmpSeedFile);
+        } catch (final CryptoException ce) {
+            final String e = "Unable to read/write PRG seed file! "
+                    + "(" + seedFile + ")."
+                    + " " + ce.getMessage();
+            throw new ProtocolError(e, ce);
         }
     }
 }
