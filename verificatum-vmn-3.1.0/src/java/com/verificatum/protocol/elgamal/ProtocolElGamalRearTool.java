@@ -902,11 +902,7 @@ public final class ProtocolElGamalRearTool {
 
             OptUtil.processHelpAndVersion(opt);
 
-            try {
-                TempFile.init(opt.getStringValue("-wd", ""), randomSource);
-            } catch (EIOException eioe) {
-                throw new ProtocolFormatException(eioe.getMessage(), eioe);
-            }
+            initTempFile(opt, randomSource);
 
             final int certainty = ProtocolDefaults.CERTAINTY;
 
@@ -1133,6 +1129,15 @@ public final class ProtocolElGamalRearTool {
             return RandomSource.randomSource(rsFile, seedFile, tmpSeedFile);
         } catch (CryptoException ce) {
             throw new ProtocolError(ce.getMessage(), ce);
+        }
+    }
+
+    private static void initTempFile(final Opt opt, final RandomSource randomSource)
+            throws ProtocolFormatException {
+        try {
+            TempFile.init(opt.getStringValue("-wd", ""), randomSource);
+        } catch (EIOException eioe) {
+            throw new ProtocolFormatException(eioe.getMessage(), eioe);
         }
     }
 
