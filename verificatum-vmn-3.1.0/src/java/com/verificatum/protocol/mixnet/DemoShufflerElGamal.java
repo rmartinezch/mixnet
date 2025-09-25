@@ -149,14 +149,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                     // Read public key.
                     final ByteTreeReader publicKeyReader =
                         bullBoard.waitFor(1, "PublicKey", ui.getLog());
-
-                    try {
-                        setPublicKey(pkPGroup.toElement(publicKeyReader));
-                    } catch (final ArithmFormatException afe) {
-                        throw new DemoError("Failed to read public key!", afe);
-                    } finally {
-                        publicKeyReader.close();
-                    }
+                    readAndSetPublicKey(pkPGroup, publicKeyReader);
                 }
 
                 // This executes tests with width 1 and 2 and
@@ -242,16 +235,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                         final ByteTreeReader ciphertextsReader =
                             bullBoard.waitFor(1, "Ciphertexts" + l,
                                               ui.getLog());
-
-                        try {
-                            ciphertexts =
-                                ciphPGroup.toElementArray(0, ciphertextsReader);
-                        } catch (final ArithmFormatException afe) {
-                            throw new DemoError("Failed to read ciphertexts!",
-                                                afe);
-                        } finally {
-                            ciphertextsReader.close();
-                        }
+                        ciphertexts = readCiphertexts(ciphPGroup, ciphertextsReader);
 
                         session = getSession("mysid" + l, fnizkp);
 
@@ -272,5 +256,22 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                 throw new DemoError("Unable to run demonstration!", e);
             }
         }
+
+        private void readAndSetPublicKey(PPGroup pkPGroup, ByteTreeReader reader) {
+            try (reader) { // se cierra automáticamente al salir del bloque
+                setPublicKey(pkPGroup.toElement(reader));
+            } catch (final ArithmFormatException afe) {
+                throw new DemoError("Failed to read public key!", afe);
+            }
+        }
+
+        private PGroupElementArray readCiphertexts(PPGroup ciphPGroup, ByteTreeReader reader) {
+            try (reader) { // se cierra automáticamente al salir del bloque
+                return ciphPGroup.toElementArray(0, reader);
+            } catch (final ArithmFormatException afe) {
+                throw new DemoError("Failed to read ciphertexts!", afe);
+            }
+        }
+
     }
 }
