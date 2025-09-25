@@ -893,16 +893,7 @@ public final class ProtocolElGamalRearTool {
         try {
 
             // Set up random source.
-            RandomSource randomSource = null;
-            try {
-                final File rsFile = new File(args[1]);
-                final File seedFile = new File(args[2]);
-                final File tmpSeedFile = new File(args[2] + "_TMP");
-                randomSource =
-                    RandomSource.randomSource(rsFile, seedFile, tmpSeedFile);
-            } catch (CryptoException ce) {
-                throw new ProtocolError(ce.getMessage(), ce);
-            }
+            RandomSource randomSource = initializeRandomSource(args);
 
             // Remove parameters for wrapper.
             final String[] newargs = Arrays.copyOfRange(args, 3, args.length);
@@ -1133,4 +1124,16 @@ public final class ProtocolElGamalRearTool {
             TempFile.free();
         }
     }
+
+    private static RandomSource initializeRandomSource(String[] args) {
+        try {
+            final File rsFile = new File(args[1]);
+            final File seedFile = new File(args[2]);
+            final File tmpSeedFile = new File(args[2] + "_TMP");
+            return RandomSource.randomSource(rsFile, seedFile, tmpSeedFile);
+        } catch (CryptoException ce) {
+            throw new ProtocolError(ce.getMessage(), ce);
+        }
+    }
+
 }
