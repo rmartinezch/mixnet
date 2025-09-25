@@ -238,7 +238,7 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
         generateChallenge(basic, tempLog);
 
         // 7. Recolección de respuestas
-        collectReplies(basic, generatorsParts, pGroup, size, log, tempLog);
+        collectReplies(basic, log, tempLog);
 
         // 8. Verificación
         PGroupElementArray generators =
@@ -303,9 +303,6 @@ public final class IndependentGeneratorsI extends ProtocolElGamal
     }
 
     private void collectReplies(final IndependentGeneratorsBasicI basic,
-                                final PGroupElementArray[] generatorsParts,
-                                final PGroup pGroup,
-                                final int size,
                                 final Log log,
                                 final Log tempLog) {
         tempLog.info("Collect replies.");
