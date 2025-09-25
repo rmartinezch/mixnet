@@ -137,11 +137,7 @@ public class DemoPermutationCommitment extends DemoProtocolElGamalFactory {
 
                     final ByteTreeReader reader =
                         bullBoard.waitFor(1, "Generators", ui.getLog());
-                    try {
-                        generators = pgPGroup.toElementArray(0, reader);
-                    } catch (final ArithmFormatException afe) {
-                        throw new DemoError("Failed to read public key!", afe);
-                    }
+                    generators = readGenerators(reader);
                 }
 
                 final File auxsid = getFile("auxsid");
@@ -167,6 +163,17 @@ public class DemoPermutationCommitment extends DemoProtocolElGamalFactory {
 
             } catch (final Exception e) {
                 throw new DemoError("Unable to run demonstration!", e);
+            }
+        }
+
+        /**
+         * Encapsula la lectura segura de los generadores desde el bullBoard.
+         */
+        private PGroupElementArray readGenerators(final ByteTreeReader reader) {
+            try {
+                return pgPGroup.toElementArray(0, reader);
+            } catch (final ArithmFormatException afe) {
+                throw new DemoError("Failed to read public key!", afe);
             }
         }
     }

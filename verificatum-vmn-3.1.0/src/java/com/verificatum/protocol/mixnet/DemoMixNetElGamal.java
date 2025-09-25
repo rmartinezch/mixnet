@@ -193,20 +193,10 @@ public class DemoMixNetElGamal extends DemoProtocolElGamalFactory {
                                           ciphertexts.toByteTree(),
                                           ui.getLog());
                     } else {
-
-                        // Read ciphertexts.
-                        final ByteTreeReader ciphertextsReader =
-                            bullBoard.waitFor(1, "Ciphertexts" + l,
-                                              ui.getLog());
-
-                        try {
-                            ciphertexts =
-                                ciphPGroup.toElementArray(0, ciphertextsReader);
-                        } catch (final ArithmFormatException afe) {
-                            throw new DemoError("Failed to read ciphertexts!",
-                                                afe);
-                        } finally {
-                            ciphertextsReader.close();
+                        // Lectura de ciphertexts con try-with-resources
+                        try (ByteTreeReader ciphertextsReader =
+                                     bullBoard.waitFor(1, "Ciphertexts" + l, ui.getLog())) {
+                            ciphertexts = readCiphertexts(ciphPGroup, ciphertextsReader);
                         }
                     }
 
@@ -226,5 +216,15 @@ public class DemoMixNetElGamal extends DemoProtocolElGamalFactory {
                 throw new DemoError("Unable to run demonstration!", e);
             }
         }
+
+        private PGroupElementArray readCiphertexts(final PPGroup ciphPGroup,
+                                                   final ByteTreeReader ciphertextsReader) {
+            try (ByteTreeReader reader = ciphertextsReader) {
+                return ciphPGroup.toElementArray(0, reader);
+            } catch (final ArithmFormatException afe) {
+                throw new DemoError("Failed to read ciphertexts!", afe);
+            }
+        }
+
     }
 }
