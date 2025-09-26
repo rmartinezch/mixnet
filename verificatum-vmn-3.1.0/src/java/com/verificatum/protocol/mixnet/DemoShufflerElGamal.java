@@ -42,6 +42,7 @@ import com.verificatum.protocol.demo.DemoError;
 import com.verificatum.protocol.demo.DemoException;
 import com.verificatum.protocol.demo.DemoProtocol;
 import com.verificatum.protocol.demo.DemoProtocolElGamalFactory;
+import com.verificatum.protocol.distr.IndependentGenerator;
 import com.verificatum.protocol.elgamal.ProtocolElGamal;
 import com.verificatum.ui.UI;
 import com.verificatum.ui.info.PrivateInfo;
@@ -135,7 +136,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
 
                 // Ejecutar las pruebas con width = 1..4
                 for (int l = 0; l < 4; l++) {
-                    processWidth(l, x, pRing);
+                    processWidth(l, x);
                 }
 
                 shutdown(ui.getLog());
@@ -186,7 +187,7 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
             return x;
         }
 
-        private void processWidth(final int l, final PRingElement x, final PRing pRing) {
+        private void processWidth(final int l, final PRingElement x) {
             final int width = l + 1;
             final PGroup plainPGroup = getPlainPGroup(pgPGroup, width);
             final PRing plainPRing = plainPGroup.getPRing();
