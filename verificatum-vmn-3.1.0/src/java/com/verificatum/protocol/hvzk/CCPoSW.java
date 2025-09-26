@@ -72,35 +72,36 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
     // Documented in PoS.java
 
     @Override
-    public void prove(final ProveContext ctx) {
+    public void prove(final ProveContext pCtx) {
 
-        ctx.getLog().info("Prove correctness of shuffle.");
-        final Log tempLog = ctx.getLog().newChildLog();
+        pCtx.getLog().info("Prove correctness of shuffle.");
+        final Log tempLog = pCtx.getLog().newChildLog();
 
         final CCPoSBasicW ccpbwP =
                 new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
 
-        ccpbwP.setInstance(ctx.getG(),
-                ctx.getH(),
-                ctx.getU(),
-                ctx.getPkey(),
-                ctx.getW(),
-                ctx.getWp(),
-                ctx.getR(),
-                ctx.getPi(),
-                ctx.getS());
-
+        InstanceContext iCtx = new InstanceContext(
+                pCtx.getG(),
+                pCtx.getH(),
+                pCtx.getU(),
+                pCtx.getPkey(),
+                pCtx.getW(),
+                pCtx.getWp(),
+                pCtx.getR(),
+                pCtx.getPi(),
+                pCtx.getS());
+        ccpbwP.setInstance(iCtx);
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
         Log tempLog2 = tempLog.newChildLog();
 
         ByteTreeContainer challengeData =
-                new ByteTreeContainer(ctx.getG().toByteTree(),
-                        ctx.getH().toByteTree(),
-                        ctx.getU().toByteTree(),
-                        ctx.getPkey().toByteTree(),
-                        ctx.getW().toByteTree(),
-                        ctx.getWp().toByteTree());
+                new ByteTreeContainer(pCtx.getG().toByteTree(),
+                        pCtx.getH().toByteTree(),
+                        pCtx.getU().toByteTree(),
+                        pCtx.getPkey().toByteTree(),
+                        pCtx.getW().toByteTree(),
+                        pCtx.getWp().toByteTree());
 
         final byte[] prgSeed = challenger.challenge(tempLog2,
                 challengeData,

@@ -292,31 +292,14 @@ public final class CCPoSBasicW {
     /**
      * PROVER: Initializes the instance.
      *
-     * @param g Standard generator used in permutation commitments.
-     * @param h "Independent" generators used in permutation
-     * commitments.
-     * @param u Permutation commitment.
-     * @param pkey Public key used to re-encrypt.
-     * @param w List of ciphertexts.
-     * @param wp List of ciphertexts.
-     * @param r Random exponents used to form the permutation
-     * commitment.
-     * @param pi Permutation committed to.
-     * @param s Random exponents used to process ciphertexts.
+     * @param ctx Record class InstanceContext.
      */
-    public void setInstance(final PGroupElement g,
-                            final PGroupElementArray h,
-                            final PGroupElementArray u,
-                            final PGroupElement pkey,
-                            final PGroupElementArray w,
-                            final PGroupElementArray wp,
-                            final PRingElementArray r,
-                            final Permutation pi,
-                            final PRingElementArray s) {
-        setInstance(g, h, u, pkey, w, wp);
-        this.r = r;
-        this.pi = pi;
-        this.s = s;
+    public void setInstance(final InstanceContext ctx) {
+        setInstance(ctx.g(), ctx.h(), ctx.u(), ctx.pkey(),
+                ctx.w(), ctx.wp());
+        this.r = ctx.r();
+        this.pi = ctx.pi();
+        this.s = ctx.s();
     }
 
     /**
