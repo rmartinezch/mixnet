@@ -866,78 +866,54 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * Perform committed shuffle.
      *
      * @param l Index of current party.
-     * @param ciphPPGroup Group containing ciphertexts.
-     * @param widePublicKey Public key widened to fit the ciphertext
-     * group.
-     * @param input Input array of ciphertexts.
-     * @param nextOutput Output array of ciphertexts if precomputed.
-     * @param nizkp Destination directory.
-     * @param activeThreshold Largest index of an active party.
-     * @param log Logging contexts.
+     * @param ctx Class ShuffleVerifyContext
      * @return Shuffled ciphertexts.
      */
-    private PGroupElementArray
-        committedShuffleVerify(final int l,
-                               final PPGroup ciphPPGroup,
-                               final PGroupElement widePublicKey,
-                               final PGroupElementArray input,
-                               final PGroupElementArray[] nextOutput,
-                               final File nizkp,
-                               final int activeThreshold,
-                               final Log log) {
+    private PGroupElementArray committedShuffleVerify(final int l,
+                                                      final ShuffleVerifyContext ctx) {
 
-        PGroupElementArray output = null;
+        PGroupElementArray output;
 
         // Read the output of Party l.
-        log.info("Read output list from " + ui.getDescrString(l) + ".");
+        ctx.getLog().info("Read output list from " + ui.getDescrString(l) + ".");
 
-        output = readOutput(bullBoard, ciphPPGroup, l, log, input);
+        output = readOutput(bullBoard, ctx.getCiphPPGroup(), l, ctx.getLog(), ctx.getInput());
 
         // If we are next, then we compute our output optimistically
         // in parallel with verification.
         Thread nextOutputThread = null;
-        if (l + 1 <= activeThreshold && l + 1 == j) {
+        if (l + 1 <= ctx.getActiveThreshold() && l + 1 == j) {
             nextOutputThread =
-                committedShuffleVerifyOptim(output,
-                                            reencFactors,
-                                            permutationCommitments[j],
-                                            nextOutput);
+                    committedShuffleVerifyOptim(output,
+                            reencFactors,
+                            permutationCommitments[j],
+                            ctx.getNextOutput());
         }
 
-        // We assume that the output is correct, which means that our
-        // optimistically compute output will be useful.
+        // Assume correctness.
         boolean correct = true;
 
         // Verify proof of correctness of Party l
         final CCPoS ccposV =
-            ccposFactory.newPoS(Integer.toString(l), this, rosid, nizkp);
-        if (!ccposV.verify(log,
-                      l,
-                      generators.getPGroup().getg(),
-                      generators,
-                      permutationCommitments[l].
-                      getCommitment(),
-                      widePublicKey,
-                      input,
-                      output,
-                      permutationCommitments[l].
-                      getRaisedCommitment(),
-                      raisedGenerators,
-                      raisedExponent)) {
+                ccposFactory.newPoS(Integer.toString(l), this, rosid, ctx.getNizkp());
+        if (!ccposV.verify(ctx.getLog(),
+                l,
+                generators.getPGroup().getg(),
+                generators,
+                permutationCommitments[l].getCommitment(),
+                ctx.getWidePublicKey(),
+                ctx.getInput(),
+                output,
+                permutationCommitments[l].getRaisedCommitment(),
+                raisedGenerators,
+                raisedExponent)) {
 
-            // If the proof fails, then we replace the output by the
-            // output.
-            log.info("Replace output by the input.");
+            ctx.getLog().info("Replace output by the input.");
             output.free();
-            output = input.copyOfRange(0, input.size());
-
-            // We need to drop the optimistically computed
-            // output, since it is based on wrong input.
+            output = ctx.getInput().copyOfRange(0, ctx.getInput().size());
             correct = false;
         }
 
-        // We wait for the optimistic pre-computation of our output to
-        // complete if we are performing such a computation.
         if (nextOutputThread != null) {
             try {
                 nextOutputThread.join();
@@ -947,21 +923,51 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
             }
         }
 
-        // If the proof was rejected, then we need to drop our
-        // optimistically computed output.
-        if (!correct && nextOutput[0] != null) {
-            nextOutput[0].free();
-            nextOutput[0] = null;
+        if (!correct && ctx.getNextOutput()[0] != null) {
+            ctx.getNextOutput()[0].free();
+            ctx.getNextOutput()[0] = null;
         }
 
-        if (nizkp != null && l < activeThreshold) {
-
-            // Store the output for universal verifiability.
-            output.toByteTree().unsafeWriteTo(lFile(nizkp, l));
+        if (ctx.getNizkp() != null && l < ctx.getActiveThreshold()) {
+            output.toByteTree().unsafeWriteTo(lFile(ctx.getNizkp(), l));
         }
         return output;
     }
 
+
+    public static class ShuffleVerifyContext {
+        private final PPGroup ciphPPGroup;
+        private final PGroupElement widePublicKey;
+        private final PGroupElementArray input;
+        private final PGroupElementArray[] nextOutput;
+        private final File nizkp;
+        private final int activeThreshold;
+        private final Log log;
+
+        public ShuffleVerifyContext(PPGroup ciphPPGroup,
+                                    PGroupElement widePublicKey,
+                                    PGroupElementArray input,
+                                    PGroupElementArray[] nextOutput,
+                                    File nizkp,
+                                    int activeThreshold,
+                                    Log log) {
+            this.ciphPPGroup = ciphPPGroup;
+            this.widePublicKey = widePublicKey;
+            this.input = input;
+            this.nextOutput = nextOutput;
+            this.nizkp = nizkp;
+            this.activeThreshold = activeThreshold;
+            this.log = log;
+        }
+
+        public PPGroup getCiphPPGroup() { return ciphPPGroup; }
+        public PGroupElement getWidePublicKey() { return widePublicKey; }
+        public PGroupElementArray getInput() { return input; }
+        public PGroupElementArray[] getNextOutput() { return nextOutput; }
+        public File getNizkp() { return nizkp; }
+        public int getActiveThreshold() { return activeThreshold; }
+        public Log getLog() { return log; }
+    }
 
     /**
      * Perform re-encryption of the input list of ciphertexs relative
@@ -1022,15 +1028,10 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                                                  tempLog);
 
             } else if (getActive(l)) {
-
-                output = committedShuffleVerify(l,
-                                                ciphPPGroup,
-                                                widePublicKey,
-                                                input,
-                                                nextOutput,
-                        fnizkp,
-                                                activeThreshold,
-                                                tempLog);
+                ShuffleVerifyContext ctx = new ShuffleVerifyContext(
+                        ciphPPGroup, widePublicKey, input, nextOutput, fnizkp, activeThreshold, tempLog
+                );
+                output = committedShuffleVerify(l, ctx);
             }
 
             input = newInputFreeOld(l, input, output);
