@@ -26,11 +26,6 @@
 
 package com.verificatum.protocol.hvzk;
 
-import com.verificatum.arithm.PGroupElement;
-import com.verificatum.arithm.PGroupElementArray;
-import com.verificatum.arithm.PRingElement;
-import com.verificatum.arithm.PRingElementArray;
-import com.verificatum.arithm.Permutation;
 import com.verificatum.ui.Log;
 
 /**
@@ -50,30 +45,8 @@ public interface CCPoS {
     /**
      * Execute verifier.
      *
-     * @param log Logging context.
-     * @param l Index of prover.
-     * @param g Standard generator.
-     * @param h Independent generators.
-     * @param u Permutation commitment.
-     * @param pkey Public key used to re-encrypt.
-     * @param w List of ciphertexts.
-     * @param wp List of ciphertexts.
-     * @param raisedu Permutation commitment raised to a secret
-     * exponent.
-     * @param raisedh Independent generators raised to a secret
-     * exponent.
-     * @param raisedExponent Secret exponent.
+     * @param ctx Class VerifyContext
      * @return Verdict about the proof.
      */
-    boolean verify(Log log,
-                   int l,
-                   PGroupElement g,
-                   PGroupElementArray h,
-                   PGroupElementArray u,
-                   PGroupElement pkey,
-                   PGroupElementArray w,
-                   PGroupElementArray wp,
-                   PGroupElementArray raisedu,
-                   PGroupElementArray raisedh,
-                   PRingElement raisedExponent);
+    boolean verify(Log log, int l, VerifyContext ctx);
 }

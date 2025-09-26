@@ -863,28 +863,28 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
      * Perform committed shuffle.
      *
      * @param l Index of current party.
-     * @param ctx Class ShuffleVerifyContext
+     * @param svCtx Class ShuffleVerifyContext
      * @return Shuffled ciphertexts.
      */
     private PGroupElementArray committedShuffleVerify(final int l,
-                                                      final ShuffleVerifyContext ctx) {
+                                                      final ShuffleVerifyContext svCtx) {
 
         PGroupElementArray output;
 
         // Read the output of Party l.
-        ctx.getLog().info("Read output list from " + ui.getDescrString(l) + ".");
+        svCtx.getLog().info("Read output list from " + ui.getDescrString(l) + ".");
 
-        output = readOutput(bullBoard, ctx.getCiphPPGroup(), l, ctx.getLog(), ctx.getInput());
+        output = readOutput(bullBoard, svCtx.getCiphPPGroup(), l, svCtx.getLog(), svCtx.getInput());
 
         // If we are next, then we compute our output optimistically
         // in parallel with verification.
         Thread nextOutputThread = null;
-        if (l + 1 <= ctx.getActiveThreshold() && l + 1 == j) {
+        if (l + 1 <= svCtx.getActiveThreshold() && l + 1 == j) {
             nextOutputThread =
                     committedShuffleVerifyOptim(output,
                             reencFactors,
                             permutationCommitments[j],
-                            ctx.getNextOutput());
+                            svCtx.getNextOutput());
         }
 
         // Assume correctness.
@@ -892,22 +892,22 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
 
         // Verify proof of correctness of Party l
         final CCPoS ccposV =
-                ccposFactory.newPoS(Integer.toString(l), this, rosid, ctx.getNizkp());
-        if (!ccposV.verify(ctx.getLog(),
-                l,
+                ccposFactory.newPoS(Integer.toString(l), this, rosid, svCtx.getNizkp());
+        VerifyContext vCtx = new VerifyContext(
                 generators.getPGroup().getg(),
                 generators,
                 permutationCommitments[l].getCommitment(),
-                ctx.getWidePublicKey(),
-                ctx.getInput(),
+                svCtx.getWidePublicKey(),
+                svCtx.getInput(),
                 output,
                 permutationCommitments[l].getRaisedCommitment(),
                 raisedGenerators,
-                raisedExponent)) {
+                raisedExponent);
+        if (!ccposV.verify(svCtx.getLog(), l, vCtx)) {
 
-            ctx.getLog().info("Replace output by the input.");
+            svCtx.getLog().info("Replace output by the input.");
             output.free();
-            output = ctx.getInput().copyOfRange(0, ctx.getInput().size());
+            output = svCtx.getInput().copyOfRange(0, svCtx.getInput().size());
             correct = false;
         }
 
@@ -920,13 +920,13 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
             }
         }
 
-        if (!correct && ctx.getNextOutput()[0] != null) {
-            ctx.getNextOutput()[0].free();
-            ctx.getNextOutput()[0] = null;
+        if (!correct && svCtx.getNextOutput()[0] != null) {
+            svCtx.getNextOutput()[0].free();
+            svCtx.getNextOutput()[0] = null;
         }
 
-        if (ctx.getNizkp() != null && l < ctx.getActiveThreshold()) {
-            output.toByteTree().unsafeWriteTo(lFile(ctx.getNizkp(), l));
+        if (svCtx.getNizkp() != null && l < svCtx.getActiveThreshold()) {
+            output.toByteTree().unsafeWriteTo(lFile(svCtx.getNizkp(), l));
         }
         return output;
     }

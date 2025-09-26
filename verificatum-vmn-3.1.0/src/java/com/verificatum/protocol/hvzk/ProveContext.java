@@ -6,7 +6,7 @@ import com.verificatum.arithm.PRingElementArray;
 import com.verificatum.arithm.Permutation;
 import com.verificatum.ui.Log;
 
-public class ProveContext {
+public final class ProveContext {
     private final Log log;
     private final PGroupElement g;
     private final PGroupElementArray h;

@@ -160,62 +160,53 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
     @Override
     public boolean verify(final Log log,
                           final int l,
-                          final PGroupElement g,
-                          final PGroupElementArray h,
-                          final PGroupElementArray u,
-                          final PGroupElement pkey,
-                          final PGroupElementArray w,
-                          final PGroupElementArray wp,
-                          final PGroupElementArray raisedu,
-                          final PGroupElementArray raisedh,
-                          final PRingElement raisedExponent) {
+                          final VerifyContext ctx) {
 
-        log.info("Verify correctness of shuffle of " + ui.getDescrString(l)
-                 + ".");
+        log.info("Verify correctness of shuffle of " + ui.getDescrString(l) + ".");
         final Log tempLog = log.newChildLog();
 
         final CCPoSBasicW ccpbwV =
-            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
-        ccpbwV.setInstance(g, h, u, pkey, w, wp);
+                new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
+        ccpbwV.setInstance(ctx.getG(), ctx.getH(), ctx.getU(), ctx.getPkey(),
+                ctx.getW(), ctx.getWp());
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
         Log tempLog2 = tempLog.newChildLog();
 
         ByteTreeContainer challengeData =
-            new ByteTreeContainer(g.toByteTree(),
-                                  h.toByteTree(),
-                                  u.toByteTree(),
-                                  pkey.toByteTree(),
-                                  w.toByteTree(),
-                                  wp.toByteTree());
+                new ByteTreeContainer(ctx.getG().toByteTree(),
+                        ctx.getH().toByteTree(),
+                        ctx.getU().toByteTree(),
+                        ctx.getPkey().toByteTree(),
+                        ctx.getW().toByteTree(),
+                        ctx.getWp().toByteTree());
         final byte[] prgSeed = challenger.challenge(tempLog2,
-                                                    challengeData,
-                                                    8 * pPrg.minNoSeedBytes(),
-                                                    rbitlen);
+                challengeData,
+                8 * pPrg.minNoSeedBytes(),
+                rbitlen);
         ccpbwV.setBatchVector(prgSeed);
 
         tempLog.info("Batch.");
 
         // Compute A and B.
-        ccpbwV.computeAB(raisedu);
+        ccpbwV.computeAB(ctx.getRaisedu());
 
         // Read and set the commitment of the prover.
         tempLog.info("Read the commitment.");
-
         final ByteTreeReader commitmentReader =
-            bullBoard.waitFor(l, "Commitment", tempLog);
+                bullBoard.waitFor(l, "Commitment", tempLog);
         final ByteTreeBasic commitment = ccpbwV.setCommitment(commitmentReader);
         commitmentReader.close();
 
         Thread commitmentExportThread = null;
         if (fnizkp != null) {
             commitmentExportThread = new Thread() {
-                    @Override
-                    public void run() {
-                        commitment.unsafeWriteTo(ccPoSCFile(fnizkp, l));
-                    }
-                };
+                @Override
+                public void run() {
+                    commitment.unsafeWriteTo(ccPoSCFile(fnizkp, l));
+                }
+            };
             commitmentExportThread.start();
         }
 
@@ -223,11 +214,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         tempLog.info("Generate challenge.");
         tempLog2 = tempLog.newChildLog();
         challengeData =
-            new ByteTreeContainer(new ByteTree(prgSeed), commitment);
+                new ByteTreeContainer(new ByteTree(prgSeed), commitment);
         final byte[] challengeBytes =
-            challenger.challenge(tempLog2, challengeData, vbitlen(), rbitlen);
+                challenger.challenge(tempLog2, challengeData, vbitlen(), rbitlen);
         final LargeInteger integerChallenge =
-            LargeInteger.toPositive(challengeBytes);
+                LargeInteger.toPositive(challengeBytes);
 
         // Set the commitment and challenge.
         ccpbwV.setChallenge(integerChallenge);
@@ -235,10 +226,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         // Read and verify reply.
         tempLog.info("Read the reply.");
         final ByteTreeReader replyReader =
-            bullBoard.waitFor(l, "Reply", tempLog);
+                bullBoard.waitFor(l, "Reply", tempLog);
 
         tempLog.info("Perform verification.");
-        final boolean verdict = ccpbwV.verify(replyReader, raisedh, raisedExponent);
+        final boolean verdict = ccpbwV.verify(replyReader, ctx.getRaisedh(),
+                ctx.getRaisedExponent());
         replyReader.close();
 
         if (fnizkp != null) {
