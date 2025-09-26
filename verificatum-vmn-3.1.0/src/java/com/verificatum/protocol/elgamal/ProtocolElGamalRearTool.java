@@ -880,9 +880,6 @@ public final class ProtocolElGamalRearTool {
 
         LargeIntegerArray.useFileBased();
 
-        // We must treat the flags -e and -cerr in an ad hoc way to
-        // make sure that they work even when parsing the command line
-        // fails.
         final boolean cerrFlag = GenUtil.specialFlag("-cerr", args);
         final boolean eFlag = GenUtil.specialFlag("-e", args);
 
@@ -891,232 +888,57 @@ public final class ProtocolElGamalRearTool {
         final String commandName = args[0];
 
         try {
-
-            // Set up random source.
-            RandomSource randomSource = initializeRandomSource(args);
-
-            // Remove parameters for wrapper.
+            // Configuración inicial
+            final RandomSource randomSource = initializeRandomSource(args);
             final String[] newargs = Arrays.copyOfRange(args, 3, args.length);
-
             final Opt opt = parseCommandLine(commandName, newargs);
 
             OptUtil.processHelpAndVersion(opt);
-
             initTempFile(opt, randomSource);
 
             final int certainty = ProtocolDefaults.CERTAINTY;
-
             final String[] filenames = opt.getMultiParameters();
 
-
-            // Re-arrange public keys.
+            // 1. Reordenar claves públicas
             if (opt.getBooleanValue("-pkeys")) {
-
-                final int numberOfPkeys = getNumberOfPkeys(opt);
-                final List<List<ProtocolElGamalRearPosition>> format =
-                    getFormat(opt);
-
-                rearrangePkeys(filenames,
-                               numberOfPkeys,
-                               format,
-                               randomSource,
-                               certainty);
+                handlePkeys(opt, filenames, randomSource, certainty);
                 System.exit(0);
             }
 
-            // Extract flags that determine which type of
-            // functionality is used.
+            // Flags de operación
             final boolean ciphs = opt.getBooleanValue("-ciphs");
             final boolean plain = opt.getBooleanValue("-plain");
             sanityCheckCiphsOrPlain(ciphs, plain);
             sanityCheckNotBothCiphsAndPlain(ciphs, plain);
 
-
-            // Re-arrange ciphertexts or plaintexts.
+            // 2. Reordenamiento profundo
             if (opt.getBooleanValue("-deep")) {
-
-                // Width of ciphertexts or plaintexts. All inputs must
-                // have the same width.
-                final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
-
-                final int numberOfPkeys = getNumberOfPkeys(opt);
-                final List<List<ProtocolElGamalRearPosition>> format =
-                    getFormat(opt);
-
-                sanityCheckDeep(numberOfPkeys, filenames, format);
-
-                final int outputIndex = 2 * numberOfPkeys;
-                final String[] pkeyFilenames =
-                    PARSER.getFilenames(filenames, 0, numberOfPkeys);
-                final String[] inputFilenames =
-                    PARSER.getFilenames(filenames, numberOfPkeys, outputIndex);
-                final String[] outputFilenames =
-                    PARSER.getFilenames(filenames, outputIndex,
-                                        filenames.length);
-
-                // Read input public keys.
-                final List<PGroupElement> inputPkeysList =
-                    RAW.readPublicKeys(pkeyFilenames, randomSource, certainty);
-                PGroupElement[] inputPkeys =
-                    new PGroupElement[inputPkeysList.size()];
-                inputPkeys = inputPkeysList.toArray(inputPkeys);
-
-                final PGroup[] pkeyPGroups = PGroupUtil.getPGroups(inputPkeys);
-                final PGroup[] atomicPGroups =
-                    RAW.getAtomicPGroups(pkeyPGroups);
-                final PGroup primeOrderPGroup =
-                    pkeyPGroups[0].getPrimeOrderPGroup();
-
-                if (plain) {
-
-                    final PGroup[] plainPGroups =
-                        RAW.getPlainPGroups(atomicPGroups, width);
-
-                    final List<PGroupElementArray> inputArrays =
-                        RAW.readArrays(plainPGroups, inputFilenames);
-
-                    final List<PGroupElementArray> outputArrays =
-                        ProtocolElGamalRear
-                        .rearrangeArraysDeep(width,
-                                             primeOrderPGroup,
-                                             inputArrays,
-                                             format);
-
-                    RAW.writeElementArrays(outputArrays, outputFilenames);
-
-                } else if (ciphs) {
-                    System.exit(0);
-                } else {
-                    final String e =
-                        "Attempting to use neither ciphertexts nor plaintexts!";
-                    throw new ProtocolFormatException(e);
-                }
+                processDeep(opt, filenames, randomSource, certainty, plain, ciphs);
+                System.exit(0);
             }
 
-            // Read public key and derive underlying atomic group.
+            // 3. Lectura de clave pública y grupo
             final File pkeyFile = new File(opt.getStringValue("pkey"));
-            final PGroupElement pkey =
-                readPublicKey(pkeyFile, randomSource, certainty);
+            final PGroupElement pkey = readPublicKey(pkeyFile, randomSource, certainty);
             final PGroup pkeyPGroup = pkey.getPGroup();
             final PGroup atomicPGroup = ((PPGroup) pkeyPGroup).project(0);
 
-
-            // Re-arrange ciphertexts or plaintexts.
+            // 4. Reordenamiento superficial
             if (opt.getBooleanValue("-shallow")) {
-
-                final int[] widths = getWidths(opt, "-widths");
-                final int numberOfInputs = widths.length;
-
-                final List<List<ProtocolElGamalRearPosition>> format =
-                    getFormat(opt);
-                sanityCheckShallow(widths, filenames, format);
-
-                final String[] inputFilenames =
-                    PARSER.getFilenames(filenames, 0, numberOfInputs);
-                final String[] outputFilenames =
-                    PARSER.getFilenames(filenames, numberOfInputs,
-                                        filenames.length);
-
-                if (plain) {
-
-                    final PGroup[] plainPGroups =
-                        RAW.getPlainPGroups(atomicPGroup, widths);
-
-                    final List<PGroupElementArray> inputArrays =
-                        RAW.readArrays(plainPGroups, inputFilenames);
-
-                    final List<PGroupElementArray> outputArrays =
-                        ProtocolElGamalRear.rearrangeArrays(atomicPGroup,
-                                                            inputArrays,
-                                                            format);
-
-                    RAW.writeElementArrays(outputArrays, outputFilenames);
-
-                } else if (ciphs) {
-
-                    final PGroup[] ciphPGroups =
-                        RAW.getCiphPGroups(atomicPGroup, widths);
-
-                    final List<PGroupElementArray> inputArrays =
-                        RAW.readArrays(ciphPGroups, inputFilenames);
-
-                    final List<PGroupElementArray> outputArrays =
-                        ProtocolElGamalRear.rearrangeCiphs(atomicPGroup,
-                                                           inputArrays,
-                                                           format);
-
-                    RAW.writeElementArrays(outputArrays, outputFilenames);
-
-                } else {
-                    final String e =
-                        "Attempting to use neither ciphertexts nor plaintexts!";
-                    throw new ProtocolFormatException(e);
-                }
-
+                processShallow(opt, filenames, atomicPGroup, plain, ciphs);
                 System.exit(0);
             }
 
+            // 5. Concatenar o extraer subarreglos
+            processSubOrCat(opt, filenames, atomicPGroup, plain, ciphs);
 
-            // Concatenate arrays or extract subarrays.
-            final boolean sub = opt.getBooleanValue("-sub");
-            final boolean cat = opt.getBooleanValue("-cat");
-
-            if (sub || cat) {
-
-                // Width of ciphertexts or plaintexts.
-                final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
-
-                // Group to which elements in the array belongs.
-                PGroup inputPGroup = null;
-                if (plain) {
-
-                    inputPGroup =
-                        ProtocolElGamal.getPlainPGroup(atomicPGroup, width);
-
-                } else if (ciphs) {
-
-                    inputPGroup =
-                        ProtocolElGamal.getCiphPGroup(atomicPGroup, width);
-
-                } else {
-                    final String e =
-                        "Attempting to use both ciphertexts and plaintexts!";
-                    throw new ProtocolFormatException(e);
-                }
-
-                // Extract subarrays.
-                if (sub) {
-
-                    final String interString = opt.getStringValue("-inter");
-                    subArrays(inputPGroup, interString, filenames);
-                    System.exit(0);
-
-                    // Concatenate arrays.
-                } else if (cat) {
-
-                    catArrays(inputPGroup, filenames);
-                    System.exit(0);
-
-                } else {
-                    final String e =
-                        "Attempting to both concatenate and extract subarrays!";
-                    throw new ProtocolFormatException(e);
-                }
-
-                System.exit(0);
-            }
-
-        // PMD does not understand this.
         } catch (final ProtocolFormatException pfe) { // NOPMD
-
             GenUtil.processErrors(pfe, cerrFlag, eFlag);
 
         } catch (final ProtocolError pe) { // NOPMD
-
             GenUtil.processErrors(pe, cerrFlag, eFlag);
 
         } finally {
-
             TempFile.free();
         }
     }
@@ -1138,6 +960,129 @@ public final class ProtocolElGamalRearTool {
             TempFile.init(opt.getStringValue("-wd", ""), randomSource);
         } catch (EIOException eioe) {
             throw new ProtocolFormatException(eioe.getMessage(), eioe);
+        }
+    }
+
+    private static void handlePkeys(final Opt opt,
+                                    final String[] filenames,
+                                    final RandomSource randomSource,
+                                    final int certainty) throws ProtocolFormatException {
+        final int numberOfPkeys = getNumberOfPkeys(opt);
+        final List<List<ProtocolElGamalRearPosition>> format = getFormat(opt);
+
+        rearrangePkeys(filenames, numberOfPkeys, format, randomSource, certainty);
+    }
+
+    private static void processDeep(final Opt opt,
+                                    final String[] filenames,
+                                    final RandomSource randomSource,
+                                    final int certainty,
+                                    final boolean plain,
+                                    final boolean ciphs)
+            throws ProtocolFormatException {
+
+        final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
+        final int numberOfPkeys = getNumberOfPkeys(opt);
+        final List<List<ProtocolElGamalRearPosition>> format = getFormat(opt);
+
+        sanityCheckDeep(numberOfPkeys, filenames, format);
+
+        final int outputIndex = 2 * numberOfPkeys;
+        final String[] pkeyFilenames = PARSER.getFilenames(filenames, 0, numberOfPkeys);
+        final String[] inputFilenames = PARSER.getFilenames(filenames, numberOfPkeys, outputIndex);
+        final String[] outputFilenames = PARSER.getFilenames(filenames, outputIndex, filenames.length);
+
+        final List<PGroupElement> inputPkeysList =
+                RAW.readPublicKeys(pkeyFilenames, randomSource, certainty);
+        final PGroupElement[] inputPkeys = inputPkeysList.toArray(new PGroupElement[0]);
+
+        final PGroup[] pkeyPGroups = PGroupUtil.getPGroups(inputPkeys);
+        final PGroup[] atomicPGroups = RAW.getAtomicPGroups(pkeyPGroups);
+        final PGroup primeOrderPGroup = pkeyPGroups[0].getPrimeOrderPGroup();
+
+        if (plain) {
+            final PGroup[] plainPGroups = RAW.getPlainPGroups(atomicPGroups, width);
+            final List<PGroupElementArray> inputArrays = RAW.readArrays(plainPGroups, inputFilenames);
+            final List<PGroupElementArray> outputArrays =
+                    ProtocolElGamalRear.rearrangeArraysDeep(width, primeOrderPGroup, inputArrays, format);
+            RAW.writeElementArrays(outputArrays, outputFilenames);
+
+        } else if (ciphs) {
+            // todavía falta implementar si se requieren los ciphs
+            System.exit(0);
+
+        } else {
+            throw new ProtocolFormatException("Attempting to use neither ciphertexts nor plaintexts!");
+        }
+    }
+
+    private static void processShallow(final Opt opt,
+                                       final String[] filenames,
+                                       final PGroup atomicPGroup,
+                                       final boolean plain,
+                                       final boolean ciphs)
+            throws ProtocolFormatException {
+
+        final int[] widths = getWidths(opt, "-widths");
+        final int numberOfInputs = widths.length;
+
+        final List<List<ProtocolElGamalRearPosition>> format = getFormat(opt);
+        sanityCheckShallow(widths, filenames, format);
+
+        final String[] inputFilenames = PARSER.getFilenames(filenames, 0, numberOfInputs);
+        final String[] outputFilenames = PARSER.getFilenames(filenames, numberOfInputs, filenames.length);
+
+        if (plain) {
+            final PGroup[] plainPGroups = RAW.getPlainPGroups(atomicPGroup, widths);
+            final List<PGroupElementArray> inputArrays = RAW.readArrays(plainPGroups, inputFilenames);
+            final List<PGroupElementArray> outputArrays =
+                    ProtocolElGamalRear.rearrangeArrays(atomicPGroup, inputArrays, format);
+            RAW.writeElementArrays(outputArrays, outputFilenames);
+
+        } else if (ciphs) {
+            final PGroup[] ciphPGroups = RAW.getCiphPGroups(atomicPGroup, widths);
+            final List<PGroupElementArray> inputArrays = RAW.readArrays(ciphPGroups, inputFilenames);
+            final List<PGroupElementArray> outputArrays =
+                    ProtocolElGamalRear.rearrangeCiphs(atomicPGroup, inputArrays, format);
+            RAW.writeElementArrays(outputArrays, outputFilenames);
+
+        } else {
+            throw new ProtocolFormatException("Attempting to use neither ciphertexts nor plaintexts!");
+        }
+    }
+
+    private static void processSubOrCat(final Opt opt,
+                                        final String[] filenames,
+                                        final PGroup atomicPGroup,
+                                        final boolean plain,
+                                        final boolean ciphs)
+            throws ProtocolFormatException {
+
+        final boolean sub = opt.getBooleanValue("-sub");
+        final boolean cat = opt.getBooleanValue("-cat");
+
+        if (!(sub || cat)) {
+            return;
+        }
+
+        final int width = opt.getIntValue(WIDTH_PARAMETER, 1);
+
+        final PGroup inputPGroup;
+        if (plain) {
+            inputPGroup = ProtocolElGamal.getPlainPGroup(atomicPGroup, width);
+        } else if (ciphs) {
+            inputPGroup = ProtocolElGamal.getCiphPGroup(atomicPGroup, width);
+        } else {
+            throw new ProtocolFormatException("Attempting to use both ciphertexts and plaintexts!");
+        }
+
+        if (sub) {
+            final String interString = opt.getStringValue("-inter");
+            subArrays(inputPGroup, interString, filenames);
+        } else if (cat) {
+            catArrays(inputPGroup, filenames);
+        } else {
+            throw new ProtocolFormatException("Attempting to both concatenate and extract subarrays!");
         }
     }
 
