@@ -123,131 +123,19 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
         @Override
         public void run() {
             try {
-
                 startServers();
                 setup(ui.getLog());
 
-                plaintexts = new PGroupElementArray[4];
-                plaintextsOut = new PGroupElementArray[4];
+                initializeArrays();
 
                 final PRing pRing = pgPGroup.getPRing();
                 final PPGroup pkPGroup = new PPGroup(pgPGroup, 2);
 
-                PRingElement x = null;
-                if (j == 1) {
+                PRingElement x = handlePublicKeyExchange(pRing, pkPGroup);
 
-                    // Generate and publish public key.
-                    x = pRing.randomElement(randomSource, rbitlen);
-                    final PGroupElement y = pgPGroup.getg().exp(x);
-                    setPublicKey(pkPGroup.product(pgPGroup.getg(), y));
-
-                    ui.getLog().info("Publish demo public key.");
-                    bullBoard.publish("PublicKey",
-                                      publicKey.toByteTree(), ui.getLog());
-                } else {
-
-                    // Read public key.
-                    final ByteTreeReader publicKeyReader =
-                        bullBoard.waitFor(1, "PublicKey", ui.getLog());
-                    readAndSetPublicKey(pkPGroup, publicKeyReader);
-                }
-
-                // This executes tests with width 1 and 2 and
-                // with/without pre-computation.
+                // Ejecutar las pruebas con width = 1..4
                 for (int l = 0; l < 4; l++) {
-
-                    final int width = l + 1;
-
-                    final PGroup plainPGroup = getPlainPGroup(pgPGroup, width);
-                    final PRing plainPRing = plainPGroup.getPRing();
-
-                    final PPGroup ciphPGroup = getCiphPGroup(pgPGroup, width);
-
-                    PPGroupElement widePublicKey;
-
-                    getFile("nizkp");
-
-                    PGroupElementArray ciphertexts;
-                    ShufflerElGamalSession session;
-
-                    if (j == 1) {
-
-                        // Generate plaintexts.
-                        final PGroupElement[] plaintextArray =
-                            new PGroupElement[10];
-                        for (int i = 0; i < plaintextArray.length; i++) {
-                            plaintextArray[i] = plainPGroup.getg().exp(i);
-                        }
-                        plaintexts[l] =
-                            plainPGroup.toElementArray(plaintextArray);
-
-                        // Generate ciphertexts.
-                        final PRingElementArray r =
-                            plainPRing.randomElementArray(10,
-                                                          randomSource,
-                                                          rbitlen);
-
-                        widePublicKey =
-                            ProtocolElGamal.getWidePublicKey(publicKey, width);
-
-                        final PGroupElementArray u =
-                            widePublicKey.project(0).exp(r);
-                        final PGroupElementArray t =
-                            widePublicKey.project(1).exp(r);
-                        final PGroupElementArray v = t.mul(plaintexts[l]);
-                        t.free();
-
-                        ciphertexts = ciphPGroup.product(u, v);
-
-                        // Publish ciphertexts.
-                        ui.getLog().info("Publish demo ciphertexts.");
-                        bullBoard.publish("Ciphertexts" + l,
-                                          ciphertexts.toByteTree(),
-                                          ui.getLog());
-
-                        session = getSession("mysid" + l, fnizkp);
-
-                        PPGroupElementArray ciphertextsOut;
-                        if (l < 2) {
-                            ciphertextsOut =
-                                (PPGroupElementArray)
-                                session.shuffle(ui.getLog(),
-                                                width,
-                                                ciphertexts);
-                        } else {
-                            session.precomp(ui.getLog(), width, 15);
-                            ciphertextsOut =
-                                (PPGroupElementArray)
-                                session.committedShuffle(ui.getLog(),
-                                                         width,
-                                                         ciphertexts);
-                        }
-
-                        final PGroupElementArray decryptionFactors =
-                            ciphertextsOut.project(0).exp(x);
-
-                        plaintextsOut[l] =
-                            ciphertextsOut.project(1).mul(decryptionFactors);
-
-                    } else {
-
-                        // Read ciphertexts.
-                        final ByteTreeReader ciphertextsReader =
-                            bullBoard.waitFor(1, "Ciphertexts" + l,
-                                              ui.getLog());
-                        ciphertexts = readCiphertexts(ciphPGroup, ciphertextsReader);
-
-                        session = getSession("mysid" + l, fnizkp);
-
-                        if (l < 2) {
-                            session.shuffle(ui.getLog(), width, ciphertexts);
-                        } else {
-                            session.precomp(ui.getLog(), width, 15);
-                            session.committedShuffle(ui.getLog(),
-                                                     width,
-                                                     ciphertexts);
-                        }
-                    }
+                    processWidth(l, x, pRing);
                 }
 
                 shutdown(ui.getLog());
@@ -270,6 +158,107 @@ public class DemoShufflerElGamal extends DemoProtocolElGamalFactory {
                 return ciphPGroup.toElementArray(0, reader);
             } catch (final ArithmFormatException afe) {
                 throw new DemoError("Failed to read ciphertexts!", afe);
+            }
+        }
+
+        private void initializeArrays() {
+            plaintexts = new PGroupElementArray[4];
+            plaintextsOut = new PGroupElementArray[4];
+        }
+
+        private PRingElement handlePublicKeyExchange(final PRing pRing,
+                                                     final PPGroup pkPGroup) {
+            PRingElement x = null;
+            if (j == 1) {
+                // Genera y publica la clave pública
+                x = pRing.randomElement(randomSource, rbitlen);
+                final PGroupElement y = pgPGroup.getg().exp(x);
+                setPublicKey(pkPGroup.product(pgPGroup.getg(), y));
+
+                ui.getLog().info("Publish demo public key.");
+                bullBoard.publish("PublicKey", publicKey.toByteTree(), ui.getLog());
+            } else {
+                // Lee la clave pública publicada
+                final ByteTreeReader publicKeyReader =
+                        bullBoard.waitFor(1, "PublicKey", ui.getLog());
+                readAndSetPublicKey(pkPGroup, publicKeyReader);
+            }
+            return x;
+        }
+
+        private void processWidth(final int l, final PRingElement x, final PRing pRing) {
+            final int width = l + 1;
+            final PGroup plainPGroup = getPlainPGroup(pgPGroup, width);
+            final PRing plainPRing = plainPGroup.getPRing();
+            final PPGroup ciphPGroup = getCiphPGroup(pgPGroup, width);
+
+            if (j == 1) {
+                handleLeaderCase(l, width, plainPGroup, plainPRing, ciphPGroup, x);
+            } else {
+                handleFollowerCase(l, width, ciphPGroup);
+            }
+        }
+
+        private void handleLeaderCase(final int l,
+                                      final int width,
+                                      final PGroup plainPGroup,
+                                      final PRing plainPRing,
+                                      final PPGroup ciphPGroup,
+                                      final PRingElement x) {
+
+            // Generar plaintexts
+            final PGroupElement[] plaintextArray = new PGroupElement[10];
+            for (int i = 0; i < plaintextArray.length; i++) {
+                plaintextArray[i] = plainPGroup.getg().exp(i);
+            }
+            plaintexts[l] = plainPGroup.toElementArray(plaintextArray);
+
+            // Generar ciphertexts
+            final PRingElementArray r = plainPRing.randomElementArray(10, randomSource, rbitlen);
+            final PPGroupElement widePublicKey = ProtocolElGamal.getWidePublicKey(publicKey, width);
+
+            final PGroupElementArray u = widePublicKey.project(0).exp(r);
+            final PGroupElementArray t = widePublicKey.project(1).exp(r);
+            final PGroupElementArray v = t.mul(plaintexts[l]);
+            t.free();
+
+            final PGroupElementArray ciphertexts = ciphPGroup.product(u, v);
+
+            // Publicar ciphertexts
+            ui.getLog().info("Publish demo ciphertexts.");
+            bullBoard.publish("Ciphertexts" + l, ciphertexts.toByteTree(), ui.getLog());
+
+            // Mezclar
+            final ShufflerElGamalSession session = getSession("mysid" + l, fnizkp);
+            final PPGroupElementArray ciphertextsOut;
+            if (l < 2) {
+                ciphertextsOut = (PPGroupElementArray) session.shuffle(ui.getLog(), width, ciphertexts);
+            } else {
+                session.precomp(ui.getLog(), width, 15);
+                ciphertextsOut = (PPGroupElementArray)
+                        session.committedShuffle(ui.getLog(), width, ciphertexts);
+            }
+
+            // Descifrar
+            final PGroupElementArray decryptionFactors = ciphertextsOut.project(0).exp(x);
+            plaintextsOut[l] = ciphertextsOut.project(1).mul(decryptionFactors);
+        }
+
+        private void handleFollowerCase(final int l,
+                                        final int width,
+                                        final PPGroup ciphPGroup) {
+            // Leer ciphertexts
+            final ByteTreeReader ciphertextsReader =
+                    bullBoard.waitFor(1, "Ciphertexts" + l, ui.getLog());
+            final PGroupElementArray ciphertexts = readCiphertexts(ciphPGroup, ciphertextsReader);
+
+            // Ejecutar mezcla
+            final ShufflerElGamalSession session = getSession("mysid" + l, fnizkp);
+            if (l < 2) {
+                session.shuffle(ui.getLog(), width, ciphertexts);
+            } else {
+                session.precomp(ui.getLog(), width, 15);
+                session.committedShuffle(ui.getLog(), width, ciphertexts);
             }
         }
 
