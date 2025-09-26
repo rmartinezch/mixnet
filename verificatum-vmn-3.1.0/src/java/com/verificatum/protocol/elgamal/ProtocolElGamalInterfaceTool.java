@@ -343,11 +343,7 @@ public final class ProtocolElGamalInterfaceTool {
 
             OptUtil.processHelpAndVersion(opt);
 
-            /*try {
-                TempFile.init(opt.getStringValue("-wd", ""), randomSource);
-            } catch (EIOException eioe) {
-                throw new ProtocolFormatException(eioe.getMessage(), eioe);
-            }*/initTempFile(opt, randomSource);
+            initTempFile(opt, randomSource);
 
             // Configuration of protocol.
             final File protocolInfoFile =
@@ -368,14 +364,7 @@ public final class ProtocolElGamalInterfaceTool {
             // Extract group over which to execute the protocol.
             final String pGroupString =
                 protocolInfo.getStringValue(ProtocolElGamal.PGROUP);
-            PGroup pGroup = parseGroup(pGroupString, randomSource, certainty);//null;
-            /*try {
-                pGroup = Marshalizer.unmarshalHexAux_PGroup(pGroupString,
-                                                            randomSource,
-                                                            certainty);
-            } catch (final EIOException eioe) {
-                throw new ProtocolFormatException("Invalid group!", eioe);
-            }*/
+            PGroup pGroup = parseGroup(pGroupString, randomSource, certainty);
 
             // Initialize the handlers of the input format and the
             // output format.
@@ -398,12 +387,7 @@ public final class ProtocolElGamalInterfaceTool {
             // If input and output interfaces are identical, then we
             // simply copy the contents blindly in sloppy mode.
             if (ini == outi && opt.getBooleanValue("-sloppy")) {
-                /*try {
-                    ExtIO.copyFile(inf, outf);
-                } catch (IOException ioe) {
-                    final String e = "Unable to blindly copy input to output!";
-                    throw new ProtocolFormatException(e, ioe);
-                }*/copySloppy(inf, outf);
+                copySloppy(inf, outf);
                 return;
             }
 
@@ -447,21 +431,6 @@ public final class ProtocolElGamalInterfaceTool {
                 plainPGroup =
                     ProtocolElGamal.getPlainPGroup(plainPGroup, width);
                 processPlaintexts(plainPGroup, inf, outi, outf);
-                /*PGroupElementArray plaintexts = null;
-                try {
-
-                    final ByteTreeReader plainReader = new ByteTreeReaderF(inf);
-                    plaintexts = plainPGroup.toElementArray(0, plainReader);
-
-                    outi.decodePlaintexts(plaintexts, outf);
-
-                } catch (final ArithmFormatException afe) {
-                    throw new ProtocolFormatException(afe.getMessage(), afe);
-                } finally {
-                    if (plaintexts != null) {
-                        plaintexts.free();
-                    }
-                }*/
             }
 
         // PMD does not understand this.
