@@ -43,27 +43,9 @@ public interface CCPoS {
     /**
      * Execute prover.
      *
-     * @param log Logging context.
-     * @param g Standard generator.
-     * @param h Independent generators.
-     * @param u Permutation commitment.
-     * @param pkey Public key used to re-encrypt.
-     * @param w List of ciphertexts.
-     * @param wp List of ciphertexts.
-     * @param r Commitment exponents.
-     * @param pi Permutation.
-     * @param s Random exponents used to process ciphertexts.
+     * @param ctx Class ProveContext.
      */
-    void prove(Log log,
-               PGroupElement g,
-               PGroupElementArray h,
-               PGroupElementArray u,
-               PGroupElement pkey,
-               PGroupElementArray w,
-               PGroupElementArray wp,
-               PRingElementArray r,
-               Permutation pi,
-               PRingElementArray s);
+    void prove(ProveContext ctx);
 
     /**
      * Execute verifier.

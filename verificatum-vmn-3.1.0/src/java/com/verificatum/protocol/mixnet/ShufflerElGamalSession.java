@@ -47,11 +47,7 @@ import com.verificatum.protocol.com.BullBoard;
 import com.verificatum.protocol.distr.IndependentGenerators;
 import com.verificatum.protocol.distr.IndependentGeneratorsFactory;
 import com.verificatum.protocol.elgamal.ProtocolElGamal;
-import com.verificatum.protocol.hvzk.CCPoS;
-import com.verificatum.protocol.hvzk.CCPoSFactory;
-import com.verificatum.protocol.hvzk.PoS;
-import com.verificatum.protocol.hvzk.PoSCFactory;
-import com.verificatum.protocol.hvzk.PoSFactory;
+import com.verificatum.protocol.hvzk.*;
 import com.verificatum.ui.Log;
 
 
@@ -811,7 +807,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
         // Prove correctness of our output.
         final CCPoS ccPoS =
             ccposFactory.newPoS(Integer.toString(j), this, rosid, nizkp);
-        ccPoS.prove(log,
+        ProveContext ctx = new ProveContext(log,
                 generators.getPGroup().getg(),
                 generators,
                 permutationCommitments[j].getCommitment(),
@@ -821,6 +817,7 @@ public final class ShufflerElGamalSession extends ProtocolElGamal {
                 permutationCommitments[j].getExponents(),
                 permutation,
                 reencExponents);
+        ccPoS.prove(ctx);
 
         if (nizkp != null && l < activeThreshold) {
 

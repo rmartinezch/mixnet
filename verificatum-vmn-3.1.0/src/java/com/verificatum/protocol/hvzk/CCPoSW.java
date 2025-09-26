@@ -72,40 +72,40 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
     // Documented in PoS.java
 
     @Override
-    public void prove(final Log log,
-                      final PGroupElement g,
-                      final PGroupElementArray h,
-                      final PGroupElementArray u,
-                      final PGroupElement pkey,
-                      final PGroupElementArray w,
-                      final PGroupElementArray wp,
-                      final PRingElementArray r,
-                      final Permutation pi,
-                      final PRingElementArray s) {
+    public void prove(final ProveContext ctx) {
 
-        log.info("Prove correctness of shuffle.");
-        final Log tempLog = log.newChildLog();
+        ctx.getLog().info("Prove correctness of shuffle.");
+        final Log tempLog = ctx.getLog().newChildLog();
 
         final CCPoSBasicW ccpbwP =
-            new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
+                new CCPoSBasicW(vbitlen(), ebitlen(), rbitlen, pPrg);
 
-        ccpbwP.setInstance(g, h, u, pkey, w, wp, r, pi, s);
+        ccpbwP.setInstance(ctx.getG(),
+                ctx.getH(),
+                ctx.getU(),
+                ctx.getPkey(),
+                ctx.getW(),
+                ctx.getWp(),
+                ctx.getR(),
+                ctx.getPi(),
+                ctx.getS());
 
         // Generate a seed to the PRG for batching.
         tempLog.info("Generate batching vector.");
         Log tempLog2 = tempLog.newChildLog();
 
         ByteTreeContainer challengeData =
-            new ByteTreeContainer(g.toByteTree(),
-                                  h.toByteTree(),
-                                  u.toByteTree(),
-                                  pkey.toByteTree(),
-                                  w.toByteTree(),
-                                  wp.toByteTree());
+                new ByteTreeContainer(ctx.getG().toByteTree(),
+                        ctx.getH().toByteTree(),
+                        ctx.getU().toByteTree(),
+                        ctx.getPkey().toByteTree(),
+                        ctx.getW().toByteTree(),
+                        ctx.getWp().toByteTree());
+
         final byte[] prgSeed = challenger.challenge(tempLog2,
-                                                    challengeData,
-                                                    8 * pPrg.minNoSeedBytes(),
-                                                    rbitlen);
+                challengeData,
+                8 * pPrg.minNoSeedBytes(),
+                rbitlen);
 
         // Compute and publish commitment.
         tempLog.info("Compute commitment.");
@@ -114,11 +114,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         Thread commitmentExportThread = null;
         if (fnizkp != null) {
             commitmentExportThread = new Thread() {
-                    @Override
-                    public void run() {
-                        commitment.unsafeWriteTo(ccPoSCFile(fnizkp, j));
-                    }
-                };
+                @Override
+                public void run() {
+                    commitment.unsafeWriteTo(ccPoSCFile(fnizkp, j));
+                }
+            };
             commitmentExportThread.start();
         }
 
@@ -128,12 +128,11 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
         // Generate a challenge.
         tempLog.info("Generate challenge.");
         tempLog2 = tempLog.newChildLog();
-        challengeData =
-            new ByteTreeContainer(new ByteTree(prgSeed), commitment);
+        challengeData = new ByteTreeContainer(new ByteTree(prgSeed), commitment);
         final byte[] challengeBytes =
-            challenger.challenge(tempLog2, challengeData, vbitlen(), rbitlen);
+                challenger.challenge(tempLog2, challengeData, vbitlen(), rbitlen);
         final LargeInteger integerChallenge =
-            LargeInteger.toPositive(challengeBytes);
+                LargeInteger.toPositive(challengeBytes);
 
         // Compute and publish reply.
         tempLog.info("Compute reply.");
@@ -156,6 +155,7 @@ public final class CCPoSW extends ProtocolElGamal implements CCPoS {
             }
         }
     }
+
 
     @Override
     public boolean verify(final Log log,
