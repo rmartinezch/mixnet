@@ -1144,11 +1144,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             // The default working directory is probably safe, but in
             // any case it can be overridden from a wrapper of this
             // program.
-            try {
-                TempFile.init(opt.getStringValue("-wd", ""), randomSource);
-            } catch (EIOException eioe) {
-                throw new ProtocolFormatException(eioe.getMessage(), eioe);
-            }
+            initializeTempFile(opt, randomSource);
 
             // Arrays can be stored in memory or on file. The default
             // is on file.
@@ -1187,13 +1183,7 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             if (verbose) {
 
                 // Size of proof.
-                long nizkpSize;
-                try {
-                    nizkpSize = ExtIO.fileSize(nizkp);
-                } catch (IOException ioe) {
-                    final String e = "Unable to determine communicated bytes!";
-                    throw new ProtocolError(e, ioe);
-                }
+                long nizkpSize = safeFileSize(nizkp);
                 final String hNizkpSize = ExtIO.bytesToHuman(nizkpSize);
                 final String nizkpString =
                     String.format("Proof size is %s  (%d bytes).",
@@ -1228,4 +1218,23 @@ public final class MixNetElGamalVerifyFiatShamirTool {
             TempFile.free();
         }
     }
+
+    private static void initializeTempFile(final Opt opt,
+                                           final RandomSource randomSource) throws ProtocolFormatException{
+        try {
+            TempFile.init(opt.getStringValue("-wd", ""), randomSource);
+        } catch (final EIOException eioe) {
+            throw new ProtocolFormatException(eioe.getMessage(), eioe);
+        }
+    }
+
+    private static long safeFileSize(final File file) {
+        try {
+            return ExtIO.fileSize(file);
+        } catch (final IOException ioe) {
+            final String e = "Unable to determine communicated bytes!";
+            throw new ProtocolError(e, ioe);
+        }
+    }
+
 }

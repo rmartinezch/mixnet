@@ -301,11 +301,7 @@ public final class ProtocolElGamalDemo {
 
         try {
 
-            /*try {
-                opt.parse(remainingArgs);
-            } catch (final OptException oe) {
-                throw new ProtocolException(oe.getMessage(), oe);
-            }*/parseOptions(opt, remainingArgs);
+            parseOptions(opt, remainingArgs);
 
             OptUtil.processHelpAndVersion(opt);
 
@@ -368,11 +364,7 @@ public final class ProtocolElGamalDemo {
                     new File(opt.getStringValue("ciphertexts"));
 
                 // Initialize demo working directory.
-                /*try {
-                    TempFile.init(opt.getStringValue("-wd", ""), randomSource);
-                } catch (EIOException eioe) {
-                    throw new ProtocolFormatException(eioe.getMessage(), eioe);
-                }*/initializeTempFile(opt, randomSource);
+                initializeTempFile(opt, randomSource);
 
                 // Generate demo ciphertexts and write them to file.
                 protInterfaceDemo.demoCiphertexts(widePublicKey,
