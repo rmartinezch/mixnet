@@ -41,11 +41,11 @@ import com.verificatum.eio.TempFile;
 import com.verificatum.protocol.ProtocolError;
 import com.verificatum.protocol.ProtocolException;
 import com.verificatum.protocol.ProtocolFormatException;
+import com.verificatum.ui.UI;
 import com.verificatum.ui.gen.GenUtil;
 import com.verificatum.ui.opt.Opt;
 import com.verificatum.ui.opt.OptException;
 import com.verificatum.ui.opt.OptUtil;
-
 
 /**
  * Generates a file containing encoded El Gamal ciphertexts of
@@ -56,6 +56,7 @@ import com.verificatum.ui.opt.OptUtil;
  */
 public final class ProtocolElGamalDemo {
     private static final String VALUE_PARAMETER = "value";
+    static UI ui;
     /**
      * Avoid accidental instantiation.
      */
@@ -287,7 +288,7 @@ public final class ProtocolElGamalDemo {
         LargeIntegerArray.useFileBased();
 
         if (args.length == 0) {
-            System.err.println("Missing command name!");
+            ui.getLog().info("System.err: Missing command name!");
         }
         final Opt opt = opt(args[0]);
 

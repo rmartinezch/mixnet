@@ -50,6 +50,8 @@ import com.verificatum.ui.opt.Opt;
 import com.verificatum.ui.opt.OptException;
 import com.verificatum.ui.opt.OptUtil;
 
+import static com.verificatum.protocol.elgamal.ProtocolElGamalDemo.ui;
+
 /**
  * Command-line tool used to choose subsets of the group elements of
  * public keys, lists of ciphertxts, and lists of plaintexts.
@@ -401,8 +403,7 @@ public final class ProtocolElGamalRearTool {
     public static void sanityCheckHiddenParams(final String[] args) {
         // Parse hidden parameters to wrapper.
         if (args.length < 3) {
-            System.err.println("Missing command name or random source "
-                               + "parameters!");
+            ui.getLog().info("System.err: Missing command name or random source parameters!");
             System.exit(1);
         }
     }

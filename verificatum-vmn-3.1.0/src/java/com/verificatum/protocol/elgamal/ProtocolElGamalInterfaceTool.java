@@ -56,6 +56,8 @@ import com.verificatum.ui.opt.Opt;
 import com.verificatum.ui.opt.OptException;
 import com.verificatum.ui.opt.OptUtil;
 
+import static com.verificatum.protocol.elgamal.ProtocolElGamalDemo.ui;
+
 
 /**
  * Interface of an El Gamal mix-net. This defines the format of: the
@@ -300,8 +302,7 @@ public final class ProtocolElGamalInterfaceTool {
      */
     public static void sanityCheck(final String[] args) {
         if (args.length < 4) {
-            System.err.println("Missing command name, interface factory, "
-                               + "or random source parameters!");
+            ui.getLog().info("System.err: Missing command name, interface factory, or random source parameters!");
             System.exit(1);
         }
     }
