@@ -788,11 +788,14 @@ public final class MixNetElGamalTool {
         }
     }
 
+    /**
+     * Replace the System.out used inside the setupLogFile function, line 783
+     */
     private static class LoggerLogStream extends PrintStream {
         private final Logger logger;
 
         public LoggerLogStream(Logger logger) {
-            super(System.out); // o un ByteArrayOutputStream si no quieres consola
+            super(System.out);
             this.logger = logger;
         }
 

@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.verificatum.arithm.PGroup;
 import com.verificatum.crypto.Hashfunction;
@@ -49,7 +50,6 @@ import com.verificatum.protocol.elgamal.ProtocolElGamal;
 import com.verificatum.ui.info.ProtocolInfo;
 import com.verificatum.ui.info.RootInfo;
 import com.verificatum.vcr.VCR;
-
 
 /**
  * Standalone verifier of a so-called "universally verifiable"
@@ -163,7 +163,7 @@ public final class MixNetElGamalVerifyFiatShamir {
      * Default width of processed ciphertexts.
      */
     int defaultWidth;
-
+    private static final Logger LOGGER = Logger.getLogger(MixNetElGamalVerifyFiatShamir.class.getName());
     /**
      * Initializes the hash function defined in the protocol info.
      *
@@ -334,7 +334,7 @@ public final class MixNetElGamalVerifyFiatShamir {
      * @param l Index of party.
      */
     public void printTestShuffleBegin(final int l) {
-        System.out.println("\n###################### BEGIN PARTY "
+        LOGGER.info("\n###################### BEGIN PARTY "
                            + l + " ######################");
     }
 
@@ -359,7 +359,7 @@ public final class MixNetElGamalVerifyFiatShamir {
      * @param l Index of party.
      */
     public void printTestShuffleEnd(final int l) {
-        System.out.println("\n####################### END PARTY "
+        LOGGER.info("\n####################### END PARTY "
                            + l + " #######################");
     }
 
@@ -386,7 +386,7 @@ public final class MixNetElGamalVerifyFiatShamir {
                                 final String testVectorString) {
         final String s = MixNetElGamalVerifyFiatShamirTool.
             testVectorHeader(0, testVectorName, index);
-        System.out.println("\nTEST VECTOR\n" + s + "\n" + testVectorString);
+        LOGGER.info("\nTEST VECTOR\n" + s + "\n" + testVectorString);
     }
 
     /**
