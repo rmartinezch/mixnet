@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import com.verificatum.arithm.PGroup;
 import com.verificatum.arithm.PGroupElement;
@@ -53,9 +54,7 @@ import com.verificatum.ui.opt.OptException;
 import com.verificatum.ui.opt.OptUtil;
 import com.verificatum.ui.tui.TConsole;
 import com.verificatum.ui.tui.TextualUI;
-import com.verificatum.util.PID;
 import com.verificatum.util.SimpleTimer;
-import com.verificatum.util.UtilException;
 
 /**
  * Implements the command line interface to the mix-net.
@@ -110,7 +109,7 @@ public final class MixNetElGamalTool {
             throw new ProtocolError("Unable to get raw interface!", pfe);
         }
     }
-
+    private static final Logger LOGGER = Logger.getLogger(MixNetElGamalTool.class.getName());
     /**
      * Executes the prelude of most operations on the mix-net.
      *
@@ -681,7 +680,7 @@ public final class MixNetElGamalTool {
         // Print representation of currently active mix-servers.
         if (opt.getBooleanValue("-lact")) {
 
-            System.out.println(mixnet.getActiveString());
+            LOGGER.info(mixnet.getActiveString());
             return true;
         }
 
@@ -781,11 +780,25 @@ public final class MixNetElGamalTool {
             ui.getLog().addLogStream(ps);
 
             if (!opt.getBooleanValue("-s")) {
-                ui.getLog().addLogStream(System.out);
+                ui.getLog().addLogStream(new LoggerLogStream(LOGGER));
             }
 
         } catch (final FileNotFoundException fnfe) {
             throw new ProtocolFormatException("Can not create log file!", fnfe);
+        }
+    }
+
+    private static class LoggerLogStream extends PrintStream {
+        private final Logger logger;
+
+        public LoggerLogStream(Logger logger) {
+            super(System.out); // o un ByteArrayOutputStream si no quieres consola
+            this.logger = logger;
+        }
+
+        @Override
+        public void println(String x) {
+            logger.info(x);
         }
     }
 
@@ -1022,7 +1035,7 @@ public final class MixNetElGamalTool {
     public static void main(final String[] args) {
 
         if (args.length == 0) {
-            System.err.println("Missing parent PID!");
+            LOGGER.severe("Missing parent PID!");
             System.exit(1);
         }
         final String[] newargs = Arrays.copyOfRange(args, 1, args.length);
