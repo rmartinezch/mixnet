@@ -465,7 +465,7 @@ public final class MixNetElGamalVerifyFiatShamirSession {
      */
     int determineActiveThreshold(final int threshold) {
 
-        v.print("Determine active threshold of ciphertexts... ");
+        v.print("Determine active threshold of ciphertexts... of " + threshold + " required");
 
         // Read width of ciphertexts from proof.
         int activeThreshold = 0;
