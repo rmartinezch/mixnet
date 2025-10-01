@@ -25,6 +25,7 @@
  */
 
 import java.lang.reflect.*;
+import java.util.logging.Logger;
 
 /**
  * Implements a class that tries to load a Java class of a given
