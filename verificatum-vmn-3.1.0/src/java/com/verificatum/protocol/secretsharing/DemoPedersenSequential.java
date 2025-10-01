@@ -101,12 +101,12 @@ public final class DemoPedersenSequential extends DemoProtocolElGamalFactory {
          * executed, including information about other
          * parties.
          * @param ui User interface.
-         * @throws Exception If the info instances are malformed.
+         * @throws DemoException If the info instances are malformed.
          */
         ExecPedersenSequential(final PrivateInfo privateInfo,
                                final ProtocolInfo protocolInfo,
                                final UI ui)
-            throws Exception {
+            throws DemoException {
             super(privateInfo, protocolInfo, ui);
         }
 
