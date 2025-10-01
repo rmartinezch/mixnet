@@ -25,6 +25,7 @@
  */
 
 import java.lang.reflect.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -44,13 +45,11 @@ public class TestLoadJar {
 	try {
 	    klass = Class.forName(className);
 	} catch (ClassNotFoundException cnfe) {
-	    LOGGER.info("Cannot locate the class " + className + "!");
+	    LOGGER.log(Level.INFO, "Cannot locate the class {0}!", new Object[]{className});
 	} catch (SecurityException se) {
-	    LOGGER.info("Not allowed to load the native library needed "
-                               + "by " + className + " to run in native mode!");
+	    LOGGER.log(Level.INFO, "Not allowed to load the native library needed by {0} to run in native mode!", new Object[]{className});
 	} catch (UnsatisfiedLinkError ule) {
-        LOGGER.info("Missing native library needed by "
-                               + className + "!");
+        LOGGER.log(Level.INFO, "Missing native library needed by {0}!", new Object[]{className});
 	} catch (IllegalArgumentException iare) {
         LOGGER.info("This is a bug in the building system!");
 	}
@@ -60,8 +59,7 @@ public class TestLoadJar {
             final String av = klass.getPackage().getSpecificationVersion();
 
             if (!av.equals(ev)) {
-                LOGGER.info("Wrong version number ("
-                                   + av + "), requires " + ev + "!");
+                LOGGER.log(Level.INFO, "Wrong version number ({0}), requires {1}!", new Object[]{av, ev});
             }
         }
     }
