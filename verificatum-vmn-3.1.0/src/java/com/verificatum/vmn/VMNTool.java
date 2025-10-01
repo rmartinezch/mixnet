@@ -28,6 +28,7 @@ package com.verificatum.vmn;
 
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.verificatum.ui.Util;
@@ -156,14 +157,16 @@ public final class VMNTool {
             formatParagraph(sb, "vmnd",
 "Generates demo ciphertexts for the given interface.");
 
-            LOGGER.info(sb.toString());
+            if (LOGGER.isLoggable(Level.INFO)) {
+                LOGGER.info(sb.toString());
+            }
             System.exit(0);
         }
 
         if (args.length == 1 || COMMANDS.indexOf(args[1]) == -1) {
-            LOGGER.info("ERROR: Invalid usage form, please use "
-                               + "\"" + commandName
-                               + " -h\" for usage information!");
+            LOGGER.log(Level.INFO,
+                    "ERROR: Invalid usage form, please use \"{0} -h\" for usage information!",
+                    commandName);
             System.exit(1);
         } else {
 

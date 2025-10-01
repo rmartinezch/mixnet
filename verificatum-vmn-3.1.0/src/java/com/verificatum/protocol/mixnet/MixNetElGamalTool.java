@@ -26,10 +26,7 @@
 
 package com.verificatum.protocol.mixnet;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
@@ -780,28 +777,11 @@ public final class MixNetElGamalTool {
             ui.getLog().addLogStream(ps);
 
             if (!opt.getBooleanValue("-s")) {
-                ui.getLog().addLogStream(new LoggerLogStream(LOGGER));
+                ui.getLog().addLogStream(System.out);
             }
 
         } catch (final FileNotFoundException fnfe) {
             throw new ProtocolFormatException("Can not create log file!", fnfe);
-        }
-    }
-
-    /**
-     * Replace the System.out used inside the setupLogFile function, line 783
-     */
-    private static class LoggerLogStream extends PrintStream {
-        private final Logger logger;
-
-        public LoggerLogStream(Logger logger) {
-            super(System.out);
-            this.logger = logger;
-        }
-
-        @Override
-        public void println(String x) {
-            logger.info(x);
         }
     }
 

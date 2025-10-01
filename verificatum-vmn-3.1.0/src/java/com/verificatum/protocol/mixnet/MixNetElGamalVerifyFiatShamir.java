@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.verificatum.arithm.PGroup;
@@ -334,8 +335,7 @@ public final class MixNetElGamalVerifyFiatShamir {
      * @param l Index of party.
      */
     public void printTestShuffleBegin(final int l) {
-        LOGGER.info("\n###################### BEGIN PARTY "
-                           + l + " ######################");
+        LOGGER.log(Level.INFO, "\n####################### BEGIN PARTY {0} #######################", l);
     }
 
     /**
@@ -359,8 +359,7 @@ public final class MixNetElGamalVerifyFiatShamir {
      * @param l Index of party.
      */
     public void printTestShuffleEnd(final int l) {
-        LOGGER.info("\n####################### END PARTY "
-                           + l + " #######################");
+        LOGGER.log(Level.INFO, "\n####################### END PARTY {0} #######################", l);
     }
 
     /**
@@ -386,7 +385,7 @@ public final class MixNetElGamalVerifyFiatShamir {
                                 final String testVectorString) {
         final String s = MixNetElGamalVerifyFiatShamirTool.
             testVectorHeader(0, testVectorName, index);
-        LOGGER.info("\nTEST VECTOR\n" + s + "\n" + testVectorString);
+        LOGGER.log(Level.INFO, "\nTEST VECTOR\n{0}\n{1}", new Object[]{s, testVectorString});
     }
 
     /**
