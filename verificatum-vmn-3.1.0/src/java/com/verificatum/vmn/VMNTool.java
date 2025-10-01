@@ -28,6 +28,7 @@ package com.verificatum.vmn;
 
 import java.util.Formatter;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import com.verificatum.ui.Util;
 import com.verificatum.ui.opt.Opt;
@@ -48,7 +49,7 @@ import com.verificatum.vcr.VCR;
  * @author Douglas Wikstrom
  */
 public final class VMNTool {
-
+    private static final Logger LOGGER = Logger.getLogger(VMNTool.class.getName());
     /**
      * Avoid accidental instantiation.
      */
@@ -99,13 +100,13 @@ public final class VMNTool {
     public static void main(final String[] args) {
 
         if (args.length < 1) {
-            System.err.println("Failed to pass wrapper parameters!");
+            LOGGER.severe("Failed to pass wrapper parameters!");
             System.exit(1);
         }
         final String commandName = args[0];
 
         if (args.length == 2 && "-version".equals(args[1])) {
-            System.out.println(VCR.version());
+            LOGGER.info(VCR.version());
             System.exit(0);
         }
 
@@ -155,12 +156,12 @@ public final class VMNTool {
             formatParagraph(sb, "vmnd",
 "Generates demo ciphertexts for the given interface.");
 
-            System.out.println(sb.toString());
+            LOGGER.info(sb.toString());
             System.exit(0);
         }
 
         if (args.length == 1 || COMMANDS.indexOf(args[1]) == -1) {
-            System.out.println("ERROR: Invalid usage form, please use "
+            LOGGER.info("ERROR: Invalid usage form, please use "
                                + "\"" + commandName
                                + " -h\" for usage information!");
             System.exit(1);

@@ -33,7 +33,7 @@ import java.lang.reflect.*;
  * @author Douglas Wikstrom
  */
 public class TestLoadJar {
-
+    private static final Logger LOGGER = Logger.getLogger(TestLoadJar.class.getName());
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
 
@@ -43,15 +43,15 @@ public class TestLoadJar {
 	try {
 	    klass = Class.forName(className);
 	} catch (ClassNotFoundException cnfe) {
-	    System.out.println("Cannot locate the class " + className + "!");
+	    LOGGER.info("Cannot locate the class " + className + "!");
 	} catch (SecurityException se) {
-	    System.out.println("Not allowed to load the native library needed "
+	    LOGGER.info("Not allowed to load the native library needed "
                                + "by " + className + " to run in native mode!");
 	} catch (UnsatisfiedLinkError ule) {
-	    System.out.println("Missing native library needed by "
+        LOGGER.info("Missing native library needed by "
                                + className + "!");
 	} catch (IllegalArgumentException iare) {
-	    System.out.println("This is a bug in the building system!");
+        LOGGER.info("This is a bug in the building system!");
 	}
 
         if (klass != null) {
@@ -59,7 +59,7 @@ public class TestLoadJar {
             final String av = klass.getPackage().getSpecificationVersion();
 
             if (!av.equals(ev)) {
-                System.out.println("Wrong version number ("
+                LOGGER.info("Wrong version number ("
                                    + av + "), requires " + ev + "!");
             }
         }
